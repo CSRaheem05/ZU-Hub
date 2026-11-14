@@ -1,0 +1,255 @@
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, Cairo, system-ui, Arial, sans-serif;
+    color: #103965;
+    background: radial-gradient(circle at 85% 0%, #e0f0ff, transparent 45%), linear-gradient(125deg, #fcfeff, #eaf5ff)
+}
+
+a {
+    text-decoration: none;
+    color: inherit
+}
+
+button {
+    font: inherit
+}
+
+.page-header {
+    background: #ffffffd9;
+    border-bottom: 1px solid #d6e7f6;
+    backdrop-filter: blur(18px)
+}
+
+.header-content {
+    max-width: 1120px;
+    margin: auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap
+}
+
+.brand {
+    font-size: 22px;
+    color: #085495;
+    font-weight: 800
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap
+}
+
+.identity {
+    font-size: 12px;
+    color: #557b9d
+}
+
+.identity strong {
+    color: #093e71
+}
+
+.logout {
+    border: 0;
+    background: #eaf4ff;
+    color: #09549a;
+    padding: 11px 16px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-weight: 700
+}
+
+.language {
+    border: 1px solid #d6e7f6;
+    background: white;
+    color: #0b579a;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer
+}
+
+.container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 66px 24px 90px
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: .15em;
+    font-size: 11px;
+    color: #267cc1;
+    font-weight: 800
+}
+
+.heading h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    letter-spacing: -.05em;
+    margin: 12px 0
+}
+
+.heading p {
+    color: #6584a2;
+    max-width: 620px;
+    line-height: 1.7
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 20px;
+    margin-top: 35px
+}
+
+.course-card,
+.empty,
+.student-table-wrap {
+    background: #ffffffdd;
+    border: 1px solid #d5e6f5;
+    border-radius: 24px;
+    box-shadow: 0 18px 50px #0f558417
+}
+
+.course-card {
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px
+}
+
+.course-card h2 {
+    font-size: 22px;
+    letter-spacing: -.03em;
+    margin: 0
+}
+
+.course-card p {
+    margin: 0;
+    color: #6683a0;
+    line-height: 1.6;
+    font-size: 14px
+}
+
+.chip {
+    align-self: flex-start;
+    background: #eaf5ff;
+    color: #1467a5;
+    font-size: 12px;
+    border-radius: 30px;
+    padding: 7px 12px;
+    font-weight: 700
+}
+
+.chip.inactive {
+    background: #f1f2f5;
+    color: #687485
+}
+
+.course-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 12px
+}
+
+.small {
+    color: #577f9e;
+    font-size: 13px
+}
+
+.action {
+    display: inline-block;
+    background: #116ec2;
+    color: white;
+    border-radius: 30px;
+    padding: 11px 17px;
+    font-weight: 750;
+    font-size: 13px
+}
+
+.empty {
+    margin-top: 32px;
+    padding: 40px 30px;
+    text-align: center
+}
+
+.empty h2 {
+    margin-top: 0
+}
+
+.empty p {
+    color: #6787a1;
+    line-height: 1.8
+}
+
+.student-table-wrap {
+    overflow-x: auto;
+    margin-top: 30px
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: start
+}
+
+th,
+td {
+    padding: 17px 20px;
+    border-bottom: 1px solid #e4edf6;
+    text-align: start
+}
+
+tr:last-child td {
+    border-bottom: 0
+}
+
+th {
+    color: #60809c;
+    font-size: 12px
+}
+
+td {
+    font-size: 14px
+}
+
+.back {
+    display: inline-block;
+    margin-top: 25px;
+    color: #126db4;
+    font-weight: 700
+}
+
+html[dir=rtl] body {
+    font-family: Cairo, Arial, sans-serif
+}
+
+html[dir=rtl] .heading h1 {
+    letter-spacing: normal
+}
+
+@media(max-width:640px) {
+    .container {
+        padding: 40px 18px 60px
+    }
+
+    .header-content {
+        padding: 14px 18px
+    }
+
+    .course-card {
+        padding: 21px
+    }
+}
