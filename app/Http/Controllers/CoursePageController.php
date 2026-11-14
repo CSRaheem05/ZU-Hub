@@ -44,8 +44,16 @@ class CoursePageController extends Controller
         $courses = DB::table('Course_Offerings as o')
             ->join('Courses as c', 'c.course_id', '=', 'o.course_id')
             ->where('o.instructor_id', $request->user()->user_id)
-            ->select('o.offering_id', 'o.title', 'o.description', 'o.is_active',
-                     'o.students_count', 'c.course_name')
+            ->select(
+    'o.offering_id',
+    'o.title',
+    'o.description',
+    'o.is_active',
+    'o.students_count',
+    'o.duration_hours',
+    'o.lecture_schedule',
+    'c.course_name'
+)
             ->orderByDesc('o.created_at')
             ->get();
 

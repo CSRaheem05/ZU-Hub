@@ -1,0 +1,407 @@
+
+/* ========================================
+   ZU HUB - CREATE / EDIT COURSE
+   ======================================== */
+
+.zc-container {
+    width: min(100% - 40px, 1000px);
+    margin: 40px auto 80px;
+}
+
+.zc-heading {
+    margin-bottom: 30px;
+}
+
+.zc-eyebrow {
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.zc-heading h1 {
+    margin: 10px 0;
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 800;
+}
+
+.zc-heading > p:last-child {
+    color: #64748b;
+    line-height: 1.7;
+}
+
+/* ========================================
+   SECTION CARDS
+   ======================================== */
+
+.zc-card {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05);
+}
+
+.zc-card h2 {
+    font-size: 20px;
+    font-weight: 750;
+    margin: 0 0 8px;
+    color: #0f172a;
+}
+
+.zc-card > p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0 0 26px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* ========================================
+   FORM FIELDS
+   ======================================== */
+
+.zc-field {
+    margin-bottom: 23px;
+    min-width: 0;
+}
+
+.zc-field:last-child {
+    margin-bottom: 0;
+}
+
+.zc-field > label {
+    display: block;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+.zc-field > input,
+.zc-field > textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.zc-field > textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.zc-field > input:focus,
+.zc-field > textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+}
+
+.zc-field input::placeholder,
+.zc-field textarea::placeholder {
+    color: #94a3b8;
+}
+
+/* ========================================
+   SEARCHABLE DROPDOWNS
+   ======================================== */
+
+.zc-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.zc-dropdown-toggle {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    padding: 12px 15px;
+    background: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .2s;
+}
+
+.zc-dropdown-toggle:hover:not(:disabled) {
+    border-color: #2563eb;
+}
+
+.zc-dropdown-toggle:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, .2);
+    outline-offset: 2px;
+}
+
+.zc-dropdown-toggle:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.zc-dropdown-toggle span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.zc-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 100;
+
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, .16);
+}
+
+.zc-dropdown-panel[hidden] {
+    display: none !important;
+}
+
+.zc-dropdown-panel > input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    margin-bottom: 9px;
+
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.zc-dropdown-panel > input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+.zc-options {
+    max-height: 240px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.zc-options button {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: #334155;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.zc-options button:hover,
+.zc-options button:focus-visible {
+    background: #eff6ff;
+    color: #1d4ed8;
+    outline: none;
+}
+
+.zc-options button.selected {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+/* ========================================
+   HOURS & MINUTES
+   ======================================== */
+
+.zc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.zc-preview {
+    padding: 15px 18px;
+    margin-top: 12px;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ========================================
+   LECTURE DAYS
+   ======================================== */
+
+.zc-days {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.zc-day {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 12px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #334155;
+
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+}
+
+.zc-day:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+}
+
+.zc-day:has(input:checked) {
+    background: #dbeafe;
+    border-color: #2563eb;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.zc-day input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #2563eb;
+}
+
+/* ========================================
+   BUTTONS & VALIDATION
+   ======================================== */
+
+.zc-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.zc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 46px;
+    padding: 12px 24px;
+    box-sizing: border-box;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.zc-primary {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.zc-primary:hover {
+    background: #1d4ed8;
+}
+
+.zc-secondary {
+    background: #ffffff;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+.zc-secondary:hover {
+    background: #f1f5f9;
+}
+
+.zc-errors {
+    padding: 20px;
+    margin-bottom: 24px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    color: #991b1b;
+}
+
+.zc-errors ul {
+    padding-left: 22px;
+    margin-bottom: 0;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 700px) {
+    .zc-container {
+        width: calc(100% - 28px);
+        margin: 24px auto 50px;
+    }
+
+    .zc-card {
+        padding: 20px;
+        border-radius: 14px;
+    }
+
+    .zc-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .zc-days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .zc-actions {
+        flex-direction: column-reverse;
+    }
+
+    .zc-actions .zc-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 380px) {
+    .zc-days {
+        grid-template-columns: 1fr;
+    }
+}

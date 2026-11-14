@@ -1,0 +1,367 @@
+
+/* ZU HUB - INSTRUCTOR DASHBOARD */
+
+.dash-page {
+    padding-top: 30px;
+    padding-bottom: 70px;
+}
+
+.dash-hero {
+    background: linear-gradient(125deg, #101d35, #183b70, #205ca8);
+    border-radius: 20px;
+    color: #fff;
+    padding: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 24px;
+}
+
+.dash-eyebrow {
+    color: #9bc5ff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+}
+
+.dash-hero h1 {
+    color: #fff;
+    font-size: 34px;
+    margin: 12px 0;
+}
+
+.dash-hero p {
+    color: #d7e5f9;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.dash-create {
+    background: #fff;
+    color: #173b70;
+    padding: 14px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 32px;
+}
+
+.dash-stat {
+    padding: 23px;
+    border-radius: 15px;
+    color: white;
+    min-height: 125px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dash-stat span {
+    font-size: 13px;
+    opacity: .9;
+}
+
+.dash-stat strong {
+    font-size: 35px;
+    line-height: 1;
+}
+
+.dash-stat-total {
+    background: #142641;
+}
+
+.dash-stat-active {
+    background: #1657a0;
+}
+
+.dash-stat-inactive {
+    background: #344662;
+}
+
+.dash-stat-students {
+    background: #176789;
+}
+
+.dash-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.dash-toolbar-heading h2 {
+    color: #162743;
+    margin: 0 0 5px;
+}
+
+.dash-toolbar-heading span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.dash-filters {
+    display: flex;
+    gap: 10px;
+}
+
+.dash-filters input,
+.dash-filters select {
+    background: white;
+    color: #173052;
+    border: 1px solid #bccbe0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font: inherit;
+}
+
+.dash-filters input {
+    min-width: 230px;
+}
+
+.dash-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.dash-course {
+    background: #fff;
+    border: 1px solid #d7e1ed;
+    border-top: 5px solid #174c8b;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 6px 22px rgba(15, 34, 64, .06);
+    min-width: 0;
+}
+
+.dash-course-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.dash-subject {
+    background: #e6eef9;
+    color: #174c8b;
+    padding: 7px 11px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.dash-status {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.dash-status.is-active {
+    color: #137c59;
+}
+
+.dash-status.is-inactive {
+    color: #b45309;
+}
+
+.dash-course h2 {
+    color: #142a4b;
+    font-size: 21px;
+    margin: 18px 0 10px;
+}
+
+.dash-description {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 48px;
+    overflow-wrap: anywhere;
+}
+
+.dash-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 19px 0;
+}
+
+.dash-details > div {
+    background: #f0f5fb;
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dash-details span {
+    font-size: 12px;
+    color: #66758c;
+}
+
+.dash-details strong {
+    color: #143964;
+    font-size: 17px;
+}
+
+.dash-schedule {
+    background: #f7f9fd;
+    border-left: 3px solid #3384db;
+    padding: 13px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.dash-schedule strong {
+    font-size: 13px;
+    color: #183e70;
+}
+
+.dash-schedule p {
+    font-size: 13px;
+    color: #50637e;
+    margin: 7px 0 0;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.dash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding-top: 17px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.dash-actions form {
+    margin: 0;
+}
+
+.dash-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 38px;
+    padding: 9px 13px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.dash-btn-primary {
+    background: #174c8b;
+    color: white;
+}
+
+.dash-btn-primary:hover {
+    background: #103560;
+}
+
+.dash-btn-light {
+    background: #e8f1fd;
+    color: #174c8b;
+}
+
+.dash-btn-outline {
+    background: #fff;
+    color: #344662;
+    border-color: #bdcbe0;
+}
+
+.dash-btn-danger {
+    background: #fff1f2;
+    color: #b42336;
+    border-color: #fecdd3;
+}
+
+.dash-btn-danger:hover {
+    background: #ffe4e6;
+}
+
+.dash-message {
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.dash-success {
+    background: #e7f8ee;
+    color: #166534;
+}
+
+.dash-error {
+    background: #fff0f0;
+    color: #a61b29;
+}
+
+.dash-empty {
+    text-align: center;
+    padding: 40px;
+    background: #fff;
+    border: 1px dashed #a7b9d0;
+    border-radius: 15px;
+}
+
+.dash-empty[hidden],
+.dash-course[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 1050px) {
+    .dash-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dash-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .dash-hero,
+    .dash-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dash-stats {
+        gap: 10px;
+    }
+
+    .dash-stat {
+        padding: 16px;
+    }
+
+    .dash-stat strong {
+        font-size: 27px;
+    }
+
+    .dash-filters {
+        flex-direction: column;
+    }
+
+    .dash-filters input {
+        min-width: 0;
+    }
+
+    .dash-course {
+        padding: 17px;
+    }
+}

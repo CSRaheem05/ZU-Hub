@@ -1,0 +1,139 @@
+
+.lesson-card {
+    background: #fff;
+    border: 1px solid #d6e2f0;
+    border-radius: 16px;
+    padding: 27px;
+    margin-bottom: 24px;
+    box-shadow: 0 5px 22px rgba(15, 34, 64, .05);
+}
+
+.lesson-heading {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+}
+
+.lesson-heading h2 {
+    color: #142a4b;
+    font-size: 22px;
+    margin: 0 0 8px;
+}
+
+.lesson-heading p,
+.lesson-meta {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.lesson-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lesson-field label {
+    display: block;
+    color: #263e5f;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.lesson-field input,
+.lesson-field select {
+    box-sizing: border-box;
+    width: 100%;
+    border: 1px solid #bdccdf;
+    background: #fff;
+    color: #142a4b;
+    border-radius: 9px;
+    padding: 12px;
+    font: inherit;
+}
+
+.lesson-field input:focus,
+.lesson-field select:focus {
+    outline: 2px solid #9fc5ff;
+    border-color: #2563eb;
+}
+
+.lesson-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.lesson-live-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lesson-live-fields[hidden],
+.lesson-video-fields[hidden],
+.lesson-edit-panel[hidden] {
+    display: none !important;
+}
+
+.lesson-item {
+    padding: 20px;
+    background: #f7faff;
+    border: 1px solid #dce6f2;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.lesson-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.lesson-item h3 {
+    font-size: 17px;
+    color: #142a4b;
+    margin: 10px 0;
+}
+
+.lesson-item a {
+    color: #1556a0;
+    font-size: 14px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.lesson-tag {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.lesson-edit-panel {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #d2deed;
+}
+
+.lesson-delete-form {
+    margin-top: 15px;
+}
+
+@media (max-width: 650px) {
+    .lesson-card {
+        padding: 18px;
+    }
+
+    .lesson-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lesson-item-top {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
