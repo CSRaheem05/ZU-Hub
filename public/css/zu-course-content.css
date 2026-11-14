@@ -1,0 +1,236 @@
+
+/* =========================================
+   ZU HUB - STUDENT COURSE CONTENT
+   ========================================= */
+
+.learning-page {
+    max-width: 1100px;
+    margin: 45px auto;
+    padding: 0 22px 60px;
+    color: #17365e;
+}
+
+.learning-back {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #2465a3;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.2s ease;
+}
+
+.learning-back:hover {
+    transform: translateX(-4px);
+}
+
+/* COURSE HEADER */
+
+.learning-header {
+    background: linear-gradient(120deg, #132b4e, #2767a9);
+    border-radius: 22px;
+    padding: 38px;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.learning-header h1 {
+    font-size: clamp(26px, 4vw, 38px);
+    margin: 14px 0;
+}
+
+.learning-header p {
+    line-height: 1.7;
+}
+
+.learning-subject {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 8px 14px;
+}
+
+.learning-course-info {
+    margin-top: 20px;
+}
+
+.learning-course-info p {
+    margin: 8px 0;
+}
+
+/* LESSONS */
+
+.lesson-heading {
+    margin: 30px 0 18px;
+}
+
+.lesson-heading h2 {
+    font-size: 25px;
+    margin-bottom: 8px;
+}
+
+.lesson-heading p {
+    color: #718198;
+}
+
+.lessons-list {
+    display: grid;
+    gap: 20px;
+}
+
+.lesson-card {
+    background: white;
+    border: 1px solid #e0e9f4;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 8px 22px rgba(20, 50, 80, 0.05);
+}
+
+.lesson-card h3 {
+    margin: 0 0 15px;
+    font-size: 21px;
+}
+
+.lesson-type-label {
+    color: #2767a9;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+/* VIDEO PLAYER */
+
+.lesson-frame {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    border-radius: 12px;
+    background: #10233f;
+}
+
+.lesson-video {
+    display: block;
+    width: 100%;
+    max-height: 600px;
+    border-radius: 12px;
+    background: #10233f;
+}
+
+/* LESSON LINKS */
+
+.lesson-link {
+    display: inline-block;
+    background: #2366ac;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    margin-top: 12px;
+    font-weight: 600;
+    transition: background 0.2s ease,
+                transform 0.2s ease;
+}
+
+.lesson-link:hover {
+    background: #174f89;
+    transform: translateY(-2px);
+}
+
+.lesson-date {
+    color: #61758e;
+    margin-bottom: 12px;
+}
+
+/* EMPTY COURSE STATE */
+
+.lesson-empty {
+    text-align: center;
+    background: white;
+    border: 1px solid #e0e9f4;
+    border-radius: 22px;
+    padding: 65px 25px;
+}
+
+.lesson-empty h2 {
+    color: #17365e;
+    margin-bottom: 15px;
+}
+
+.lesson-empty p {
+    color: #718198;
+    line-height: 1.8;
+}
+
+.waiting-animation {
+    width: 86px;
+    height: 86px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    background: #e7f1ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.waiting-animation::before {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border: 3px solid #a5c9f3;
+    border-radius: 50%;
+    animation: waitingPulse 2s ease-out infinite;
+}
+
+.waiting-animation span {
+    font-size: 39px;
+    color: #2868ac;
+}
+
+@keyframes waitingPulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 600px) {
+    .learning-page {
+        margin: 20px auto;
+        padding: 0 14px 40px;
+    }
+
+    .learning-header {
+        padding: 25px 20px;
+        border-radius: 16px;
+    }
+
+    .lesson-card {
+        padding: 18px;
+    }
+
+    .lesson-empty {
+        padding: 45px 18px;
+    }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+    .waiting-animation::before {
+        animation: none;
+    }
+
+    .learning-back,
+    .lesson-link {
+        transition: none;
+    }
+}
