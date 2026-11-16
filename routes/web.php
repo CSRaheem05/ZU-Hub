@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CoursePageController;
 use App\Http\Controllers\InstructorOfferingController;
 use App\Http\Controllers\InstructorCourseManagementController;
+use App\Http\Controllers\AdminCourseRequestController;
 
 
 // ========================================
@@ -210,5 +211,15 @@ Route::middleware('auth')->group(function () {
         [CoursePageController::class, 'unenroll']
     )->name('student.course.unenroll');
 
+
+    // Course approvals: request status stays within the instructor workspace.
+    Route::get('/instructor/course-requests', [InstructorOfferingController::class,'requests'])->name('instructor.requests');
+    Route::patch('/instructor/courses/{offeringId}/complete', [InstructorOfferingController::class,'complete'])->name('instructor.courses.complete');
+    Route::get('/management/course-requests', [AdminCourseRequestController::class,'index'])->name('management.requests');
+    Route::get('/management/course-requests/{offeringId}', [AdminCourseRequestController::class,'show'])->name('management.requests.show');
+    Route::post('/management/course-requests/{offeringId}/details', [AdminCourseRequestController::class,'updateDetails'])->name('management.requests.details');
+    Route::post('/management/course-requests/{offeringId}/decision', [AdminCourseRequestController::class,'decide'])->name('management.requests.decide');
+    Route::post('/courses/{offeringId}/save', [CoursePageController::class,'saveCompleted'])->name('courses.save');
+    Route::delete('/courses/{offeringId}/save', [CoursePageController::class,'unsaveCompleted'])->name('courses.unsave');
 
 });

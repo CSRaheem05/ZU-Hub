@@ -51,8 +51,8 @@
 
         <p>
             {{ $course
-                ? 'Update your training course information.'
-                : 'Create and organize your training course.' }}
+                ? 'Update the requested details and resubmit for admin approval.'
+                : 'Submit your course details for admin approval.' }}
         </p>
     </div>
 
@@ -68,6 +68,9 @@
         </div>
     @endif
 
+    @if($course && $course->review_note)
+        <div style="background:#fff7e7;border-left:4px solid #e0a239;padding:15px;margin:18px 0;border-radius:8px"><strong>Admin Feedback</strong><p>{{ $course->review_note }}</p></div>
+    @endif
     <form id="courseForm"
           method="POST"
           action="{{ $course
@@ -307,6 +310,15 @@
 
         </section>
 
+        <section style="padding:15px;background:#f2f6fc;border-radius:10px;margin:15px 0">
+            <label for="topic_id"><strong>Course Topic</strong></label>
+            <select name="topic_id" id="topic_id" style="display:block;width:100%;padding:10px;margin-top:8px">
+                <option value="">General / Not specified</option>
+                @foreach($topics as $topic)
+                    <option value="{{ $topic->topic_id }}" data-college="{{ $topic->college_code }}" @selected(old('topic_id',$course->topic_id ?? '')===$topic->topic_id)>{{ $topic->topic_name }}</option>
+                @endforeach
+            </select><small>Choose a topic belonging to the same college as the related university course.</small>
+        </section>
         <!-- Actions -->
 
         <div class="zc-actions">
@@ -319,7 +331,7 @@
             <button type="submit"
                     class="zc-btn zc-primary">
 
-                {{ $course ? 'Save Changes' : 'Create Course' }}
+                {{ $course ? 'Resubmit for Approval' : 'Submit for Approval' }}
 
             </button>
 
@@ -336,5 +348,25 @@
 
 <script src="{{ asset('js/zu-course-form.js') }}" defer></script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+ const college = document.getElementById('college_id');
+ const topic = document.getElementById('topic_id');
+ if (!college || !topic) return;
+ function refreshTopics() {
+   const code = college.value;
+   Array.from(topic.options).forEach(option => {
+     if (!option.value) return;
+     const allowed = option.dataset.college === code;
+     option.hidden = !allowed;
+     option.disabled = !allowed;
+   });
+   if (topic.selectedOptions[0]?.disabled) topic.value = '';
+ }
+ document.addEventListener('click', () => setTimeout(refreshTopics, 0));
+ college.addEventListener('change', refreshTopics);
+ refreshTopics();
+});
+</script>
 </body>
 </html>

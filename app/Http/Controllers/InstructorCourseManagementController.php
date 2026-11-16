@@ -23,6 +23,7 @@ class InstructorCourseManagementController extends Controller
             ->first();
 
         abort_unless($offering, 404);
+        abort_unless($offering->approval_status === 'approved', 403, 'Course needs admin approval first.');
 
         return $offering;
     }
@@ -57,6 +58,8 @@ class InstructorCourseManagementController extends Controller
 
             abort_unless($course, 404);
 
+            $hasSaved = DB::table('user_saved_courses')->where('offering_id',$offeringId)->exists();
+
             $hasStudents = DB::table('Course_Members')
                 ->where('offering_id', $offeringId)
                 ->exists();
@@ -74,6 +77,7 @@ class InstructorCourseManagementController extends Controller
                 ->exists();
 
             if (
+                $hasSaved ||
                 $hasStudents ||
                 $hasLessons ||
                 $hasReviews ||

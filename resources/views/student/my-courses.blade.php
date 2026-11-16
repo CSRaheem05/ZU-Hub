@@ -273,9 +273,9 @@
                 Your learning journey starts here
             </h2>
 
-            <p data-en="You haven't enrolled in any courses yet. Explore available courses and choose your next skill."
+            <p data-en="You haven't enrolled in an ongoing course yet. Your saved completed courses appear below. Explore available courses and choose your next skill."
                data-ar="لم تسجّل في أي دورة بعد. استكشف الدورات المتاحة واختر مهارتك القادمة.">
-                You haven't enrolled in any courses yet.
+                You haven't enrolled in an ongoing course yet. Your saved completed courses appear below.
                 Explore available courses and choose your next skill.
             </p>
 
@@ -435,6 +435,16 @@
 
     @endif
 
+    <section style="max-width:1100px;margin:35px auto;padding:20px;background:white;border:1px solid #e2e8f0;border-radius:15px">
+        <h2>Saved Completed Courses</h2><p>Watch recorded courses anytime, without official enrollment.</p>
+        @forelse($saved as $course)
+            <div style="padding:16px;margin:12px 0;border:1px solid #e2e8f0;border-radius:12px">
+                <strong>{{ $course->title }}</strong> <span>— {{ $course->instructor_name }}</span><br>
+                <a href="{{route('student.course.show',$course->offering_id)}}">Watch Course</a>
+                <form method="post" style="display:inline;margin-left:16px" action="{{route('courses.unsave',$course->offering_id)}}">@csrf @method('DELETE')<button type="submit">Remove from Saved</button></form>
+            </div>
+        @empty<p>No saved courses yet.</p>@endforelse
+    </section>
 </main>
 
 <script src="{{ asset('js/zu-my-courses.js') }}" defer></script>

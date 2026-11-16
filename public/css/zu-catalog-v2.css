@@ -1,0 +1,291 @@
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    background: #f5f7fc;
+    color: #19294a;
+    font: 16px system-ui, Arial, sans-serif
+}
+
+.topbar {
+    padding: 18px max(22px, 6vw);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    border-bottom: 1px solid #e1e8f5
+}
+
+.brand {
+    color: #174c9f;
+    font-weight: 800;
+    font-size: 22px;
+    text-decoration: none
+}
+
+nav {
+    display: flex;
+    gap: 25px;
+    align-items: center
+}
+
+nav a {
+    color: #243e67;
+    text-decoration: none
+}
+
+nav button {
+    background: transparent;
+    border: 0;
+    color: #243e67;
+    cursor: pointer
+}
+
+main {
+    max-width: 1180px;
+    margin: auto;
+    padding: 35px 20px 80px
+}
+
+.hero {
+    padding: 45px;
+    background: linear-gradient(120deg, #0d2854, #1e5caa);
+    color: white;
+    border-radius: 20px
+}
+
+.hero h1 {
+    font-size: clamp(28px, 4vw, 48px);
+    margin: 14px 0
+}
+
+.hero p {
+    max-width: 680px;
+    line-height: 1.7
+}
+
+.eyebrow {
+    letter-spacing: 2px;
+    font-size: 12px;
+    color: #a8cbff
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: 15px;
+    background: white;
+    padding: 20px;
+    border: 1px solid #e2e9f2;
+    border-radius: 16px;
+    margin: 25px 0
+}
+
+.filters label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #60708b
+}
+
+.filters select {
+    width: 100%;
+    border: 1px solid #d5dfed;
+    padding: 12px;
+    border-radius: 9px;
+    background: white
+}
+
+.filter-action {
+    display: flex;
+    align-items: end;
+    gap: 8px
+}
+
+.filter-action button {
+    background: #1b53ad;
+    color: white;
+    border: 0;
+    padding: 13px;
+    border-radius: 9px;
+    cursor: pointer
+}
+
+.filter-action a {
+    padding: 12px;
+    color: #345a94
+}
+
+.sectionhead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between
+}
+
+.sectionhead span {
+    color: #72809a
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px
+}
+
+.course {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e3e9f4;
+    box-shadow: 0 4px 20px #213a630b;
+    display: flex;
+    flex-direction: column
+}
+
+.banner {
+    height: 125px;
+    background: linear-gradient(130deg, #deecff, #a7c8ed);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #285a98;
+    font-size: 48px
+}
+
+.banner small {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    background: #fff;
+    border-radius: 30px;
+    padding: 6px 10px;
+    font-size: 12px
+}
+
+.content {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    flex: 1
+}
+
+.meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: #72829c
+}
+
+.tag {
+    padding: 6px 10px;
+    border-radius: 40px;
+    background: #edf1f8
+}
+
+.tag.ongoing {
+    color: #166548;
+    background: #dff8eb
+}
+
+.tag.completed {
+    color: #234b9b;
+    background: #e7efff
+}
+
+.course h3 {
+    font-size: 19px;
+    margin-bottom: 6px
+}
+
+.course p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #65718a;
+    flex: 1
+}
+
+.teacher {
+    font-size: 13px;
+    color: #61738d;
+    margin: 15px 0
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap
+}
+
+.btn {
+    display: inline-block;
+    border: 0;
+    border-radius: 8px;
+    background: #1b57b5;
+    color: white;
+    padding: 11px 14px;
+    font: inherit;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer
+}
+
+.outline {
+    background: white;
+    border: 1px solid #c9d5e7;
+    color: #20509b;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    cursor: pointer
+}
+
+.saved {
+    font-size: 12px;
+    color: #176b43
+}
+
+.empty {
+    padding: 35px;
+    background: white;
+    border-radius: 14px;
+    grid-column: 1/-1
+}
+
+.notice {
+    padding: 15px;
+    border-radius: 9px;
+    background: #e8fbf2;
+    margin-top: 15px
+}
+
+@media(max-width:940px) {
+    .filters {
+        grid-template-columns: 1fr 1fr
+    }
+
+    .grid {
+        grid-template-columns: 1fr 1fr
+    }
+}
+
+@media(max-width:620px) {
+
+    .filters,
+    .grid {
+        grid-template-columns: 1fr
+    }
+
+    .hero {
+        padding: 30px
+    }
+
+    .topbar {
+        gap: 14px;
+        flex-wrap: wrap
+    }
+}

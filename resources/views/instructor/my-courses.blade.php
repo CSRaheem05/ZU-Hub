@@ -72,6 +72,7 @@
         </a>
     </section>
 
+    <p style="margin:20px 0"><a href="{{route('instructor.requests')}}" class="dash-create">Course Requests / Track Approval</a></p>
     <section class="dash-stats">
 
         <article class="dash-stat dash-stat-total">
@@ -187,6 +188,7 @@
                     </div>
 
                     <h2>{{ $course->title }}</h2>
+                    <p><strong>{{ ucfirst($course->course_status) }}</strong></p>
 
                     <p class="dash-description">
                         {{ $course->description ?: 'No description provided.' }}
@@ -229,11 +231,9 @@
                             View Students
                         </a>
 
-                        <a class="dash-btn dash-btn-light"
-                           href="{{ route('instructor.courses.edit', $course->offering_id) }}">
-                            Edit
-                        </a>
+                        
 
+                        <form method="POST" action="{{route('instructor.courses.complete',$course->offering_id)}}">@csrf @method('PATCH')<button class="dash-btn" type="submit">{{ $course->course_status==='ongoing' ? 'Mark Completed' : 'Mark Ongoing' }}</button></form>
                         <form method="POST"
                               action="{{ route('instructor.courses.status', $course->offering_id) }}">
                             @csrf

@@ -1,368 +1,101 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CoursePageController extends Controller
-{
-    // =========================================
-    // 1. AVAILABLE COURSES
-    // =========================================
-
-    public function index(Request $request)
-    {
-        $courses = DB::table('Course_Offerings as o')
-            ->join('Courses as c', 'c.course_id', '=', 'o.course_id')
-            ->join('Users as u', 'u.user_id', '=', 'o.instructor_id')
-            ->where('o.is_active', 1)
-            ->select(
-                'o.offering_id',
-                'o.title',
-                'o.description',
-                'o.duration_hours',
-                'c.course_name',
-                'u.name as instructor_name'
-            )
-            ->orderByDesc('o.created_at')
-            ->get();
-
-        $enrolledOfferingIds = collect();
-
-        if (
-            $request->user() &&
-            $request->user()->role === 'student'
-        ) {
-            $enrolledOfferingIds = DB::table('Course_Members')
-                ->where('user_id', $request->user()->user_id)
-                ->pluck('offering_id');
+class CoursePageController extends Controller {
+    private function isStudent(Request $r): void { abort_unless($r->user()?->role === 'student',403); }
+    private function published() { return DB::table('course_offerings')->where('approval_status','approved')->where('is_active',1); }
+    public function index(Request $r) {
+        $college=$r->query('college');$topic=$r->query('topic');$status=$r->query('status');
+        $colleges=DB::table('colleges')->orderBy('college_name')->get();
+        $topics=DB::table('topics')->when($college,fn($q)=>$q->where('college_code',$college))->orderBy('topic_name')->get();
+        $q=DB::table('course_offerings as o')->join('courses as c','c.course_id','=','o.course_id')
+            ->join('departments as d','d.department_code','=','c.department_code')
+            ->join('colleges as co','co.college_code','=','d.college_code')
+            ->join('users as u','u.user_id','=','o.instructor_id')
+            ->leftJoin('topics as t','t.topic_id','=','o.topic_id')
+            ->where('o.approval_status','approved')->where('o.is_active',1);
+        if($college)$q->where('co.college_code',$college);
+        if($topic)$q->where('o.topic_id',$topic);
+        if(in_array($status,['ongoing','completed'],true))$q->where('o.course_status',$status);
+        $courses=$q->select('o.*','c.course_name','co.college_name','t.topic_name','u.name as instructor_name')
+            ->orderByDesc('o.created_at')->get();
+        $enrolledOfferingIds=collect();$savedOfferingIds=collect();
+        if($r->user()?->role==='student'){
+            $enrolledOfferingIds=DB::table('course_members')->where('user_id',$r->user()->user_id)->pluck('offering_id');
+            $savedOfferingIds=DB::table('user_saved_courses')->where('user_id',$r->user()->user_id)->pluck('offering_id');
         }
-
-        return view('courses.index', compact(
-            'courses',
-            'enrolledOfferingIds'
-        ));
+        return view('courses.index',compact('courses','colleges','topics','college','topic','status','enrolledOfferingIds','savedOfferingIds'));
     }
-
-    // =========================================
-    // 2. STUDENT: MY COURSES
-    // =========================================
-
-    public function studentCourses(Request $request)
-    {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'student',
-            403
-        );
-
-        $courses = DB::table('Course_Members as m')
-            ->join(
-                'Course_Offerings as o',
-                'o.offering_id',
-                '=',
-                'm.offering_id'
-            )
-            ->join(
-                'Courses as c',
-                'c.course_id',
-                '=',
-                'o.course_id'
-            )
-            ->join(
-                'Users as u',
-                'u.user_id',
-                '=',
-                'o.instructor_id'
-            )
-            ->where('m.user_id', $request->user()->user_id)
-            ->select(
-                'o.offering_id',
-                'o.title',
-                'o.description',
-                'o.is_active',
-                'c.course_name',
-                'u.name as instructor_name'
-            )
-            ->orderByDesc('o.created_at')
-            ->get();
-
-        return view('student.my-courses', compact('courses'));
+    public function studentCourses(Request $r) {
+        $this->isStudent($r);$id=$r->user()->user_id;
+        $base=DB::table('course_offerings as o')->join('courses as c','c.course_id','=','o.course_id')
+            ->join('users as u','u.user_id','=','o.instructor_id');
+        $courses=(clone $base)->join('course_members as m','m.offering_id','=','o.offering_id')
+            ->where('m.user_id',$id)->select('o.offering_id','o.title','o.description','o.is_active','o.course_status','c.course_name','u.name as instructor_name')
+            ->orderByDesc('o.created_at')->get();
+        $saved=(clone $base)->join('user_saved_courses as s','s.offering_id','=','o.offering_id')
+            ->where('s.user_id',$id)->where('o.approval_status','approved')->where('o.is_active',1)->where('o.course_status','completed')
+            ->whereNotIn('o.offering_id',$courses->pluck('offering_id')->all())
+            ->select('o.offering_id','o.title','c.course_name','u.name as instructor_name')->get();
+        return view('student.my-courses',compact('courses','saved'));
     }
-
-    // =========================================
-    // 3. STUDENT: ENROLL IN COURSE
-    // =========================================
-
-    public function enroll(Request $request, string $offeringId)
-    {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'student',
-            403
-        );
-
-        $course = DB::table('Course_Offerings')
-            ->where('offering_id', $offeringId)
-            ->where('is_active', 1)
-            ->first();
-
-        abort_unless($course, 404);
-
-        $alreadyEnrolled = DB::table('Course_Members')
-            ->where('user_id', $request->user()->user_id)
-            ->where('offering_id', $offeringId)
-            ->exists();
-
-        if ($alreadyEnrolled) {
-            return redirect()
-                ->route('courses.index')
-                ->with(
-                    'success',
-                    'You are already enrolled in this course.'
-                );
+    public function enroll(Request $r,string $offeringId) {
+        $this->isStudent($r);
+        abort_unless($this->published()->where('offering_id',$offeringId)->where('course_status','ongoing')->exists(),404);
+        DB::table('course_members')->insertOrIgnore(['user_id'=>$r->user()->user_id,'offering_id'=>$offeringId]);
+        // Database triggers maintain students_count.
+        return redirect()->route('student.courses')->with('success','You are enrolled.');
+    }
+    public function saveCompleted(Request $r,string $offeringId) {
+        $this->isStudent($r);
+        abort_unless($this->published()->where('offering_id',$offeringId)->where('course_status','completed')->exists(),404);
+        DB::table('user_saved_courses')->insertOrIgnore(['user_id'=>$r->user()->user_id,'offering_id'=>$offeringId,'saved_at'=>now()]);
+        return back()->with('success','Course saved to My Courses.');
+    }
+    public function unsaveCompleted(Request $r,string $offeringId) {
+        $this->isStudent($r);
+        DB::table('user_saved_courses')->where('user_id',$r->user()->user_id)->where('offering_id',$offeringId)->delete();
+        return redirect()->route('student.courses')->with('success','Course removed from saved courses.');
+    }
+    public function instructorCourses(Request $r) {
+        abort_unless($r->user()?->role==='instructor',403);
+        $courses=DB::table('course_offerings as o')->join('courses as c','c.course_id','=','o.course_id')
+            ->where('o.instructor_id',$r->user()->user_id)->where('o.approval_status','approved')
+            ->select('o.*','c.course_name')->orderByDesc('o.created_at')->get();
+        return view('instructor.my-courses',compact('courses'));
+    }
+    public function instructorStudents(Request $r,string $offeringId) {
+        abort_unless($r->user()?->role==='instructor',403);
+        $course=DB::table('course_offerings')->where('offering_id',$offeringId)->where('instructor_id',$r->user()->user_id)
+            ->where('approval_status','approved')->first();abort_unless($course,404);
+        $students=DB::table('course_members as m')->join('users as u','u.user_id','=','m.user_id')
+            ->where('m.offering_id',$offeringId)->where('u.role','student')->select('u.user_id','u.name','u.email')->orderBy('u.name')->get();
+        return view('instructor.students',compact('course','students'));
+    }
+    public function myCoursesRedirect(Request $r) {return match($r->user()->role){
+        'student'=>redirect()->route('student.courses'),'instructor'=>redirect()->route('instructor.courses'),default=>abort(403)};}
+    public function management(Request $r) {
+        abort_unless($r->user()?->role==='manager',403);
+        return view('management.index',['userCount'=>DB::table('users')->count(),'courseCount'=>DB::table('course_offerings')->count()]);
+    }
+    public function showStudentCourse(Request $r,string $offeringId) {
+        $this->isStudent($r);
+        $course=DB::table('course_offerings as o')->join('courses as c','c.course_id','=','o.course_id')
+            ->join('users as u','u.user_id','=','o.instructor_id')
+            ->where('o.offering_id',$offeringId)->where('o.approval_status','approved')->where('o.is_active',1)
+            ->select('o.*','c.course_name','u.name as instructor_name')->first();
+        abort_unless($course,404);
+        if($course->course_status==='ongoing'){
+            abort_unless(DB::table('course_members')->where('user_id',$r->user()->user_id)->where('offering_id',$offeringId)->exists(),403);
         }
-
-        DB::table('Course_Members')->insertOrIgnore([
-            'user_id' => $request->user()->user_id,
-            'offering_id' => $offeringId
-        ]);
-
-        return redirect()
-            ->route('student.courses')
-            ->with(
-                'success',
-                'You enrolled successfully!'
-            );
+        $lessons=DB::table('lessons')->where('offering_id',$offeringId)->orderBy('lesson_order')->orderBy('created_at')->get();
+        return view('student.course-content',compact('course','lessons'));
     }
-
-    // =========================================
-    // 4. INSTRUCTOR: MY COURSES
-    // =========================================
-
-    public function instructorCourses(Request $request)
-    {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'instructor',
-            403
-        );
-
-        $courses = DB::table('Course_Offerings as o')
-            ->join(
-                'Courses as c',
-                'c.course_id',
-                '=',
-                'o.course_id'
-            )
-            ->where('o.instructor_id', $request->user()->user_id)
-            ->select(
-                'o.offering_id',
-                'o.title',
-                'o.description',
-                'o.is_active',
-                'o.students_count',
-                'o.duration_hours',
-                'o.lecture_schedule',
-                'c.course_name'
-            )
-            ->orderByDesc('o.created_at')
-            ->get();
-
-        return view('instructor.my-courses', compact('courses'));
-    }
-
-    // =========================================
-    // 5. INSTRUCTOR: VIEW ENROLLED STUDENTS
-    // =========================================
-
-    public function instructorStudents(
-        Request $request,
-        string $offeringId
-    ) {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'instructor',
-            403
-        );
-
-        $course = DB::table('Course_Offerings as o')
-            ->where('o.offering_id', $offeringId)
-            ->where('o.instructor_id', $request->user()->user_id)
-            ->select(
-                'o.offering_id',
-                'o.title'
-            )
-            ->first();
-
-        abort_unless($course, 404);
-
-        $students = DB::table('Course_Members as m')
-            ->join(
-                'Users as u',
-                'u.user_id',
-                '=',
-                'm.user_id'
-            )
-            ->where('m.offering_id', $offeringId)
-            ->where('u.role', 'student')
-            ->select(
-                'u.user_id',
-                'u.name',
-                'u.email'
-            )
-            ->orderBy('u.name')
-            ->get();
-
-        return view('instructor.students', compact(
-            'course',
-            'students'
-        ));
-    }
-
-    // =========================================
-    // 6. REDIRECT MY COURSES BY ROLE
-    // =========================================
-
-    public function myCoursesRedirect(Request $request)
-    {
-        return match ($request->user()->role) {
-            'student' => redirect()->route('student.courses'),
-            'instructor' => redirect()->route('instructor.courses'),
-            default => abort(403),
-        };
-    }
-
-    // =========================================
-    // 7. MANAGEMENT DASHBOARD
-    // =========================================
-
-    public function management(Request $request)
-    {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'manager',
-            403
-        );
-
-        return view('management.index', [
-            'userCount' => DB::table('Users')->count(),
-            'courseCount' => DB::table('Course_Offerings')->count(),
-        ]);
-    }
-
-    // =========================================
-    // 8. STUDENT: OPEN ENROLLED COURSE
-    // =========================================
-
-    public function showStudentCourse(
-        Request $request,
-        string $offeringId
-    ) {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'student',
-            403
-        );
-
-        $userId = $request->user()->user_id;
-
-        // Only enrolled students can view the content.
-        $enrolled = DB::table('Course_Members')
-            ->where('user_id', $userId)
-            ->where('offering_id', $offeringId)
-            ->exists();
-
-        abort_unless($enrolled, 403);
-
-        // Get this instructor's specific course offering.
-        $course = DB::table('Course_Offerings as o')
-            ->join(
-                'Courses as c',
-                'c.course_id',
-                '=',
-                'o.course_id'
-            )
-            ->join(
-                'Users as u',
-                'u.user_id',
-                '=',
-                'o.instructor_id'
-            )
-            ->where('o.offering_id', $offeringId)
-            ->select(
-                'o.offering_id',
-                'o.title',
-                'o.description',
-                'o.is_active',
-                'o.lecture_schedule',
-                'c.course_name',
-                'u.name as instructor_name'
-            )
-            ->first();
-
-        abort_unless($course, 404);
-
-        // Retrieve lessons belonging to this offering only.
-        $lessons = DB::table('Lessons')
-            ->where('offering_id', $offeringId)
-            ->select(
-                'lesson_id',
-                'lesson_title',
-                'lesson_type',
-                'lesson_order',
-                'lesson_url',
-                'live_url',
-                'scheduled_at'
-            )
-            ->orderBy('lesson_order')
-            ->orderBy('created_at')
-            ->get();
-
-        return view('student.course-content', compact(
-            'course',
-            'lessons'
-        ));
-    }
-
-    // =========================================
-    // 9. STUDENT: CANCEL ENROLLMENT
-    // =========================================
-
-    public function unenroll(
-        Request $request,
-        string $offeringId
-    ) {
-        abort_unless(
-            $request->user() &&
-            $request->user()->role === 'student',
-            403
-        );
-
-        $userId = $request->user()->user_id;
-
-        // Delete only this student's enrollment.
-        $deleted = DB::table('Course_Members')
-            ->where('user_id', $userId)
-            ->where('offering_id', $offeringId)
-            ->delete();
-
-        if ($deleted === 0) {
-            return redirect()
-                ->route('student.courses')
-                ->with(
-                    'error',
-                    'You are not enrolled in this course.'
-                );
-        }
-
-        // The database trigger updates students_count.
-        return redirect()
-            ->route('student.courses')
-            ->with(
-                'success',
-                'You have successfully left the course.'
-            );
+    public function unenroll(Request $r,string $offeringId) {
+        $this->isStudent($r);
+        $deleted=DB::table('course_members')->where('user_id',$r->user()->user_id)->where('offering_id',$offeringId)->delete();
+        return redirect()->route('student.courses')->with($deleted?'success':'error',$deleted?'Enrollment cancelled.':'Not enrolled.');
     }
 }
