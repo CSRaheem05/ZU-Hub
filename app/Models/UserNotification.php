@@ -93,6 +93,16 @@ class UserNotification extends Model
         return static::query()->where('user_id', $userId)->alerting()->count();
     }
 
+    /** The strongest priority among the user's unread, active alerts ('urgent' | 'important'), or null when there are none. */
+    public static function alertLevelFor(string $userId): ?string
+    {
+        $priorities = static::query()->where('user_id', $userId)->alerting()
+            ->with('announcement:announcement_id,priority')->get()
+            ->map(fn (self $n) => $n->announcement?->priority);
+
+        return $priorities->contains('urgent') ? 'urgent' : ($priorities->contains('important') ? 'important' : null);
+    }
+
     public function markRead(): void
     {
         if (! $this->is_read) {
@@ -136,6 +146,7 @@ class UserNotification extends Model
                 'alert' => $n->isAlerting(),
                 'expired' => $n->isExpired(),
                 'sender' => $official ? 'ZU Administration' : ($a->author->name ?? 'Instructor'),
+                'course' => ! $official ? ($a->offering->title ?? null) : null,
                 'url' => route('notifications.show', $n->notification_id),
             ];
         })->all();
@@ -144,6 +155,8 @@ class UserNotification extends Model
             'items' => $items,
             'unread' => static::unreadCountFor($userId),
             'alerts' => static::alertCountFor($userId),
+            'level' => static::alertLevelFor($userId),
+            'readUrl' => route('notifications.read', ['notificationId' => '__ID__']),
             'readAllUrl' => route('notifications.read-all'),
             'inboxUrl' => route('notifications.index'),
         ];

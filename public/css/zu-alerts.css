@@ -1,114 +1,129 @@
 /* ==========================================================================
-   ZU Hub — automatic announcement banner (slide-down glass)
-   Self-contained on purpose: it must also work on the homepage, which has its own glass
-   system, so it does not depend on zu-glass.css / .lg.
-
-   Important  → soft rose accent, fades away on its own
-   Urgent     → stronger red accent, stays until dismissed
+   ZU Hub — official announcement banner
+   One compact announcement at a time, centred under the header, clear of the hero.
+   (Phones: a bottom sheet instead, so it never sits on the navigation.)
+   Priority tokens (--pri…) come from css/zu-notifications.css so the banner, the bell panel and the
+   full announcement share one vocabulary. Self-contained fallbacks keep it working on its own.
    ========================================================================== */
 
 .zu-alerts {
-    --za-accent: #d64560;
     position: fixed;
-    z-index: 95; /* under the header (100) so its menus stay on top */
+    z-index: 95;                         /* under the header (100): its menus stay on top */
     left: 50%;
-    top: calc(var(--zu-header-h, 92px) - 6px);
-    width: min(760px, calc(100vw - 28px));
+    top: calc(var(--zu-header-h, 92px) - 2px);
+    width: min(640px, calc(100vw - 24px));
     transform: translateX(-50%);
-    display: grid;
-    gap: 10px;
     pointer-events: none;
     font-family: Inter, system-ui, Arial, sans-serif;
 }
 .zu-alerts > * { pointer-events: auto; }
+.zu-alerts[hidden] { display: none; }
+.zu-alerts:not(.is-stacked) { display: grid; gap: 8px; }          /* no JavaScript: show them all */
 
 .zu-alert {
-    --za-accent: #e0657c;
-    --za-tint: rgba(255, 241, 244, .92);
-    --za-icon: linear-gradient(135deg, #f08096, #cf4a63);
+    --pri: #2a7de1; --pri-ink: #0f4a92; --pri-tint: #eef5ff; --pri-line: rgba(42, 125, 225, .22);
+    --pri-icon: linear-gradient(145deg, #4aa0f2, #1f62c4); --pri-glow: rgba(31, 98, 196, .28);
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 16px;
-    padding: 14px 14px 14px 18px;
-    overflow: hidden;
-    border-radius: 24px;
-    background: linear-gradient(100deg, var(--za-tint), rgba(255, 255, 255, .86) 70%);
-    border: 1px solid rgba(255, 255, 255, .95);
-    box-shadow: 0 22px 50px rgba(190, 60, 85, .16), 0 3px 10px rgba(11, 70, 124, .08), inset 0 1px 0 #fff, inset 0 0 0 1px rgba(214, 69, 96, .14);
-    -webkit-backdrop-filter: blur(24px) saturate(1.7);
-    backdrop-filter: blur(24px) saturate(1.7);
-    animation: zaIn .75s var(--zu-spring, cubic-bezier(.34, 1.45, .5, 1)) both;
-    animation-delay: calc(var(--i, 0) * 110ms + 250ms);
-    transition: opacity .35s ease, transform .45s cubic-bezier(.4, 0, .2, 1), max-height .45s cubic-bezier(.4, 0, .2, 1), margin .45s;
-    max-height: 200px;
+    gap: 14px;
+    padding: 12px 12px 12px 14px;
+    border-radius: 22px;
+    background: linear-gradient(100deg, var(--pri-tint), #fff 62%);
+    border: 1px solid var(--pri-line);
+    box-shadow: 0 20px 48px rgba(10, 52, 104, .17), 0 2px 8px rgba(10, 52, 104, .07);
+    color: #0d2f5c;
+    animation: zaIn .5s cubic-bezier(.22, .8, .24, 1) both;
+    animation-delay: .35s;
 }
-.zu-alert::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--za-accent); }
-.zu-alert.pri-urgent {
-    --za-accent: #cb3550;
-    --za-tint: rgba(255, 228, 234, .95);
-    --za-icon: linear-gradient(135deg, #f0607b, #b02a46);
-    border-color: rgba(203, 53, 80, .32);
-    box-shadow: 0 24px 56px rgba(203, 53, 80, .24), 0 3px 10px rgba(11, 70, 124, .08), inset 0 1px 0 #fff, inset 0 0 0 1px rgba(203, 53, 80, .22);
-}
-.zu-alert.pri-urgent::before { background: linear-gradient(180deg, #ef6f87, #cb3550); }
+.zu-alert[hidden] { display: none; }
+.zu-alert.pri-normal    { --pri: #2a7de1; --pri-ink: #0f4a92; --pri-tint: #eef5ff; --pri-line: rgba(42, 125, 225, .22); --pri-icon: linear-gradient(145deg, #4aa0f2, #1f62c4); --pri-glow: rgba(31, 98, 196, .28); }
+.zu-alert.pri-important { --pri: #dc7f0e; --pri-ink: #864800; --pri-tint: #fff5e3; --pri-line: rgba(220, 127, 14, .38); --pri-icon: linear-gradient(145deg, #f5b04a, #d27408); --pri-glow: rgba(210, 116, 8, .3); }
+.zu-alert.pri-urgent    { --pri: #d1243f; --pri-ink: #a11630; --pri-tint: #ffeff1; --pri-line: rgba(209, 36, 63, .45); --pri-icon: linear-gradient(145deg, #ee566f, #bd1a35); --pri-glow: rgba(189, 26, 53, .34);
+                          box-shadow: 0 22px 52px rgba(189, 26, 53, .2), 0 2px 8px rgba(10, 52, 104, .07), inset 0 0 0 1px rgba(209, 36, 63, .12); }
 
-.zu-alert__icon { width: 44px; height: 44px; display: grid; place-items: center; flex: none; border-radius: 50%; color: #fff; background: var(--za-icon); box-shadow: 0 8px 18px rgba(203, 53, 80, .32), inset 0 1px 0 rgba(255, 255, 255, .45); }
-.zu-alert.pri-urgent .zu-alert__icon { animation: zaPulse 2.4s ease-in-out infinite; }
+/* a quiet accent bar on the leading edge; Urgent's is heavier */
+.zu-alert::before { content: ''; position: absolute; inset-block: 14px; inset-inline-start: 0; width: 4px; border-radius: 0 4px 4px 0; background: var(--pri); }
+html[dir='rtl'] .zu-alert::before { border-radius: 4px 0 0 4px; }
+.zu-alert.pri-urgent::before { width: 5px; }
+
+.zu-alert__icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; color: #fff; background: var(--pri-icon); box-shadow: 0 8px 18px var(--pri-glow), inset 0 1px 0 rgba(255, 255, 255, .4); }
 .zu-alert__icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-.zu-alert__body { flex: 1; min-width: 0; display: grid; gap: 3px; }
-.zu-alert__body small { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--za-accent); }
-.zu-alert.pri-urgent .zu-alert__body small { color: #b02a46; }
-.zu-alert__body strong { font-size: 15.5px; font-weight: 800; letter-spacing: -.025em; line-height: 1.3; color: #5e1527; }
-.zu-alert__body p { margin: 0; font-size: 13px; line-height: 1.5; color: #6e4a55; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.zu-alert__body { min-width: 0; display: grid; gap: 2px; }
+.zu-alert__eyebrow { margin: 0; display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 11.5px; font-weight: 700; color: #4d6788; line-height: 1.3; }
+.zu-alert__eyebrow span:not(.zu-alert__tag) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zu-alert__tag { flex: none; padding: 2px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; background: #fff; color: var(--pri-ink); box-shadow: inset 0 0 0 1px var(--pri-line); }
+.pri-important .zu-alert__tag { background: #ffeccb; box-shadow: none; }
+.pri-urgent .zu-alert__tag { background: #c21b37; color: #fff; box-shadow: none; }
+.zu-alert__title { font-size: 15.5px; font-weight: 800; letter-spacing: -.02em; line-height: 1.3; color: #072a56; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pri-urgent .zu-alert__title { color: var(--pri-ink); }
+.zu-alert__text { margin: 0; font-size: 13px; line-height: 1.45; color: #3d5a7d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.zu-alert__actions { display: flex; align-items: center; gap: 8px; flex: none; }
+.zu-alert__actions { display: flex; align-items: center; gap: 6px; }
 .zu-alert__read {
-    padding: 10px 20px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 750;
-    color: #fff;
-    text-decoration: none;
-    background: linear-gradient(180deg, #ec5d77, #cb3550);
-    box-shadow: 0 10px 22px rgba(203, 53, 80, .3), inset 0 1px 0 rgba(255, 255, 255, .4);
-    transition: transform .45s var(--zu-spring, cubic-bezier(.34, 1.45, .5, 1)), box-shadow .3s ease, filter .3s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; font-weight: 750; color: #fff; text-decoration: none; white-space: nowrap;
+    background: var(--pri-ink);
+    box-shadow: 0 8px 18px var(--pri-glow);
+    transition: transform .25s cubic-bezier(.22, .8, .24, 1), box-shadow .25s ease, filter .2s ease;
 }
-.zu-alert__read:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 14px 28px rgba(203, 53, 80, .36), inset 0 1px 0 rgba(255, 255, 255, .45); }
-.zu-alert__read:focus-visible, .zu-alert__close:focus-visible, .zu-alerts__more:focus-visible { outline: 3px solid #5aafff; outline-offset: 2px; }
-.zu-alert__close { width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .75); color: #7a4a56; cursor: pointer; transition: background .3s ease, transform .4s var(--zu-spring, ease), color .3s; }
-.zu-alert__close:hover { background: #fff; color: #cb3550; transform: rotate(90deg); }
+.pri-normal .zu-alert__read { background: #17559f; }
+.pri-important .zu-alert__read { background: #a15a00; }
+.pri-urgent .zu-alert__read { background: #c21b37; }
+.zu-alert__read svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s ease; }
+html[dir='rtl'] .zu-alert__read svg { transform: scaleX(-1); }
+.zu-alert__read:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.zu-alert__read:hover svg { transform: translateX(2px); }
+html[dir='rtl'] .zu-alert__read:hover svg { transform: scaleX(-1) translateX(2px); }
+.zu-alert__read:focus-visible, .zu-alert__close:focus-visible, .zu-alert__more:focus-visible { outline: 3px solid #5aafff; outline-offset: 2px; }
+
+.zu-alert__close { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #4d6788; cursor: pointer; transition: background .2s ease, color .2s ease; }
+.zu-alert__close:hover { background: rgba(10, 52, 104, .08); color: #072a56; }
 .zu-alert__close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
 
-/* "Important" quietly leaves on its own; the thin line shows how long is left (pauses on hover/focus) */
-.zu-alert__timer { position: absolute; left: 5px; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, #ef9aab, #e0657c); transform-origin: left; animation: zaTimer var(--za-ms, 16s) linear forwards; animation-delay: 1s; }
-.zu-alert:hover .zu-alert__timer, .zu-alert:focus-within .zu-alert__timer { animation-play-state: paused; }
+/* "2 more" — a real link to the inbox, only when more are waiting */
+.zu-alert__more { display: inline-flex; align-items: center; margin-inline-start: auto; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 750; color: #134f9e; background: rgba(31, 111, 208, .1); text-decoration: none; white-space: nowrap; }
+.zu-alert__more:hover { background: rgba(31, 111, 208, .18); }
+.zu-alert__more[hidden] { display: none; }
 
-.zu-alert.is-leaving { opacity: 0; transform: translateY(-18px) scale(.97); max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: -10px; border-width: 0; }
+.zu-alert.is-leaving { animation: zaOut .26s ease forwards; pointer-events: none; }
 
-.zu-alerts__more { justify-self: center; padding: 8px 18px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: #8f1f38; text-decoration: none; background: rgba(255, 255, 255, .78); border: 1px solid rgba(255, 255, 255, .95); box-shadow: 0 8px 20px rgba(190, 60, 85, .12); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); animation: zaIn .7s .6s both; }
-.zu-alerts__more:hover { background: #fff; }
+@keyframes zaIn  { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+@keyframes zaOut { to { opacity: 0; transform: translateY(-8px); } }
 
-@keyframes zaIn { from { opacity: 0; transform: translateY(-34px) scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes zaTimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
-@keyframes zaPulse { 0%, 100% { box-shadow: 0 8px 18px rgba(203, 53, 80, .32), 0 0 0 0 rgba(214, 69, 96, .35), inset 0 1px 0 rgba(255, 255, 255, .45); } 50% { box-shadow: 0 8px 18px rgba(203, 53, 80, .32), 0 0 0 9px rgba(214, 69, 96, 0), inset 0 1px 0 rgba(255, 255, 255, .45); } }
+/* While the notification panel is open, the banner steps aside. */
+.zu-alerts { transition: opacity .2s ease; }
+.zu-notify-open .zu-alerts { opacity: 0; pointer-events: none; }
 
-@media (max-width: 900px) {
-    .zu-alerts { top: calc(var(--zu-header-h, 150px) - 8px); }
+/* ---- narrow screens: a bottom sheet (clear of the header and the navigation), preview wraps to two lines ---- */
+@media (max-width: 700px) {
+    .zu-alerts { top: auto; bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100vw - 24px); }
+    .zu-alert { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: 'icon body close' 'read read read'; gap: 8px 12px; padding: 12px 14px 14px; border-radius: 22px; animation-name: zaInUp; }
+    .zu-alert__icon { grid-area: icon; width: 38px; height: 38px; border-radius: 12px; align-self: start; }
+    .zu-alert__body { grid-area: body; }
+    .zu-alert__actions { display: contents; }
+    .zu-alert__close { grid-area: close; align-self: start; margin: -4px -4px 0 0; }
+    .zu-alert__read { grid-area: read; justify-content: center; padding: 10px 18px; }
+    .zu-alert__title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; }
+    .zu-alert__text { white-space: nowrap; }
+    .zu-alert.is-leaving { animation-name: zaOutDown; }
 }
-@media (max-width: 560px) {
-    .zu-alert { flex-wrap: wrap; gap: 12px; padding: 14px 14px 14px 18px; border-radius: 22px; }
-    .zu-alert__icon { width: 38px; height: 38px; }
-    .zu-alert__body { flex-basis: calc(100% - 60px); }
-    .zu-alert__actions { width: 100%; justify-content: space-between; }
-    .zu-alert__read { flex: 1; text-align: center; }
+@keyframes zaInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes zaOutDown { to { opacity: 0; transform: translateY(10px); } }
+
+/* very short windows (landscape phones, high zoom): the hero fills the height, so go to the bottom there too */
+@media (max-height: 560px) {
+    .zu-alert__text { display: none; }
 }
+@media (max-height: 560px) and (min-width: 701px) {
+    .zu-alerts { top: auto; bottom: 12px; }
+    .zu-alert { animation-name: zaInUp; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .zu-alert, .zu-alerts__more { animation: none !important; transition-duration: .01ms !important; }
-    .zu-alert__icon, .zu-alert__timer { animation: none !important; }
+    .zu-alert, .zu-alert.is-leaving { animation-duration: .01ms !important; animation-delay: 0s !important; }
+    .zu-alert__read, .zu-alert__read svg, .zu-alerts { transition: none !important; }
 }
-
-/* While the notification dropdown is open the banner steps aside (the dropdown is what the user chose to read). */
-.zu-notify-open .zu-alerts { opacity: 0; pointer-events: none; transform: translate(-50%, -10px); transition: opacity .25s ease, transform .3s ease; }
-.zu-alerts { transition: opacity .3s ease, transform .35s ease; }

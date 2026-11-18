@@ -22,6 +22,8 @@ class NotificationBell extends Component
     public int $unread = 0;
     /** Unread, still-active Important/Urgent admin announcements (drives the ring + red glow). */
     public int $alerts = 0;
+    /** Strongest unread alert priority ('urgent' | 'important') or null; colours the bell and its badge. */
+    public ?string $level = null;
 
     public function __construct()
     {
@@ -30,6 +32,7 @@ class NotificationBell extends Component
         $this->items = $userId ? UserNotification::query()->inbox($userId)->limit(self::LIMIT)->get() : collect();
         $this->unread = $userId ? UserNotification::unreadCountFor($userId) : 0;
         $this->alerts = $userId ? UserNotification::alertCountFor($userId) : 0;
+        $this->level = $userId ? UserNotification::alertLevelFor($userId) : null;
     }
 
     public function render(): View

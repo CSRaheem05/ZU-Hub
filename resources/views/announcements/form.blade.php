@@ -93,9 +93,11 @@
               <label class="choice"><input type="radio" name="send_mode" value="now" @checked($sendMode === 'now')><span><b>Immediately</b><small>As soon as you publish</small></span></label>
               <label class="choice"><input type="radio" name="send_mode" value="later" @checked($sendMode === 'later')><span><b>Schedule</b><small>Pick a date and time</small></span></label>
             </div>
-            <div class="field-group" id="start-picker" @if($sendMode !== 'later') hidden @endif>
-              <label for="ann-start">Goes live on</label>
-              <input type="datetime-local" id="ann-start">
+            <div class="when-reveal @if($sendMode !== 'later') is-collapsed @endif" id="start-picker" @if($sendMode !== 'later') inert @endif>
+              <div class="when-reveal__inner field-group">
+                <label for="ann-start">Goes live on</label>
+                <input type="datetime-local" id="ann-start" @if($sendMode !== 'later') disabled @endif>
+              </div>
             </div>
             <input type="hidden" name="publish_at" id="ann-publish-at" value="{{ $startIso }}">
           @endif
@@ -106,9 +108,11 @@
             <label class="choice"><input type="radio" name="expire_mode" value="never" @checked($expireMode === 'never')><span><b>Never</b><small>Stays active</small></span></label>
             <label class="choice"><input type="radio" name="expire_mode" value="date" @checked($expireMode === 'date')><span><b>On a date</b><small>Stops being an alert</small></span></label>
           </div>
-          <div class="field-group" id="end-picker" @if($expireMode !== 'date') hidden @endif>
-            <label for="ann-end">Expires on</label>
-            <input type="datetime-local" id="ann-end">
+          <div class="when-reveal @if($expireMode !== 'date') is-collapsed @endif" id="end-picker" @if($expireMode !== 'date') inert @endif>
+            <div class="when-reveal__inner field-group">
+              <label for="ann-end">Expires on</label>
+              <input type="datetime-local" id="ann-end" @if($expireMode !== 'date') disabled @endif>
+            </div>
           </div>
           <input type="hidden" name="expires_at" id="ann-expires-at" value="{{ $endIso }}">
         </div>
@@ -122,8 +126,8 @@
         <button type="submit" class="btn btn-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg>Save changes</button>
       @else
         <button type="submit" name="action" value="draft" class="btn btn-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg>Save draft</button>
-        <button type="submit" name="action" value="publish" class="btn btn-blue" data-zu-confirm data-confirm-tone="green" data-confirm-icon="check"
-          data-confirm-title="Publish this announcement?" data-confirm-message="It will be delivered right away to the audience you selected." data-confirm-label="Publish now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>Publish now</button>
+        <button type="submit" name="action" value="publish" id="ann-publish" class="btn btn-blue" data-zu-confirm data-confirm-tone="green" data-confirm-icon="check"
+          data-confirm-title="Publish this announcement?" data-confirm-message="It will be delivered right away to the audience you selected." data-confirm-label="Publish now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg><span id="ann-publish-label">Publish now</span></button>
       @endif
       <a class="btn btn-glass" href="{{ route('announcements.index') }}">Cancel</a>
     </div>
@@ -133,12 +137,14 @@
     <div class="panel glass-card reveal" style="--i:3">
       <header class="panel-head tight"><div><span class="kicker">Live preview</span><h2>How it will look</h2></div></header>
       <div id="ann-preview" class="zn-item {{ $isAdmin ? 'src-official' : 'src-instructor' }} pri-{{ $priorityValue }}" data-official="{{ $isAdmin ? 1 : 0 }}" data-initial="{{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}" data-sender="{{ $isAdmin ? 'ZU Administration' : auth()->user()->name }}" style="cursor:default">
+        <span class="zn-main">
         <span class="zn-avatar" id="pv-avatar" aria-hidden="true"></span>
         <span class="zn-body">
-          <span class="zn-meta"><span class="zn-sender" id="pv-sender"></span><span class="zn-chip {{ $isAdmin ? 'zn-chip--official' : 'zn-chip--instructor' }}">{{ $isAdmin ? 'Official' : 'Instructor' }}</span><span class="zn-chip" id="pv-chip" hidden></span></span>
+          <span class="zn-meta"><span class="zn-chip" id="pv-chip" hidden></span><span class="zn-sender" id="pv-sender"></span></span>
           <strong class="zn-title" id="pv-title"></strong>
           <span class="zn-excerpt" id="pv-text"></span>
           <span class="zn-foot"><span id="pv-when">Just now</span></span>
+        </span>
         </span>
         <span class="zn-state"><i class="zn-dot"></i></span>
       </div>
@@ -156,13 +162,14 @@
   var pv = document.getElementById('ann-preview');
   var official = pv.dataset.official === '1';
   var shield = '<svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>';
-  var alertShield = '<svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5 7.5-9.5V6z"/><path d="M12 8.5v4M12 15.6v.4"/></svg>';
+  var circle = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 15.8v.1"/></svg>';
+  var triangle = '<svg viewBox="0 0 24 24"><path d="M10.3 4.2 2.9 17.5A2 2 0 0 0 4.6 20.5h14.8a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 16.7v.1"/></svg>';
 
   function priority() { var r = form.querySelector('input[name="priority"]:checked'); return r ? r.value : 'normal'; }
   function render() {
     var p = priority();
     pv.className = 'zn-item is-unread ' + (official ? 'src-official' : 'src-instructor') + ' pri-' + p;
-    document.getElementById('pv-avatar').innerHTML = official ? (p === 'normal' ? shield : alertShield) : pv.dataset.initial;
+    document.getElementById('pv-avatar').innerHTML = official ? (p === 'urgent' ? triangle : p === 'important' ? circle : shield) : pv.dataset.initial;
     document.getElementById('pv-sender').textContent = pv.dataset.sender;
     document.getElementById('pv-title').textContent = title.value.trim() || 'Your headline appears here';
     document.getElementById('pv-text').textContent = body.value.replace(/\s+/g, ' ').trim().slice(0, 110) || 'The first lines of your message appear here.';
@@ -191,16 +198,42 @@
     if (startIn) startIn.min = nowLocal;
     if (endIn) endIn.min = nowLocal;
 
+    // Show a date field only when its option needs it. Inactive pickers are collapsed, inert and disabled, so they
+    // can neither be tabbed to nor block submission; what the person typed is kept in case they switch back.
+    function reveal(box, input, on) {
+      if (!box) return;
+      box.classList.toggle('is-collapsed', !on);
+      if (on) box.removeAttribute('inert'); else box.setAttribute('inert', '');
+      input.disabled = !on; input.required = on;
+    }
+    var publishBtn = document.getElementById('ann-publish'), publishLabel = document.getElementById('ann-publish-label');
     function syncSchedule() {
       var later = mode('send_mode') === 'later', ends = mode('expire_mode') === 'date';
-      if (startPicker) { startPicker.hidden = !later; startIn.required = later; }
-      endPicker.hidden = !ends; endIn.required = ends;
-      if (startIn && later && startIn.value) endIn.min = startIn.value;
+      if (startPicker) reveal(startPicker, startIn, later);
+      reveal(endPicker, endIn, ends);
+      // date rules, in the browser's own validation bubble (the server re-checks every one of them)
+      var now = toLocalInput(new Date().toISOString());
+      if (startIn) { startIn.min = now; startIn.setCustomValidity(later && startIn.value && startIn.value < now ? 'Pick a start time in the future.' : ''); }
+      endIn.min = later && startIn && startIn.value && startIn.value > now ? startIn.value : now;
+      var endMsg = '';
+      if (ends && endIn.value) {
+        if (later && startIn && startIn.value && endIn.value <= startIn.value) endMsg = 'The end time must be after the start time.';
+        else if (endIn.value <= now) endMsg = 'Pick an end time in the future.';
+      }
+      endIn.setCustomValidity(endMsg);
+      // only active values travel to the server
       if (startHidden) startHidden.value = later && startIn.value ? new Date(startIn.value).toISOString() : '';
       endHidden.value = ends && endIn.value ? new Date(endIn.value).toISOString() : '';
       var bits = [startHidden ? (later && startIn.value ? 'Goes live ' + fmt(startIn.value) : 'Starts when published') : 'Live now'];
       bits.push(ends && endIn.value ? 'ends ' + fmt(endIn.value) : 'never expires');
       document.getElementById('pv-when').textContent = bits.join(' · ');
+      // the main action says what it will really do
+      if (publishBtn) {
+        publishLabel.textContent = later ? 'Schedule' : 'Publish now';
+        publishBtn.setAttribute('data-confirm-label', later ? 'Schedule' : 'Publish now');
+        publishBtn.setAttribute('data-confirm-title', later ? 'Schedule this announcement?' : 'Publish this announcement?');
+        publishBtn.setAttribute('data-confirm-message', later ? (startIn.value ? 'It will be sent to your audience on ' + fmt(startIn.value) + ', not before.' : 'It will be sent to your audience at the time you chose.') : 'It will be delivered right away to the audience you selected.');
+      }
     }
     form.addEventListener('input', syncSchedule); form.addEventListener('change', syncSchedule); syncSchedule();
   }

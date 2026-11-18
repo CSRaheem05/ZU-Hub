@@ -14,7 +14,7 @@ if (MEDIA.poster) {
     poster.src = MEDIA.poster;
 }
 video.load();
-const DURATION = 2100;
+const DURATION = 2100;   // the original, unhurried capsule reveal (timings and easing of every keyframe below are unchanged)
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobile = () => window.matchMedia('(max-width: 720px)').matches;
 let animations = [], busy = false;
@@ -72,7 +72,9 @@ async function replay() {
         await animations[0].finished.catch(() => { });
     } finally { busy = false; $('replay') && ($('replay').disabled = false) }
 }
-function init() { createReveal(); if (reduced) { seekAll(DURATION); video.pause() } else { seekAll(0); playForward(); video.play().catch(() => { }) } }
+// the capsule's shadow and the letters' light pass wait for this flag, so they never appear around a capsule that is still opening
+const markOpen = () => document.documentElement.classList.add('zu-open');
+function init() { createReveal(); if (reduced) { seekAll(DURATION); video.pause(); markOpen() } else { seekAll(0); playForward(); video.play().catch(() => { }); animations[0].finished.then(markOpen, markOpen) } }
 let resizeId = 0;
 window.addEventListener('resize', () => { cancelAnimationFrame(resizeId); resizeId = requestAnimationFrame(() => { createReveal(); seekAll(DURATION); busy = false; $('replay') && ($('replay').disabled = false) }) }, { passive: true });
 $('replay')?.addEventListener('click', () => { if (reduced) { seekAll(DURATION) } else replay() });
@@ -85,19 +87,16 @@ document.fonts.ready.then(() => { init(); if (rec && !reduced) { setTimeout(() =
 // Functional bilingual UI. Demo notifications/panels are sample content, not connected to Laravel.
 const TEXT = {
     en: {
-        home: 'Home', features: 'Features', courses: 'Courses', contact: 'Contact', notifications: 'Notifications', demoNotices: 'Preview only', markRead: 'Mark all as read', tagline: 'Learn beyond the classroom', intro: '', explore: 'Explore Courses', unread: 'New', empty: 'You are all caught up.',
-        notices: [['Welcome to ZU Hub', 'Your learning space is getting ready.', 'Just now'], ['A better way to learn', 'Explore courses, resources, and updates in one place.', 'Preview']]
+        home: 'Home', features: 'Features', courses: 'Courses', contact: 'Contact', notifications: 'Notifications', markRead: 'Mark all as read', tagline: 'Learn beyond the classroom', intro: '', explore: 'Explore Courses', unread: 'New', empty: 'You are all caught up.'
     },
     ar: {
-        home: 'الرئيسية', features: 'المميزات', courses: 'الدورات', contact: 'تواصل معنا', notifications: 'التنبيهات', demoNotices: 'تنبيهات تجريبية', markRead: 'تحديد الكل كمقروء', tagline: 'تعلّم بلا حدود', intro: 'اكتشف تجربة تعلم أكثر ذكاءً. استكشف الدورات، وتواصل مع مجتمعك الجامعي، وحوّل شغفك بالمعرفة إلى إنجاز.', explore: 'استكشف الدورات', unread: 'جديد', empty: 'لا توجد تنبيهات غير مقروءة.',
-        notices: [['مرحبًا بك في ZU Hub', 'مساحتك التعليمية الجديدة قيد التجهيز.', 'الآن'], ['تعلّم بطريقة أفضل', 'استكشف الدورات والمصادر والتنبيهات في مكان واحد.', 'تجريبي']]
+        home: 'الرئيسية', features: 'المميزات', courses: 'الدورات', contact: 'تواصل معنا', notifications: 'التنبيهات', markRead: 'تحديد الكل كمقروء', tagline: 'تعلّم بلا حدود', intro: 'اكتشف تجربة تعلم أكثر ذكاءً. استكشف الدورات، وتواصل مع مجتمعك الجامعي، وحوّل شغفك بالمعرفة إلى إنجاز.', explore: 'استكشف الدورات', unread: 'جديد', empty: 'لا توجد تنبيهات غير مقروءة.'
     }
 };
 let language = 'en'; try { language = localStorage.getItem('zu-language') === 'ar' ? 'ar' : 'en' } catch { }
-let noticesRead = false;
 const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function applyLanguage() { const t = TEXT[language]; document.documentElement.lang = language; document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'; document.querySelectorAll('[data-i18n]').forEach(n => { n.textContent = t[n.dataset.i18n] || n.textContent }); $('langLabel').textContent = language === 'ar' ? 'English' : 'العربية'; $('langBtn').setAttribute('aria-label', language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'); $('notifBtn').setAttribute('aria-label', t.notifications); renderNotices(); }
-function renderNotices() { const t = TEXT[language]; $('notifDot').classList.toggle('hidden', noticesRead); $('noticeList').innerHTML = noticesRead ? '<div class="notice"><div class="notice-icon">✓</div><div><strong>' + escapeHTML(t.empty) + '</strong></div></div>' : t.notices.map(([h, p, time]) => '<article class="notice"><div class="notice-icon"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/></svg></div><div><strong>' + escapeHTML(h) + '</strong><p>' + escapeHTML(p) + '</p><small>' + escapeHTML(time) + '</small></div></article>').join(''); $('markRead').hidden = noticesRead }
+function renderNotices() { }
 /* Notification dropdown: anchored to the bell, kept inside the viewport, animated open/closed. */
 let noticeTimer = 0;
 function placeNotices() {
@@ -110,7 +109,7 @@ function placeNotices() {
     const top = b.bottom + gap;
     panel.style.left = left + 'px'; panel.style.top = top + 'px';
     panel.style.setProperty('--caret-x', Math.min(Math.max(b.left + b.width / 2 - left, 24), w - 24) + 'px');   // the caret always points at the bell
-    panel.style.setProperty('--list-max', Math.max(vh - top - m - 150, 120) + 'px');                            // the list scrolls instead of overflowing the screen
+    panel.style.maxHeight = Math.min(Math.max(vh - top - m, 220), 640) + 'px';                                              // the list scrolls inside the panel instead of overflowing the screen
 }
 function showNotices() {
     const panel = $('notifPanel'); clearTimeout(noticeTimer);
@@ -138,12 +137,10 @@ function hideNotices() {
     document.documentElement.classList.remove('zu-notify-open');
     noticeTimer = setTimeout(() => { panel.hidden = true; panel.classList.remove('is-closing') }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 170);
 }
-(() => { const caret = document.createElement('span'); caret.className = 'zu-caret'; caret.setAttribute('aria-hidden', 'true'); $('notifPanel').prepend(caret) })();
 window.addEventListener('resize', placeNotices); window.addEventListener('orientationchange', placeNotices);
 new MutationObserver(() => requestAnimationFrame(placeNotices)).observe(document.documentElement, { attributes: true, attributeFilter: ['dir', 'lang'] });
 $('langBtn').addEventListener('click', () => { language = language === 'en' ? 'ar' : 'en'; try { localStorage.setItem('zu-language', language) } catch { } applyLanguage() });
-$('notifBtn').addEventListener('click', () => { const open = !$('notifPanel').hidden && !$('notifPanel').classList.contains('is-closing'); open ? hideNotices() : showNotices() });
-$('markRead').addEventListener('click', () => { noticesRead = true; renderNotices() });
+$('notifBtn').addEventListener('click', e => { const open = !$('notifPanel').hidden && !$('notifPanel').classList.contains('is-closing'); if (open) { hideNotices(); return } showNotices(); if (e.detail === 0) setTimeout(() => ($('markRead').hidden ? $('noticeList').querySelector('.zn-main, .zn-viewall') : $('markRead'))?.focus(), 30) });
 document.addEventListener('pointerdown', e => { if (!$('notifPanel').hidden && !$('notifPanel').contains(e.target) && !$('notifBtn').contains(e.target)) hideNotices() });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { const wasOpen = !$('notifPanel').hidden; hideNotices(); if (wasOpen) $('notifBtn').focus() } });
 applyLanguage();
@@ -398,32 +395,68 @@ applyLanguage();
     });
 })();
 
-/* Real notifications for signed-in users (replaces the preview notices). Data comes from Laravel via window.ZU_NOTIFS. */
+/* Notifications for signed-in students and instructors. Data comes from Laravel (window.ZU_NOTIFS); the rows use the same
+   design language as the header panel on every other page (css/zu-notifications.css). */
 (function () {
-    const data = window.ZU_NOTIFS; if (!data) return;
+    const data = window.ZU_NOTIFS || { items: [], unread: 0, alerts: 0, level: null, inboxUrl: '#' };
     const items = data.items;
-    let alerts = data.alerts || 0;
-    const label = document.querySelector('#notifPanel .panel-count');
-    if (label) label.removeAttribute('data-i18n');
-    const bell = '<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>';
-    const shield = '<svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5 7.5-9.5V6z"/></svg>';
-    renderNotices = function () {
-        const unread = items.filter(n => !n.read).length;
-        $('notifDot').classList.toggle('hidden', unread === 0);
-        $('notifBtn').classList.toggle('zu-ring', alerts > 0);
-        $('markRead').hidden = unread === 0;
-        if (label) label.textContent = unread ? unread + ' new' : 'All caught up';
-        $('noticeList').innerHTML = (items.length ? items.map(n =>
-            '<a class="notice zu-notice' + (n.read ? ' is-read' : '') + (n.expired ? ' is-expired' : '') + (n.alert ? ' is-alert' : '') + (n.official ? '' : ' is-instructor') + '" href="' + escapeHTML(n.url) + '">' +
-            '<div class="notice-icon">' + (n.official ? shield : bell) + '</div><div><strong>' + escapeHTML(n.title) + '</strong>' +
-            (n.excerpt ? '<p>' + escapeHTML(n.excerpt) + '</p>' : '') +
-            '<small>' + escapeHTML(n.sender) + ' · ' + escapeHTML(n.time || '') + '</small></div></a>'
-        ).join('') : '<div class="notice"><div class="notice-icon">✓</div><div><strong>No notifications yet</strong></div></div>') +
-            '<a class="zu-notice-all" href="' + escapeHTML(data.inboxUrl) + '">View all notifications →</a>';
+    let total = data.unread || 0, level = data.alerts > 0 ? data.level : null, summaryHold = 0;
+    const L = {
+        en: { unread: n => n + ' unread', caught: 'You are all caught up', emptyT: 'No notifications yet', emptyP: 'Announcements from the university and your instructors will appear here.', viewAll: 'View all notifications', mark: 'Mark as read', Important: 'Important', Urgent: 'Urgent', expired: 'Expired', fail: 'Couldn’t update. Please try again.', bell: 'Notifications', tail: n => n + ' unread' },
+        ar: { unread: n => n + ' غير مقروءة', caught: 'لقد اطلعت على كل شيء', emptyT: 'لا توجد تنبيهات بعد', emptyP: 'ستظهر هنا إعلانات الجامعة ومدرّسيك.', viewAll: 'عرض كل التنبيهات', mark: 'تحديد كمقروء', Important: 'مهم', Urgent: 'عاجل', expired: 'منتهي', fail: 'تعذّر التحديث. حاول مرة أخرى.', bell: 'التنبيهات', tail: n => n + ' غير مقروءة' }
     };
-    $('markRead').addEventListener('click', () => {
-        fetch(data.readAllUrl, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-TOKEN': window.ZU_CSRF, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
-            .then(r => { if (!r.ok) throw 0; items.forEach(n => { n.read = true; n.alert = false }); alerts = 0; renderNotices() }).catch(() => { });
+    const t = () => L[language];
+    const svg = d => '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>';
+    const ICON = {
+        normal: svg('<path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>'),
+        important: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 15.8v.1"/>'),
+        urgent: svg('<path d="M10.3 4.2 2.9 17.5A2 2 0 0 0 4.6 20.5h14.8a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 16.7v.1"/>')
+    };
+    const bell = $('notifBtn'), badge = $('notifDot'), markAll = $('markRead'), summary = $('znSummary'), list = $('noticeList');
+    $('znViewAll').href = data.inboxUrl;
+
+    const row = n => {
+        const pri = n.priority || 'normal', unread = !n.read;
+        const chip = n.expired ? '<span class="zn-chip zn-chip--expired">' + escapeHTML(t().expired) + '</span>' : pri !== 'normal' ? '<span class="zn-chip zn-chip--' + pri + '">' + escapeHTML(t()[pri === 'urgent' ? 'Urgent' : 'Important']) + '</span>' : '';
+        const state = unread ? '<button type="button" class="zn-mark" data-id="' + escapeHTML(n.id) + '" aria-label="' + escapeHTML(t().mark) + '" title="' + escapeHTML(t().mark) + '"><i class="zn-dot"></i></button>' : '<i class="zn-dot"></i>';
+        return '<article class="zn-item ' + (n.official ? 'src-official' : 'src-instructor') + ' pri-' + pri + (unread ? ' is-unread' : '') + (n.expired ? ' is-expired' : '') + '" data-id="' + escapeHTML(n.id) + '">' +
+            '<a class="zn-main" href="' + escapeHTML(n.url) + '"><span class="zn-avatar" aria-hidden="true">' + (n.official ? ICON[pri] || ICON.normal : escapeHTML((n.sender || '?').trim().charAt(0).toUpperCase())) + '</span>' +
+            '<span class="zn-body"><span class="zn-meta">' + chip + '<span class="zn-sender">' + escapeHTML(n.sender) + '</span></span>' +
+            '<strong class="zn-title" dir="auto">' + escapeHTML(n.title) + '</strong>' + (n.excerpt ? '<span class="zn-excerpt" dir="auto">' + escapeHTML(n.excerpt) + '</span>' : '') +
+            '<span class="zn-foot"><time dir="ltr">' + escapeHTML(n.time || '') + '</time>' + (n.course ? '<span class="zn-course">' + escapeHTML(n.course) + '</span>' : '') + '</span></span></a>' +
+            '<span class="zn-state">' + state + '</span></article>';
+    };
+
+    function paintBell() {
+        badge.hidden = total < 1; badge.textContent = total > 9 ? '9+' : String(total);
+        bell.classList.toggle('has-alert', !!level); bell.classList.add('zn-bell');
+        if (level) bell.dataset.level = level; else delete bell.dataset.level;
+        bell.setAttribute('aria-label', t().bell + (total ? ', ' + t().tail(total) : '') + (level ? ', ' + level : ''));
+    }
+    function paintSummary() { if (summary && !summaryHold) summary.textContent = total ? t().unread(total) : t().caught; }
+
+    renderNotices = function () {
+        paintBell(); paintSummary();
+        markAll.hidden = total < 1;
+        $('znViewAll').firstChild.textContent = t().viewAll;
+        list.innerHTML = items.length ? items.map(row).join('') :
+            '<div class="zu-notify__empty"><span>' + svg('<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>') + '</span><strong>' + escapeHTML(t().emptyT) + '</strong><p>' + escapeHTML(t().emptyP) + '</p></div>';
+    };
+
+    const post = url => fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-TOKEN': window.ZU_CSRF, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => { if (!r.ok) throw new Error(r.status); return r.json() });
+    const apply = d => { total = d.unread; level = d.alerts > 0 ? d.level : null; renderNotices() };
+    const fail = () => { if (!summary) return; clearTimeout(summaryHold); summary.textContent = t().fail; summaryHold = setTimeout(() => { summaryHold = 0; paintSummary() }, 3500) };
+
+    list.addEventListener('click', e => {
+        const m = e.target.closest('.zn-mark'); if (!m) return;
+        const n = items.find(x => x.id === m.dataset.id); if (!n || n.read) return;
+        n.read = true; renderNotices();                                                   // optimistic, restored below if the server refuses
+        post(data.readUrl.replace('__ID__', encodeURIComponent(n.id))).then(apply).catch(() => { n.read = false; renderNotices(); fail() });
+    });
+    markAll.addEventListener('click', () => {
+        markAll.disabled = true;
+        post(data.readAllUrl).then(d => { items.forEach(n => { n.read = true }); apply(d) }).catch(fail).then(() => { markAll.disabled = false });
     });
     renderNotices();
 })();

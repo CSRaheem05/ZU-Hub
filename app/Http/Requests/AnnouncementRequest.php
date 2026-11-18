@@ -132,6 +132,14 @@ class AnnouncementRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge(['title' => trim((string) $this->input('title')), 'body' => trim((string) $this->input('body'))]);
+
+        // A date that belongs to an option which is not selected is ignored (and never validated), whatever the browser sent.
+        if ($this->has('send_mode') && $this->input('send_mode') !== 'later') {
+            $this->merge(['publish_at' => null]);
+        }
+        if ($this->has('expire_mode') && $this->input('expire_mode') !== 'date') {
+            $this->merge(['expires_at' => null]);
+        }
     }
 
     private function parseTime(mixed $value): ?Carbon

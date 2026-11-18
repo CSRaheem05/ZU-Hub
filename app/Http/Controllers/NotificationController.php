@@ -83,7 +83,7 @@ class NotificationController extends Controller
         $unread = UserNotification::unreadCountFor($userId);
 
         return $request->expectsJson()
-            ? response()->json(['unread' => $unread, 'alerts' => UserNotification::alertCountFor($userId)])
+            ? response()->json(['unread' => $unread, 'alerts' => UserNotification::alertCountFor($userId), 'level' => UserNotification::alertLevelFor($userId)])
             : back()->with('success', $unread === 0 ? 'All notifications marked as read.' : null);
     }
 }

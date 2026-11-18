@@ -17,6 +17,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/zu-lessons.css') }}?v={{ @filemtime(public_path('css/zu-lessons.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/zu-filekinds.css') }}?v={{ @filemtime(public_path('css/zu-filekinds.css')) }}">
 <link rel="stylesheet" href="{{ asset('css/zu-lightbox.css') }}?v={{ @filemtime(public_path('css/zu-lightbox.css')) }}">
 @endpush
 

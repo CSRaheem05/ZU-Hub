@@ -1,5 +1,6 @@
 {{-- One piece of content inside a section. Needs: $lesson, $course, $locked (ids with student progress), $files --}}
 @php
+    use App\Support\FileKind;
     use App\Support\LessonIcons as I;
     use Illuminate\Support\Carbon;
 
@@ -9,11 +10,18 @@
     $fileSize = $lesson->file_size ?? null;
     $isUpload = $type === 'video' && ! empty($filePath);
     $ext = ($type === 'file' || $isUpload) ? strtolower(pathinfo((string) ($fileName ?: $filePath), PATHINFO_EXTENSION)) : null;
-    $kindClass = $type === 'file' ? 'file-'.($ext ?: 'file') : $type;
     $isImage = $type === 'file' && in_array($lesson->file_mime ?? '', ['image/jpeg', 'image/png', 'image/webp'], true);   // the formats the file route may show inline
     $isYoutube = $type === 'link' && \App\Support\VideoEmbed::resolve($lesson->lesson_url)['embed'] !== null;
+    // the same type identity the students see (FileKind + zu-filekinds.css)
+    $form = match (true) {
+        $isImage => 'image',
+        $isYoutube => 'youtube',
+        default => $type,
+    };
+    $kindClass = FileKind::familyFor($form, $ext);
     $label = match (true) {
-        $type === 'file' => \App\Services\LessonFileService::DOCUMENT_TYPES[$ext][0] ?? 'Material',
+        $isImage => 'Image',
+        $type === 'file' => FileKind::label($ext),
         $type === 'video' => 'Video',
         $isYoutube => 'YouTube',
         $type === 'link' => 'Resource',
@@ -33,13 +41,13 @@
         'update_url' => route('instructor.lessons.update', [$course->offering_id, $lesson->lesson_id]),
     ];
 @endphp
-<li class="lm-item lm-k--{{ $kindClass }}" id="lesson-{{ $lesson->lesson_id }}" data-id="{{ $lesson->lesson_id }}">
+<li class="lm-item fk-{{ $kindClass }}" id="lesson-{{ $lesson->lesson_id }}" data-id="{{ $lesson->lesson_id }}">
     <button type="button" class="lm-grip" aria-label="Reorder “{{ $lesson->lesson_title }}”. Drag it, or focus it and use the up and down arrow keys." data-hint="Drag to reorder">{!! I::svg('grip') !!}</button>
 
     @if($isImage)
         <button type="button" class="zu-thumb" data-zu-lightbox="{{ route('lessons.file', ['lessonId' => $lesson->lesson_id]) }}?view=1" data-caption="{{ $lesson->lesson_title }}" aria-label="View image “{{ $lesson->lesson_title }}” full size"><img src="{{ route('lessons.file', ['lessonId' => $lesson->lesson_id]) }}?view=1" alt="" width="56" height="56" loading="lazy" decoding="async"></button>
     @else
-        <span class="lm-tile" aria-hidden="true">@if($ext)<b>{{ strtoupper($ext) }}</b>@else{!! I::svg($type) !!}@endif</span>
+        <span class="fk-tile" aria-hidden="true">{!! FileKind::tile($form, $ext) !!}</span>
     @endif
 
     <div class="lm-item__body">

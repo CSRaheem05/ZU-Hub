@@ -9,14 +9,12 @@
 @endphp
 <article class="zn-detail {{ $official ? 'src-official' : 'src-instructor' }} pri-{{ $priority }}">
   <header class="zn-detail__head">
-    <span class="zn-avatar" aria-hidden="true">
-      @if($official)<svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5 7.5-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>@else{{ strtoupper(mb_substr($sender, 0, 1)) }}@endif
-    </span>
+    <span class="zn-avatar" aria-hidden="true">@include('notifications.partials.icon', ['official' => $official, 'priority' => $priority, 'sender' => $sender])</span>
     <span class="zn-detail__who">
       <strong>{{ $sender }}</strong>
       <small>
         <span class="zn-chip {{ $official ? 'zn-chip--official' : 'zn-chip--instructor' }}">{{ $official ? 'Official announcement' : 'Instructor' }}</span>
-        @if($priority !== 'normal')<span class="zn-chip zn-chip--{{ $priority }}">@if($priority === 'urgent')<i class="zn-pulse"></i>@endif{{ ucfirst($priority) }}</span>@endif
+        @if($priority !== 'normal')<span class="zn-chip zn-chip--{{ $priority }}">{{ ucfirst($priority) }}</span>@endif
       </small>
     </span>
   </header>

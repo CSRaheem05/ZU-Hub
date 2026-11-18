@@ -1,23 +1,23 @@
 {{-- Notification bell for the shared header. Styles: css/zu-notifications.css · Behaviour: js/zu-notifications.js --}}
-<div class="zu-notify {{ $alerts ? 'has-alert' : '' }}" data-zu-notify
+<div class="zu-notify {{ $alerts ? 'has-alert' : '' }}" data-level="{{ $level }}" data-zu-notify
      data-token="{{ csrf_token() }}"
      data-read-url="{{ route('notifications.read', ['notificationId' => '__ID__']) }}"
      data-read-all-url="{{ route('notifications.read-all') }}">
   <button type="button" class="zu-btn lg zu-notify__trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="zuNotifyPanel"
-          aria-label="Notifications{{ $unread ? ', '.$unread.' unread' : '' }}{{ $alerts ? ', important announcement' : '' }}" title="Notifications">
+          aria-label="Notifications{{ $unread ? ', '.$unread.' unread' : '' }}{{ $level ? ', '.$level.' announcement' : '' }}" title="Notifications">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
     <b class="zu-notify__badge" @if(! $unread) hidden @endif>{{ $unread > 9 ? '9+' : $unread }}</b>
   </button>
 
-  <section class="zu-notify__panel lg" id="zuNotifyPanel" role="dialog" aria-label="Notifications" hidden>
-    <span class="zu-notify__caret" aria-hidden="true"></span>
+  <section class="zu-notify__panel zn-panel" id="zuNotifyPanel" role="dialog" aria-label="Notifications" hidden>
+    <span class="zn-caret" aria-hidden="true"></span>
     <div class="zu-notify__view" data-view="list">
       <header class="zu-notify__head">
         <div>
           <h2>Notifications</h2>
-          <small data-zn-summary>{{ $unread ? $unread.' unread' : 'You are all caught up' }}</small>
+          <small data-zn-summary role="status">{{ $unread ? $unread.' unread' : 'You are all caught up' }}</small>
         </div>
-        <button type="button" class="zu-notify__link" data-zn-read-all @if(! $unread) hidden @endif>Mark all as read</button>
+        <button type="button" class="zu-notify__link" data-zn-read-all @if(! $unread) hidden @endif><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12.500 4.500 4.500L16 8.500M12 16.500l1.500 1.500L21 9.500"/></svg>Mark all as read</button>
       </header>
 
       @if($items->isEmpty())
@@ -29,12 +29,12 @@
       @else
         <div class="zu-notify__list">
           @foreach($items as $item)
-            @include('notifications.partials.card', ['n' => $item, 'tag' => 'button'])
+            @include('notifications.partials.card', ['n' => $item, 'tag' => 'button', 'mark' => true])
           @endforeach
         </div>
       @endif
 
-      <footer class="zu-notify__foot"><a href="{{ route('notifications.index') }}">View all notifications <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></footer>
+      <footer class="zu-notify__foot"><a href="{{ route('notifications.index') }}">View all notifications<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></footer>
     </div>
 
     <div class="zu-notify__view" data-view="detail" hidden>

@@ -3,8 +3,6 @@
 @php
     use App\Services\LessonFileService;
     use App\Support\LessonIcons as I;
-    use App\Support\VideoEmbed;
-    use Illuminate\Support\Carbon;
     use Illuminate\Support\Str;
 
     $preview = $preview ?? false;
@@ -23,6 +21,7 @@
 @push('styles')
 <noscript><style>.cl-section.is-collapsed .cl-section__panel { grid-template-rows: 1fr !important; visibility: visible !important; } .cl-section.is-collapsed .cl-section__inner { opacity: 1 !important; transform: none !important; } .cl-bar__tools { display: none !important; }</style></noscript>
 <link rel="stylesheet" href="{{ asset('css/zu-course-learn.css') }}?v={{ @filemtime(public_path('css/zu-course-learn.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/zu-filekinds.css') }}?v={{ @filemtime(public_path('css/zu-filekinds.css')) }}">
 <link rel="stylesheet" href="{{ asset('css/zu-lightbox.css') }}?v={{ @filemtime(public_path('css/zu-lightbox.css')) }}">
 @endpush
 
@@ -90,109 +89,7 @@
                     <div class="cl-section__body" id="cs-{{ $sid }}" role="region" aria-label="{{ $section->title }}">
                     <div class="cl-section__inner">
                         @foreach($section->lessons as $lesson)
-                            @php
-                                $type = $lesson->lesson_type;
-                                $isUpload = $type === 'video' && ! empty($lesson->file_path);
-                                $ext = ($type === 'file' || $isUpload) ? strtolower(pathinfo((string) $lesson->file_name, PATHINFO_EXTENSION)) : null;
-                                $kind = $type === 'file' ? 'file-'.($ext ?: 'file') : $type;
-                                $label = match (true) {
-                                    $type === 'file' => LessonFileService::DOCUMENT_TYPES[$ext][0] ?? 'Material',
-                                    $type === 'video' => 'Video',
-                                    $type === 'link' => 'Resource',
-                                    default => 'Live session',
-                                };
-                                $desc = trim((string) ($lesson->description ?? ''));
-                                $fileUrl = route('lessons.file', ['lessonId' => $lesson->lesson_id]);
-                                $when = $type === 'live' && $lesson->scheduled_at ? Carbon::parse($lesson->scheduled_at) : null;
-                            @endphp
-
-                            <article class="cl-item cl-k--{{ $kind }}" id="lesson-{{ $lesson->lesson_id }}">
-                                <div class="cl-item__head">
-                                    <span class="cl-tile" aria-hidden="true">@if($type === 'file' && $ext)<b>{{ strtoupper($ext) }}</b>@else{!! I::svg($type) !!}@endif</span>
-                                    <div class="cl-item__titles">
-                                        <h3>{{ $lesson->lesson_title }}</h3>
-                                        <span class="cl-chip">@if($type === 'live')<i aria-hidden="true"></i>@endif{{ $label }}</span>
-                                    </div>
-                                </div>
-
-                                @if($desc !== '')<p class="cl-item__desc">{{ $desc }}</p>@endif
-
-                                {{-- ---------------------------------------------------- video --}}
-                                @if($type === 'video')
-                                    @php $embed = VideoEmbed::resolve($lesson->lesson_url); @endphp
-
-                                    @if($isUpload)
-                                        <div class="cl-player">
-                                            <video controls preload="metadata" playsinline controlsList="nodownload" aria-label="{{ $lesson->lesson_title }}">
-                                                <source src="{{ $fileUrl }}?view=1" type="video/mp4">
-                                                Your browser cannot play this video.
-                                            </video>
-                                        </div>
-                                    @elseif($embed['embed'])
-                                        <div class="cl-player">
-                                            <iframe src="{{ $embed['embed'] }}" title="{{ $lesson->lesson_title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                                        </div>
-                                    @elseif($embed['direct'])
-                                        <div class="cl-player">
-                                            <video controls preload="metadata" playsinline aria-label="{{ $lesson->lesson_title }}"><source src="{{ $lesson->lesson_url }}" type="video/mp4">Your browser cannot play this video.</video>
-                                        </div>
-                                    @elseif($lesson->lesson_url)
-                                        <a class="cl-btn" href="{{ $lesson->lesson_url }}" target="_blank" rel="noopener noreferrer">{!! I::svg('play') !!}Open video</a>
-                                    @else
-                                        <p class="cl-note">This video is not available yet.</p>
-                                    @endif
-
-                                {{-- ------------------------------------------------ material --}}
-                                @elseif($type === 'file')
-                                    @if($lesson->file_path)
-                                        <div class="cl-file">
-                                            @if(in_array($lesson->file_mime, ['image/jpeg', 'image/png', 'image/webp'], true))
-                                                <button type="button" class="zu-thumb" data-zu-lightbox="{{ $fileUrl }}?view=1" data-caption="{{ $lesson->lesson_title }}" aria-label="View image “{{ $lesson->lesson_title }}” full size"><img src="{{ $fileUrl }}?view=1" alt="" width="56" height="56" loading="lazy" decoding="async"></button>
-                                            @endif
-                                            <span class="cl-file__info">
-                                                <strong>{{ $lesson->file_name }}</strong>
-                                                @if($lesson->file_size)<small>{{ $files->humanSize((int) $lesson->file_size) }}</small>@endif
-                                            </span>
-                                            <span class="cl-file__actions">
-                                                @if($lesson->file_mime === 'application/pdf')
-                                                    <a class="cl-btn cl-btn--ghost" href="{{ $fileUrl }}?view=1" target="_blank" rel="noopener">{!! I::svg('eye') !!}View</a>
-                                                @endif
-                                                <a class="cl-btn" href="{{ $fileUrl }}">{!! I::svg('download') !!}Download</a>
-                                            </span>
-                                        </div>
-                                    @else
-                                        <p class="cl-note">This material is not available yet.</p>
-                                    @endif
-
-                                {{-- ----------------------------------------------- resource --}}
-                                @elseif($type === 'link')
-                                    @if($lesson->lesson_url)
-                                        <a class="cl-btn" href="{{ $lesson->lesson_url }}" target="_blank" rel="noopener noreferrer">{!! I::svg('globe') !!}Open resource<small>{{ preg_replace('/^www\./', '', (string) parse_url($lesson->lesson_url, PHP_URL_HOST)) }}</small></a>
-                                    @else
-                                        <p class="cl-note">This resource is not available yet.</p>
-                                    @endif
-
-                                {{-- ------------------------------------ Microsoft Teams session --}}
-                                @elseif($type === 'live')
-                                    <div class="cl-live">
-                                        <div class="cl-live__when">
-                                            @if($when)
-                                                {!! I::svg('calendar') !!}
-                                                <span><strong>{{ $when->format('l, F j') }}</strong><small>{{ $when->format('g:i A') }}@if($when->isFuture()) · Upcoming @else · Session time has passed @endif</small></span>
-                                            @else
-                                                {!! I::svg('clock') !!}<span><strong>Time to be announced</strong></span>
-                                            @endif
-                                        </div>
-                                        @if($lesson->live_url)
-                                            @php $isTeams = \App\Support\TeamsUrl::isValid($lesson->live_url); @endphp
-                                            <a class="cl-btn {{ $isTeams ? 'cl-btn--teams' : '' }}" href="{{ $lesson->live_url }}" target="_blank" rel="noopener noreferrer">{!! I::svg('live') !!}{{ $isTeams ? 'Join on Microsoft Teams' : 'Join session' }}</a>
-                                        @else
-                                            <p class="cl-note">The meeting link is not available yet.</p>
-                                        @endif
-                                    </div>
-                                @endif
-                            </article>
+                            @include('student.partials.lesson-card')
                         @endforeach
                     </div>
                     </div>

@@ -140,9 +140,39 @@
 .iw-card__meta svg { width: 18px; height: 18px; flex: none; fill: none; stroke: #6a5bd6; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .iw-card__meta b { color: var(--ink); font-weight: 800; font-variant-numeric: tabular-nums; }
 
-.iw-actions { margin-top: auto; display: grid; gap: 10px; padding-top: 6px; }
-.iw-actions__row { display: grid; grid-template-columns: 1fr 1fr 48px; gap: 8px; }
-.iw-actions .btn { width: 100%; justify-content: center; }
+/* action dock: one primary action, one quiet glass strip for the rest, set off from the text by a hairline.
+   margin-top:auto pins it to the card bottom so it lines up across cards whatever the title or description length. */
+.iw-actions { margin-top: auto; display: grid; gap: 8px; padding-top: 16px; border-top: 1px solid rgba(23, 90, 180, .1); }
+.iw-primary {
+    display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 0 18px;
+    border-radius: 15px; border: 1px solid rgba(255, 255, 255, .35);
+    background: linear-gradient(180deg, #3b97ee, #1a5cb8); color: #fff;
+    font: 750 14px/1 Inter, system-ui, sans-serif; text-decoration: none; letter-spacing: -.005em;
+    box-shadow: 0 8px 18px rgba(23, 90, 180, .24), inset 0 1px 0 rgba(255, 255, 255, .32);
+    transition: transform .25s var(--ease), box-shadow .25s var(--ease), filter .25s;
+}
+.iw-primary svg { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.iw-primary span { min-width: 0; }
+.iw-primary__go { width: 16px; height: 16px; margin-inline-start: -2px; opacity: .75; transition: transform .25s var(--ease), opacity .25s; }
+.iw-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(23, 90, 180, .32), inset 0 1px 0 rgba(255, 255, 255, .32); }
+.iw-primary:hover .iw-primary__go { transform: translateX(3px); opacity: 1; }
+.iw-primary:active { transform: translateY(0) scale(.99); filter: brightness(.96); transition-duration: .08s; }
+.iw-primary:focus-visible { outline: 3px solid #5aafff; outline-offset: 3px; }
+
+.iw-segment { display: grid; grid-template-columns: 1fr 1fr 44px; gap: 2px; padding: 3px; border-radius: 15px; background: rgba(255, 255, 255, .62); border: 1px solid rgba(23, 90, 180, .12); box-shadow: 0 4px 12px rgba(50, 108, 170, .06), inset 0 1px 0 #fff; }
+.iw-seg, .iw-more > summary {
+    position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; width: 100%; padding: 0 10px;
+    border: 0; border-radius: 12px; background: transparent; color: var(--ink-soft);
+    font: 700 13px/1 Inter, system-ui, sans-serif; text-decoration: none; white-space: nowrap; cursor: pointer;
+    transition: background .2s var(--ease), color .2s var(--ease), transform .15s var(--ease);
+}
+.iw-seg svg { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--blue-bright); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.iw-seg:hover, .iw-more > summary:hover, .iw-more[open] > summary { background: rgba(42, 134, 224, .11); color: var(--blue); }
+.iw-seg:active, .iw-more > summary:active { background: rgba(42, 134, 224, .2); transform: scale(.98); }
+.iw-seg:focus-visible, .iw-more > summary:focus-visible { outline: 3px solid #5aafff; outline-offset: -1px; z-index: 1; }
+/* hairline between cells; the third (menu) cell is the quietest */
+.iw-segment > .iw-seg + .iw-seg::before, .iw-segment > .iw-more > summary::after { content: ''; position: absolute; inset-block: 10px; inset-inline-start: -1.5px; width: 1px; background: rgba(23, 90, 180, .13); }
+.iw-segment > .iw-seg:hover::before { opacity: 0; }
 
 /* soft tinted buttons: calm until hovered */
 .iw-soft {
@@ -166,11 +196,9 @@
 
 /* "more" menu: keeps rare actions out of the way */
 .iw-more { position: relative; }
-.iw-more > summary { list-style: none; width: 48px; height: 100%; min-height: 44px; display: grid; place-items: center; border-radius: 999px; background: rgba(255, 255, 255, .85); border: 1px solid #fff; color: var(--ink-soft); cursor: pointer; box-shadow: 0 6px 16px rgba(50, 108, 170, .1), inset 0 1px 0 #fff; transition: transform .45s var(--spring), background .3s, color .3s; }
 .iw-more > summary::-webkit-details-marker { display: none; }
-.iw-more > summary svg { width: 20px; height: 20px; fill: currentColor; }
-.iw-more > summary:hover, .iw-more[open] > summary { background: #fff; color: var(--blue); transform: translateY(-2px); }
-.iw-more > summary:focus-visible { outline: 3px solid #5aafff; outline-offset: 2px; }
+.iw-more > summary { list-style: none; color: var(--muted); padding: 0; }
+.iw-more > summary svg { width: 18px; height: 18px; fill: currentColor; }
 .iw-more__menu { position: absolute; inset-inline-end: 0; bottom: calc(100% + 12px); z-index: 30; min-width: 232px; padding: 8px; border-radius: 22px; background: rgba(250, 253, 255, .96); border: 1px solid #fff; box-shadow: 0 26px 60px rgba(11, 70, 124, .26), 0 3px 10px rgba(11, 70, 124, .08); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6); transform-origin: calc(100% - 24px) 100%; animation: iwMenu .4s var(--spring) both; }
 .iw-more__menu form { margin: 0; }
 .iw-more__item { width: 100%; display: flex; align-items: center; gap: 11px; padding: 12px 14px; border: 0; border-radius: 16px; background: transparent; color: var(--ink); font: 700 13.5px/1.2 Inter, system-ui, sans-serif; text-align: start; cursor: pointer; transition: background .25s, transform .4s var(--spring); }
@@ -261,6 +289,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .iw-state i { animation: none; }
-    .iw-card:hover, .iw-req:hover, .iw-soft:hover, .iw-cta:hover { transform: none; }
+    .iw-card:hover, .iw-req:hover, .iw-soft:hover, .iw-cta:hover, .iw-primary:hover, .iw-primary:hover .iw-primary__go { transform: none; }
+    .iw-primary, .iw-primary__go, .iw-seg, .iw-more > summary { transition-duration: .01s; }
     .iw-more__menu { animation: none; }
 }

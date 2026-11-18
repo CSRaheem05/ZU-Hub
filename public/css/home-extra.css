@@ -1,34 +1,12 @@
-/* Real notifications in the homepage bell */
-a.zu-notice{text-decoration:none;color:inherit;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
-a.zu-notice:hover{transform:translateY(-1px)}
-.zu-notice.is-read{opacity:.62}
-.zu-notice:not(.is-read) strong::after{content:'';display:inline-block;width:7px;height:7px;margin-inline-start:8px;border-radius:50%;background:#2a86e0;vertical-align:middle}
-.zu-notice.is-alert strong{color:#9b2440}
-.zu-notice.is-alert:not(.is-read) strong::after{background:#cb3550}
-.zu-notice.is-alert .notice-icon{color:#c43550}
-.zu-notice.is-instructor .notice-icon{color:#5646bf}
-.zu-notice-all{display:block;text-align:center;padding:12px;font-size:12.5px;font-weight:750;color:#175ab4;text-decoration:none}
-.zu-notice-all:hover{text-decoration:underline}
-.zu-notice.is-expired{opacity:.55}
-.zu-notice.is-expired strong::after{display:none}
-/* bell: a calm ring + red glow while an important announcement is unread */
-.glass-btn.zu-ring{color:#b02a46;box-shadow:0 0 0 3px rgba(214,69,96,.14),0 10px 28px rgba(214,69,96,.32)!important;animation:zuHomeGlow 2.8s ease-in-out infinite}
-.glass-btn.zu-ring svg{transform-origin:50% 0;animation:zuHomeRing 5.5s ease-in-out infinite}
-.glass-btn.zu-ring .notif-badge{background:#cb3550;width:9px;height:9px;right:6px;top:6px}
-@keyframes zuHomeRing{0%,56%,100%{transform:rotate(0)}60%{transform:rotate(13deg)}64%{transform:rotate(-11deg)}68%{transform:rotate(8deg)}72%{transform:rotate(-5deg)}76%{transform:rotate(2deg)}80%{transform:rotate(0)}}
-@keyframes zuHomeGlow{0%,100%{box-shadow:0 0 0 3px rgba(214,69,96,.13),0 10px 26px rgba(214,69,96,.26)}50%{box-shadow:0 0 0 7px rgba(214,69,96,.06),0 12px 34px rgba(214,69,96,.44)}}
-@media (prefers-reduced-motion:reduce){.glass-btn.zu-ring,.glass-btn.zu-ring svg{animation:none!important}}
-
-/* Notification dropdown: positioned by home.js directly under the bell (not a fixed page corner) */
-.popover-panel.lg.lg{position:fixed;overflow:visible;transform-origin:var(--caret-x,36px) -12px;animation:zuDropIn .45s cubic-bezier(.2,.9,.25,1) both;--lg-tint:rgba(246,251,255,.62);--lg-blur:26px}
-.popover-panel.lg.lg.is-closing{animation:zuDropOut .17s ease forwards;pointer-events:none}
-#noticeList{max-height:var(--list-max,360px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;margin:0 -4px;padding:0 4px}
-/* the little glass tab that connects the panel to the bell */
-.popover-panel .zu-caret{position:absolute;top:-10px;left:var(--caret-x,36px);width:22px;height:11px;margin-left:-11px;pointer-events:none;
-  background:rgba(247,252,255,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);clip-path:polygon(50% 0,0 100%,100% 100%)}
-@keyframes zuDropIn{from{opacity:0;transform:translateY(-10px) scale(.92)}to{opacity:1;transform:none}}
-@keyframes zuDropOut{to{opacity:0;transform:translateY(-6px) scale(.96)}}
-@media (prefers-reduced-motion:reduce){.popover-panel.lg.lg,.popover-panel.lg.lg.is-closing{animation:none!important}}
+/* Notification bell on the homepage: same states as the header bell on every other page (the panel itself lives in css/zu-notifications.css) */
+.glass-btn.zn-bell .zn-badge { box-shadow: 0 0 0 2.5px #f3f9ff, 0 5px 10px rgba(10, 52, 104, .25) }
+.glass-btn.zn-bell:hover svg { transform-origin: 50% 0; animation: znSwing .8s ease 1 }
+.glass-btn.zn-bell[aria-expanded='true'] { box-shadow: 0 0 0 2px rgba(31, 111, 208, .45), 0 10px 26px rgba(23, 90, 180, .22) !important }
+.glass-btn.zn-bell.has-alert svg { transform-origin: 50% 0; animation: znSwing .9s ease 1.6s 1 both }
+.glass-btn.zn-bell.has-alert[data-level='important'] { color: #864800; box-shadow: 0 0 0 2px rgba(220, 127, 14, .4), 0 10px 24px rgba(210, 116, 8, .2) !important }
+.glass-btn.zn-bell.has-alert[data-level='urgent'] { color: #a11630; box-shadow: 0 0 0 2px rgba(209, 36, 63, .42), 0 10px 24px rgba(189, 26, 53, .24) !important }
+#notifPanel { position: fixed }
+@media (prefers-reduced-motion: reduce) { .glass-btn.zn-bell svg { animation: none !important } }
 
 /* ======================================================================
    Refinements (the composition itself is untouched)

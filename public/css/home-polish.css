@@ -1,0 +1,148 @@
+/* ==========================================================================
+   ZU Hub — homepage polish (loaded after home.css / home-extra.css; the composition itself is untouched)
+
+   ZU — robot capsule — Hub stays exactly where it is. This sheet only refines how it is lit and finished:
+     1. wordmark   present from the first frame; a lit, dimensional blue (top light -> deep base), a thin navy underside,
+                   soft grounded shadow, a glassy top edge and one short light pass after the capsule settles
+     2. capsule    a seamless edge (no grey seam), a fine white rim and a soft ambient shadow beneath it
+     3. sky        a deeper-to-lighter sky, a bloom of light behind the lockup, finer flowing lines with a slow drift
+     4. tagline    the same words, framed by two hairlines
+   Everything is CSS, nothing is added to the page, and every motion respects prefers-reduced-motion.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ 1. wordmark */
+/* ZU and Hub are fully visible from the first frame: no fade-in, no stagger, no late reveal. */
+.wordmark .half {
+    /* light from above: bright blue crown, saturated body, deep navy base (identical on both words, so they match) */
+    background-image: linear-gradient(170deg, #5cb6ff 0%, #2b88e8 20%, #1364c2 48%, #0a3f82 76%, #06285a 100%);
+    background-size: 100% 100%;
+    background-position: 0 0;
+    animation: none;
+    will-change: auto;
+    /* depth, bottom-up: a thin solid navy underside (reads as thickness, not as 3D), a tight contact shadow,
+       a wide soft ground shadow, and a faint cool halo so the letters lift off the sky */
+    filter:
+        drop-shadow(0 .012em 0 #0a3a78)
+        drop-shadow(0 .026em 0 #072c5c)
+        drop-shadow(0 .05em .03em rgba(5, 34, 78, .22))
+        drop-shadow(0 .11em .16em rgba(24, 96, 186, .24))
+        drop-shadow(0 0 .22em rgba(120, 190, 255, .28));
+}
+
+/* top-edge light: the same letters painted white at the crown, fading by mid-height.
+   One short, soft light pass crosses both words together right after the capsule settles, then they stay still. */
+.wordmark .half::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    padding: inherit;
+    text-align: inherit;
+    pointer-events: none;
+    background-image:
+        linear-gradient(104deg, transparent 40%, rgba(255, 255, 255, .6) 50%, transparent 60%),
+        linear-gradient(180deg, rgba(255, 255, 255, .7) 0%, rgba(255, 255, 255, .2) 28%, rgba(255, 255, 255, 0) 50%);
+    background-size: 280% 100%, 100% 100%;
+    background-position: 140% 0, 0 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+.zu-open .wordmark .half::after { animation: zuLightPass 1.5s cubic-bezier(.4, 0, .2, 1) .15s 1 both; }
+
+@keyframes zuLightPass { from { background-position: 140% 0, 0 0; } to { background-position: -40% 0, 0 0; } }
+
+/* ------------------------------------------------------------------ 2. capsule */
+/* the grey base colour used to peek out at the antialiased edge of the video: let the video itself define the edge */
+.page .pill { background: transparent; }
+/* a fine white rim on top of the video (inside the clip, so it grows with the reveal) */
+.page .pill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .6), inset 0 1px 0 rgba(255, 255, 255, .85);
+    pointer-events: none;
+}
+/* the ambient shadow lives outside the capsule (the capsule itself is clipped during the reveal), so it is a sibling layer
+   behind it: exactly the capsule's size (3.62em x 1.81em), fading in as the capsule finishes opening */
+@media (min-width: 721px) {
+    .wordmark { position: relative; }
+    .wordmark::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 3.62em;
+        height: 1.81em;
+        transform: translate(-50%, -50%);
+        border-radius: 9999px;
+        background: transparent;
+        box-shadow: 0 .14em .34em -.07em rgba(14, 75, 141, .30), 0 .03em .09em rgba(14, 75, 141, .14);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .6s ease;
+    }
+    .zu-open .wordmark::before { opacity: 1; }
+}
+
+/* ------------------------------------------------------------------ 3. sky */
+.page .paper {
+    background:
+        radial-gradient(ellipse 60% 52% at 50% 53%, rgba(255, 255, 255, .78) 0, rgba(255, 255, 255, 0) 70%),
+        radial-gradient(ellipse 62% 48% at 86% 4%, #c6e4ff 0, rgba(198, 228, 255, 0) 100%),
+        radial-gradient(ellipse 52% 46% at 4% 100%, #cde8ff 0, rgba(205, 232, 255, 0) 100%),
+        linear-gradient(180deg, #d4e9ff 0%, #e2f0ff 34%, #eff7ff 66%, #e6f2ff 100%);
+}
+/* the existing soft bloom is retuned to sit exactly behind the lockup */
+.page::after {
+    background: radial-gradient(ellipse 50% 40% at 50% 52%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%);
+    opacity: .5;
+}
+
+/* the flowing lines: slightly larger than the screen so a very slow drift never shows an edge,
+   with a faint blue edge so they read as light ribbons on the sky instead of flat white strokes */
+.page .waves {
+    inset: -3%;
+    width: 106%;
+    height: 106%;
+    opacity: .9;
+    filter: drop-shadow(0 1px 1.5px rgba(70, 140, 215, .22));
+    animation: zuDrift 46s ease-in-out infinite alternate;
+    will-change: transform;
+}
+.page .waves path { opacity: 1; }
+.page .waves path:nth-child(3n + 1) { stroke-opacity: .95; }
+.page .waves path:nth-child(3n + 2) { stroke-opacity: .78; }
+.page .waves path:nth-child(3n) { stroke-opacity: .6; }
+@keyframes zuDrift { from { transform: translate3d(-.6%, .4%, 0); } to { transform: translate3d(.6%, -.4%, 0); } }
+
+/* ------------------------------------------------------------------ 4. tagline */
+.page .microcopy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1em;
+    letter-spacing: .4em;
+    color: #3f6a95;
+}
+.page .microcopy::before,
+.page .microcopy::after {
+    content: '';
+    flex: none;
+    width: clamp(22px, 3vw, 46px);
+    height: 1px;
+    background: linear-gradient(90deg, rgba(63, 106, 149, 0), rgba(63, 106, 149, .55));
+}
+.page .microcopy::after { transform: scaleX(-1); }
+/* Arabic joins its letters: keep the existing small tracking there */
+html[dir='rtl'] .page .microcopy { letter-spacing: .06em; }
+
+/* ------------------------------------------------------------------ motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .wordmark::before { transition: none; }
+    .wordmark .half, .wordmark .half::after, .zu-open .wordmark .half::after, .page .waves, .nav-links, .header-left, .header-right { animation: none !important; }
+    .wordmark .half::after { background-position: -40% 0, 0 0; }
+}

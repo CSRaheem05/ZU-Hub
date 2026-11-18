@@ -511,21 +511,6 @@
      transform: scale(.96)
  }
 
- .notif-badge {
-     position: absolute;
-     right: 7px;
-     top: 7px;
-     width: 7px;
-     height: 7px;
-     border-radius: 50%;
-     background: #f06a64;
-     box-shadow: 0 0 0 2px #edf6ff
- }
-
- .notif-badge.hidden {
-     display: none
- }
-
  .glass-btn[aria-expanded='true'] {
      background: #d5ecff
  }
@@ -589,28 +574,6 @@
      padding: 0
  }
 
- /* Interactive floating sheets */
- .popover-panel {
-     position: absolute;
-     z-index: 15;
-     top: 83px;
-     right: clamp(22px, 3.3vw, 54px);
-     width: min(370px, calc(100vw - 36px));
-     padding: 16px;
-     background: rgba(247, 252, 255, .78);
-     backdrop-filter: blur(38px) saturate(180%);
-     -webkit-backdrop-filter: blur(38px) saturate(180%);
-     border: 1px solid rgba(255, 255, 255, .94);
-     border-radius: 26px;
-     box-shadow: 0 22px 85px #0e497036, 0 2px 9px #2668a112, inset 0 1px #fff;
-     transform-origin: top right;
-     animation: panelIn .28s cubic-bezier(.2, .8, .2, 1)
- }
-
- .popover-panel[hidden] {
-     display: none !important
- }
-
  @keyframes panelIn {
      from {
          opacity: 0;
@@ -623,98 +586,9 @@
      }
  }
 
- .panel-head {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     gap: 12px;
-     padding: 7px 6px 13px
- }
-
- .panel-title {
-     font-size: 17px;
-     font-weight: 800;
-     letter-spacing: -.04em;
-     color: var(--navy)
- }
-
- .panel-count {
-     color: #47759c;
-     font-size: 11px;
-     font-weight: 650
- }
-
- .notice {
-     display: flex;
-     gap: 11px;
-     padding: 13px 11px;
-     border-radius: 17px;
-     background: rgba(255, 255, 255, .57);
-     border: 1px solid #fff;
-     margin-bottom: 8px;
-     text-align: start
- }
-
- .notice-icon {
-     width: 34px;
-     height: 34px;
-     border-radius: 12px;
-     background: #e1f0ff;
-     color: #0d66bd;
-     display: grid;
-     place-items: center;
-     flex-shrink: 0
- }
-
- .notice-icon svg {
-     width: 17px;
-     height: 17px;
-     stroke: currentColor;
-     fill: none;
-     stroke-width: 1.7
- }
-
- .notice strong {
-     display: block;
-     color: #103b6b;
-     font-size: 12px;
-     margin-bottom: 4px
- }
-
- .notice p {
-     margin: 0;
-     color: #587697;
-     font-size: 11px;
-     line-height: 1.5
- }
-
- .notice small {
-     display: block;
-     color: #7794ad;
-     font-size: 10px;
-     margin-top: 6px
- }
-
- .panel-action {
-     width: 100%;
-     padding: 11px;
-     border: 1px solid #cce3f7;
-     background: #eef8ff;
-     color: #145eaa;
-     font-weight: 750;
-     border-radius: 13px;
-     cursor: pointer
- }
-
  /* Arabic text direction; brand remains Latin */
  html[dir='rtl'] .nav {
      direction: rtl
- }
-
- html[dir='rtl'] .popover-panel {
-     right: auto;
-     left: clamp(22px, 3.3vw, 54px);
-     transform-origin: top left
  }
 
  html[dir='rtl'] .wordmark {
@@ -722,10 +596,6 @@
  }
 
  html[dir='rtl'] .intro {
-     text-align: right
- }
-
- html[dir='rtl'] .notice {
      text-align: right
  }
 
@@ -841,16 +711,6 @@
          padding: 0
      }
 
-     .popover-panel {
-         top: 68px;
-         right: 12px;
-         width: min(360px, calc(100vw - 24px))
-     }
-
-     html[dir='rtl'] .popover-panel {
-         left: 12px
-     }
-
      .microcopy {
          margin-top: 14px
      }
@@ -884,10 +744,6 @@
      .glass-btn,
 .nav-link {
          transition: none
-     }
-
-     .popover-panel {
-         animation: none
      }
  }
 
@@ -1078,8 +934,7 @@
      }
  }
 
- .glass-btn.lg.lg:active,
-.panel-action.lg.lg:active {
+ .glass-btn.lg.lg:active {
      transform: scale(1.1);
      --lg-glow: .9;
      --lg-tint: rgba(255, 255, 255, .12);
@@ -1099,12 +954,6 @@
 
  .glass-btn.lg[aria-expanded='true'] {
      --lg-tint: rgba(140, 200, 255, .46)
- }
-
- .panel-action.lg {
-     --lg-tint: rgba(214, 236, 255, .62);
-     --lg-shadow: 0 4px 12px rgba(14, 78, 150, .10);
-     color: #145eaa
  }
 
  /* ---- navigation: glass capsule + sliding lens ---- */
@@ -1235,49 +1084,6 @@
  .lg::before {
      width: auto;
      height: auto
- }
-
- /* notifications popover (keeps its own absolute position + stacking) */
- .popover-panel.lg.lg {
-     position: absolute;
-     z-index: 15;
-     --lg-tint: rgba(244, 250, 255, .46);
-     --lg-blur: 24px;
-     --lg-sat: 1.9;
-     --lg-shadow: 0 24px 70px rgba(12, 71, 123, .26), 0 4px 14px rgba(12, 71, 123, .10);
- }
-
- @media(hover:hover) {
-
-     .popover-panel.lg.lg:hover {
-         --lg-glow: .22;
-         --lg-shadow: 0 34px 90px rgba(12, 71, 123, .30), 0 6px 18px rgba(12, 71, 123, .12)
-     }
- }
-
- .notice.lg {
-     --lg-tint: rgba(255, 255, 255, .38);
-     --lg-blur: 8px;
-     --lg-shadow: 0 5px 14px rgba(14, 78, 150, .08)
- }
-
- @media(hover:hover) {
-
-     .notice.lg.lg:hover {
-         transform: scale(1.02)
-     }
- }
-
- .notice.lg.lg:active {
-     transform: scale(1.035);
-     --lg-glow: .8;
-     --lg-tint: rgba(255, 255, 255, .14);
-     --lg-blur: 3px
- }
-
- .notice-icon {
-     background: rgba(214, 234, 255, .7);
-     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8)
  }
 
  /* ====== ZU HUB / NEXT EXPERIENCE — full homepage ====== */

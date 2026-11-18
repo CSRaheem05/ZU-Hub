@@ -515,6 +515,11 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .when-label { font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .choice-row--tight { grid-template-columns: 1fr 1fr; }
 .schedule input[type='datetime-local'] { min-height: 50px; }
+/* a date field appears only when its option needs it: the row grows from 0 to its natural height (no jump, no empty gap) */
+.when-reveal { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .32s cubic-bezier(.22, .8, .24, 1), opacity .24s ease; }
+.when-reveal.is-collapsed { grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .3s cubic-bezier(.22, .8, .24, 1), opacity .2s ease, visibility 0s .3s; }
+.when-reveal__inner { min-height: 0; overflow: hidden; padding: 4px 4px 6px; margin: -4px -4px -6px; }
+@media (prefers-reduced-motion: reduce) { .when-reveal, .when-reveal.is-collapsed { transition: none; } }
 .schedule > small { display: block; margin-top: 4px; line-height: 1.5; }
 
 @media (max-width: 640px) {

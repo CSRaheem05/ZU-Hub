@@ -104,17 +104,18 @@
                     </p>
 
                     <div class="iw-actions">
-                        <a class="btn btn-blue" href="{{ route('instructor.lessons.index', $course->offering_id) }}">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.500" width="18" height="13" rx="3"/><path d="m10.500 9 4 2.500-4 2.500zM8 21h8"/></svg>
-                            Manage lessons
+                        <a class="iw-primary" href="{{ route('instructor.lessons.index', $course->offering_id) }}">
+                            <svg class="iw-primary__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.500" width="18" height="13" rx="3"/><path d="m10.500 9 4 2.500-4 2.500zM8 21h8"/></svg>
+                            <span>Manage lessons</span>
+                            <svg class="iw-primary__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                         </a>
 
-                        <div class="iw-actions__row">
-                            <a class="iw-soft iw-soft--glass" href="{{ route('instructor.students', $course->offering_id) }}">
+                        <div class="iw-segment" role="group" aria-label="More for {{ $course->title }}">
+                            <a class="iw-seg" href="{{ route('instructor.students', $course->offering_id) }}">
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.4-3.600 2.800-5.500 6.500-5.500s6.100 1.900 6.500 5.500M16 5a3.500 3.500 0 0 1 0 6.500"/></svg>
                                 Students
                             </a>
-                            <a class="iw-soft iw-soft--yellow" href="{{ route('instructor.courses.edit', $course->offering_id) }}">
+                            <a class="iw-seg" href="{{ route('instructor.courses.edit', $course->offering_id) }}">
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.800 2.800 0 0 0-4-4L4 16z"/><path d="m13.500 6.500 4 4"/></svg>
                                 Edit
                             </a>

@@ -19,7 +19,7 @@ return [
 
     // Limits (kilobytes). The server's php.ini limits still apply on top of these.
     'document_max_kb' => 20 * 1024,   // PDF, Word, PowerPoint, Excel, text
-    'video_max_kb' => 50 * 1024,      // short MP4 demo videos
+    'video_max_kb' => 100 * 1024,      // short MP4 demo videos
 
     // Lifetime of the signed URL used when the disk is a cloud disk
     'temporary_url_minutes' => 10,

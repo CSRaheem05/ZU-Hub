@@ -49,7 +49,7 @@
                      data-ar-src="{{ asset('assets/zarqa-ar-edge.png') }}"
                      alt="Zarqa University logo">
             </div>
-            <h1 id="loginTitle" class="wordmark" aria-label="ZU Hub"><span class="half left" aria-hidden="true">ZU</span> <span class="half right" aria-hidden="true">Hub</span></h1>
+            <h1 id="loginTitle" class="wordmark" aria-label="ZU Hub"><span class="half left" data-text="ZU" aria-hidden="true">ZU</span> <span class="half right" data-text="Hub" aria-hidden="true">Hub</span></h1>
 
             <div class="error-box" id="loginError" role="alert">{{ $errors->first() }}</div>
 

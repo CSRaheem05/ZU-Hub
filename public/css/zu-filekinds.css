@@ -1,0 +1,35 @@
+/* ==========================================================================
+   ZU Hub — content-type identity, shared by every page that lists course content
+   (student course page, instructor Student preview, instructor Manage lessons).
+
+   One family = one colour trio (--k1 light, --k2 deep, --kg glow) + one tile.
+   The family comes from App\Support\FileKind (extension -> family); add a type there, not here.
+   Use:  <li class="fk-pdf"> … <span class="fk-tile">…</span>      (size with --fk, default 56px)
+   The lm-k--* names are kept as aliases because the instructor script sets them on the upload picker.
+   ========================================================================== */
+
+.fk-pdf, .lm-k--file-pdf { --k1: #f46a63; --k2: #c9261f; --kg: rgba(201, 38, 31, .28); }
+.fk-word, .lm-k--file-doc, .lm-k--file-docx { --k1: #4f8df0; --k2: #1b4fb8; --kg: rgba(27, 79, 184, .28); }
+.fk-powerpoint, .lm-k--file-ppt, .lm-k--file-pptx { --k1: #fb9a4a; --k2: #c2470d; --kg: rgba(207, 79, 18, .28); }
+.fk-excel, .lm-k--file-xls, .lm-k--file-xlsx { --k1: #3fc48a; --k2: #0f7a4c; --kg: rgba(15, 122, 76, .28); }
+.fk-file, .fk-text, .lm-k--file, .lm-k--file-file, .lm-k--file-txt { --k1: #9db0c9; --k2: #587396; --kg: rgba(93, 122, 156, .26); }
+.fk-image { --k1: #5fb6e8; --k2: #2a86e0; --kg: rgba(42, 134, 224, .26); }
+.fk-video, .lm-k--video { --k1: #4aa3f5; --k2: #1a5cb8; --kg: rgba(26, 92, 184, .3); }
+.fk-youtube { --k1: #ff5547; --k2: #c4170c; --kg: rgba(196, 23, 12, .28); }
+.fk-link, .lm-k--link { --k1: #34cbc6; --k2: #0e8397; --kg: rgba(14, 131, 151, .28); }
+.fk-live, .lm-k--live { --k1: #9a7bf5; --k2: #5a3fd0; --kg: rgba(90, 63, 208, .3); }
+
+/* the tile: a rounded square whose corner radius scales with its size */
+.fk-tile { --fk: 56px; position: relative; flex: none; display: grid; place-items: center; width: var(--fk); height: var(--fk); border-radius: calc(var(--fk) * .27); overflow: hidden; color: #fff; background: linear-gradient(145deg, var(--k1), var(--k2)); border: 1px solid #fff; box-shadow: 0 6px 16px var(--kg), inset 0 1px 0 rgba(255, 255, 255, .4); }
+.fk-tile::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255, 255, 255, .28), transparent 55%); pointer-events: none; }
+.fk-tile > svg { position: relative; width: 46%; height: 46%; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* document / video / YouTube glyphs (drawn by FileKind::tile): white shapes with a family-coloured mark */
+.fk-tile > .fk-glyph { width: 82%; height: 82%; stroke: none; fill: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .18)); }
+.fk-glyph .g-page { fill: #fff; }
+.fk-glyph .g-fold { fill: var(--k2); opacity: .28; }
+.fk-glyph .g-ink { fill: var(--k2); font-family: Inter, system-ui, sans-serif; }
+.fk-glyph .g-line { fill: none; stroke: var(--k2); stroke-width: 1.8; stroke-linecap: round; opacity: .75; }
+
+/* the label that names the type, tinted to its family (contrast checked against white cards) */
+.fk-kind { display: inline-flex; align-items: center; gap: 6px; font-weight: 750; color: var(--k2); }

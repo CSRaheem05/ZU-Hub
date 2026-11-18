@@ -11,6 +11,8 @@
 
  <link rel="stylesheet" href="{{ asset('css/home.css') }}">
   <link rel="stylesheet" href="{{ asset('css/home-extra.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/home-polish.css') }}?v={{ @filemtime(public_path('css/home-polish.css')) }}">
+  <link rel="stylesheet" href="{{ asset('css/zu-notifications.css') }}?v={{ @filemtime(public_path('css/zu-notifications.css')) }}">
   <link rel="stylesheet" href="{{ asset('css/zu-alerts.css') }}?v={{ @filemtime(public_path('css/zu-alerts.css')) }}">
  
 </head>
@@ -69,7 +71,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
               </svg>
-              <span class="notif-badge" id="notifDot"></span>
+              <b class="zn-badge" id="notifDot" hidden></b>
             </button>
             <button class="glass-btn lang-btn" type="button" id="langBtn" aria-label="Switch language"
               title="Switch language">
@@ -108,15 +110,18 @@
         </div>
       </div>
     </header>
-    <aside class="popover-panel" id="notifPanel" role="dialog" aria-label="Notifications" hidden>
-      <div class="panel-head"><span class="panel-title" data-i18n="notifications">Notifications</span><span
-          class="panel-count" data-i18n="demoNotices">Demo notifications</span></div>
-      <div id="noticeList"></div>
-      <button class="panel-action" type="button" id="markRead" data-i18n="markRead">Mark all as read</button>
+    <aside class="zn-panel" id="notifPanel" role="dialog" aria-label="Notifications" hidden>
+      <span class="zn-caret" aria-hidden="true"></span>
+      <header class="zu-notify__head">
+        <div><h2 data-i18n="notifications">Notifications</h2><small id="znSummary" role="status"></small></div>
+        <button class="zu-notify__link" type="button" id="markRead" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 12.5 4.5 4.5L16 8.5M12 16.5l1.5 1.5L21 9.5"/></svg><span data-i18n="markRead">Mark all as read</span></button>
+      </header>
+      <div class="zu-notify__list" id="noticeList"></div>
+      <footer class="zu-notify__foot"><a class="zn-viewall" id="znViewAll" href="#">View all notifications<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></footer>
     </aside>
     <section class="hero" id="home" aria-label="ZU Hub introduction">
       <div class="wordmark" id="wordmark">
-        <span class="half left">ZU</span>
+        <span class="half left" data-text="ZU">ZU</span>
         <div class="pill" id="pill" role="group" aria-label="Scenic video in the centre of ZU Hub">
           <div class="pill-media">
             <div class="fallback"></div>
@@ -130,7 +135,7 @@
           </div>
           <div class="hairline" id="hairline" aria-hidden="true"></div>
         </div>
-        <span class="half right">Hub</span>
+        <span class="half right" data-text="Hub">Hub</span>
       </div>
       <p class="microcopy" id="microcopy" data-i18n="tagline">Learn beyond the classroom</p>
     </section>
