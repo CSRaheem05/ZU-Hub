@@ -1,0 +1,18 @@
+/* Shared image thumbnails + lightbox (instructor Manage Lessons and student Course Content) */
+.zu-thumb { flex: none; position: relative; display: block; width: 56px; height: 56px; padding: 0; margin: 0; overflow: hidden; border: 1px solid #fff; border-radius: 14px; background: #e6eef7; box-shadow: 0 6px 16px rgba(50, 108, 170, .18); cursor: zoom-in; transition: box-shadow .25s, transform .25s; -webkit-tap-highlight-color: transparent; }
+.zu-thumb img { display: block; width: 100%; height: 100%; max-width: 100%; object-fit: cover; }
+.zu-thumb:hover { box-shadow: 0 10px 22px rgba(50, 108, 170, .28); transform: translateY(-1px); }
+.zu-thumb:focus-visible { outline: 3px solid #5aafff; outline-offset: 2px; }
+
+.zu-lb { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 24px; background: rgba(10, 22, 40, .78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: zuLbIn .22s ease both; }
+.zu-lb[hidden] { display: none; }
+.zu-lb__fig { margin: 0; max-width: 100%; max-height: 100%; display: grid; gap: 12px; justify-items: center; min-height: 0; }
+.zu-lb__img { display: block; max-width: min(94vw, 1400px); max-height: calc(100vh - 120px); max-height: calc(100dvh - 120px); width: auto; height: auto; object-fit: contain; border-radius: 12px; background: #fff; box-shadow: 0 24px 70px rgba(0, 0, 0, .45); }
+.zu-lb__cap { max-width: 90vw; color: #e8f1fb; font: 600 14px/1.4 Inter, system-ui, sans-serif; text-align: center; overflow-wrap: anywhere; }
+.zu-lb__close { position: absolute; top: 16px; right: 16px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .16); color: #fff; cursor: pointer; transition: background .2s; }
+.zu-lb__close:hover { background: rgba(255, 255, 255, .3); }
+.zu-lb__close:focus-visible { outline: 3px solid #5aafff; outline-offset: 2px; }
+.zu-lb__close svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+@keyframes zuLbIn { from { opacity: 0; } }
+@media (max-width: 640px) { .zu-thumb { width: 52px; height: 52px; border-radius: 13px; } .zu-lb { padding: 12px; } .zu-lb__close { top: 10px; right: 10px; } }
+@media (prefers-reduced-motion: reduce) { .zu-lb { animation: none; } .zu-thumb { transition: none; } }

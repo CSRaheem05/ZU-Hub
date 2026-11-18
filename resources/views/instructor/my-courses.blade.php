@@ -1,280 +1,162 @@
+@extends('layouts.glass')
+@section('title', 'My Courses')
+@section('footer_right', 'Zarqa University · Instructor workspace')
 
-<!doctype html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ZU Hub | My Courses</title>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/zu-instructor.css') }}?v={{ @filemtime(public_path('css/zu-instructor.css')) }}">
+@endpush
 
-    <link rel="stylesheet" href="{{ asset('css/zu-my-courses.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/zu-instructor-dashboard.css') }}">
-</head>
+@section('content')
+@php use Illuminate\Support\Str; @endphp
 
-<body>
+{{-- ================================================================ header --}}
+<section class="iw-hero reveal" style="--i:0">
+    @include('instructor.partials.hero-art')
+    <div class="iw-hero__inner">
+        <div class="iw-hero__copy">
+            <span class="eyebrow">Instructor workspace</span>
+            <h1>My Courses</h1>
+            <p>Your approved courses in one place. Manage lessons, follow your students and keep every course up to date.</p>
+        </div>
 
-<header class="page-header">
-    <div class="header-content">
-        <a href="{{ route('home') }}" class="brand">⌂ ZU Hub</a>
-
-        <div class="header-right">
-            <div class="identity">
-                <strong>{{ auth()->user()->name }}</strong>
-                · <span data-role>{{ ucfirst(auth()->user()->role) }}</span>
-            </div>
-
-            <button class="language" id="languageButton" type="button">
-                العربية
-            </button>
-
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button class="logout" type="submit"
-                        data-en="Log out" data-ar="تسجيل الخروج">
-                    Log out
-                </button>
-            </form>
+        <div class="iw-hero__actions">
+            <a href="{{ route('instructor.requests') }}" class="iw-cta iw-cta--glass">
+                <span class="iw-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l4 4v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M16 3v4h4M10 12h6M10 16h4"/></svg></span>
+                Course requests
+                @if($needsChanges > 0)<b class="iw-cta__badge">{{ $needsChanges }} {{ $needsChanges === 1 ? 'needs' : 'need' }} changes</b>
+                @elseif($pendingRequests > 0)<b class="iw-cta__badge">{{ $pendingRequests }} pending</b>@endif
+            </a>
+            <a href="{{ route('instructor.courses.create') }}" class="iw-cta iw-cta--primary">
+                <span class="iw-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+                Create course
+            </a>
         </div>
     </div>
-</header>
+</section>
 
-@php
-    $totalCourses = $courses->count();
-    $activeCourses = $courses->where('is_active', 1)->count();
-    $inactiveCourses = $totalCourses - $activeCourses;
-    $totalStudents = $courses->sum('students_count');
-@endphp
+@if($courses->isEmpty())
 
-<main class="container dash-page">
-
-    <section class="dash-hero">
-        <div>
-            <div class="dash-eyebrow"
-                 data-en="INSTRUCTOR WORKSPACE"
-                 data-ar="مساحة المدرس">
-                INSTRUCTOR WORKSPACE
-            </div>
-
-            <h1 data-en="My Courses" data-ar="دوراتي">
-                My Courses
-            </h1>
-
-            <p data-en="Create, organize and manage your training courses."
-               data-ar="أنشئ دوراتك التدريبية ونظمها وقم بإدارتها.">
-                Create, organize and manage your training courses.
-            </p>
-        </div>
-
-        <a href="{{ route('instructor.courses.create') }}"
-           class="dash-create"
-           data-en="+ Create Course"
-           data-ar="+ إنشاء دورة">
-            + Create Course
+    {{-- ================================================================ empty --}}
+    <section class="iw-empty reveal" style="--i:1">
+        <x-course-cover :course="['offering_id' => 'welcome-to-zu-hub', 'title' => 'Your first course']" variant="preview" />
+        <h2>No courses yet</h2>
+        <p>Create your first course and send it for approval. Once it is approved it appears here and students can find it.</p>
+        <a href="{{ route('instructor.courses.create') }}" class="iw-cta iw-cta--primary">
+            <span class="iw-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+            Create your first course
         </a>
     </section>
 
-    <p style="margin:20px 0"><a href="{{route('instructor.requests')}}" class="dash-create">Course Requests / Track Approval</a></p>
-    <section class="dash-stats">
+@else
 
-        <article class="dash-stat dash-stat-total">
-            <span data-en="Total Courses" data-ar="إجمالي الدورات">
-                Total Courses
-            </span>
-            <strong>{{ $totalCourses }}</strong>
-        </article>
+    {{-- ================================================================ search + filter --}}
+    <section class="iw-toolbar reveal" style="--i:1" aria-label="Find your courses">
+        <label class="iw-search" for="courseSearch">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.500-3.500"/></svg>
+            <span class="iw-sr">Search courses</span>
+            <input type="search" id="courseSearch" placeholder="Search by title, subject or description…" autocomplete="off">
+            <button type="button" class="iw-search__clear" id="courseSearchClear" aria-label="Clear search" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </label>
 
-        <article class="dash-stat dash-stat-active">
-            <span data-en="Active Courses" data-ar="الدورات النشطة">
-                Active Courses
-            </span>
-            <strong>{{ $activeCourses }}</strong>
-        </article>
+        <div class="zu-nav zu-nav--tabs lg iw-tabs" data-zu-nav role="group" aria-label="Filter by course status">
+            <button type="button" class="zu-nav-link is-active" data-filter="all" aria-pressed="true"><span>All</span></button>
+            <button type="button" class="zu-nav-link" data-filter="ongoing" aria-pressed="false"><span>Ongoing</span></button>
+            <button type="button" class="zu-nav-link" data-filter="completed" aria-pressed="false"><span>Completed</span></button>
+        </div>
 
-        <article class="dash-stat dash-stat-inactive">
-            <span data-en="Inactive Courses" data-ar="الدورات الموقوفة">
-                Inactive Courses
-            </span>
-            <strong>{{ $inactiveCourses }}</strong>
-        </article>
-
-        <article class="dash-stat dash-stat-students">
-            <span data-en="Total Enrollments" data-ar="إجمالي التسجيلات">
-                Total Enrollments
-            </span>
-            <strong>{{ $totalStudents }}</strong>
-        </article>
-
+        <p class="iw-count" id="courseResultCount" role="status" aria-live="polite"></p>
     </section>
 
-    @if(session('success'))
-        <div class="dash-message dash-success" role="status">
-            {{ session('success') }}
-        </div>
-    @endif
+    {{-- ================================================================ courses --}}
+    <div class="iw-grid" id="courseCards">
+        @foreach($courses as $course)
+            @php
+                $completed = $course->course_status === 'completed';
+                $desc = trim((string) $course->description); // the same text students see on their cards
+            @endphp
 
-    @if(session('error'))
-        <div class="dash-message dash-error" role="alert">
-            {{ session('error') }}
-        </div>
-    @endif
+            <article class="iw-card zu-cover-host reveal" style="--i:{{ min($loop->index + 2, 9) }}"
+                     data-status="{{ $course->course_status }}"
+                     data-search="{{ $course->title }} {{ $course->course_name }} {{ $desc }}">
 
-    <section class="dash-toolbar">
-        <div class="dash-toolbar-heading">
-            <h2 data-en="Your Courses" data-ar="دوراتك">
-                Your Courses
-            </h2>
-            <span id="courseResultCount"></span>
-        </div>
+                <div class="iw-card__media">
+                    <x-course-cover :course="$course" />
 
-        <div class="dash-filters">
-            <input type="search"
-                   id="courseSearch"
-                   placeholder="Search courses..."
-                   aria-label="Search courses"
-                   autocomplete="off">
+                    <span class="iw-glass-chip iw-subject" title="{{ $course->course_name }}">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.500A1.500 1.500 0 0 1 5.500 4H20v14H5.500A1.500 1.500 0 0 0 4 19.500z"/><path d="M4 19.500A1.500 1.500 0 0 0 5.500 21H20"/></svg>
+                        <span>{{ $course->course_name }}</span>
+                    </span>
 
-            <select id="courseStatus" aria-label="Filter courses">
-                <option value="all">All Courses</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
-        </div>
-    </section>
+                    <span class="iw-glass-chip iw-state {{ $completed ? 'iw-state--completed' : '' }}">
+                        @if($completed)<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg>@else<i aria-hidden="true"></i>@endif
+                        <span>{{ $completed ? 'Completed' : 'Ongoing' }}</span>
+                    </span>
+                </div>
 
-    @if($courses->isEmpty())
+                <div class="iw-card__body">
+                    <h2 class="iw-card__title">{{ $course->title }}</h2>
 
-        <section class="dash-empty">
-            <h2>No courses yet</h2>
-            <p>Create your first training course to get started.</p>
-            <a href="{{ route('instructor.courses.create') }}"
-               class="dash-btn dash-btn-primary">
-                Create Your First Course
-            </a>
-        </section>
+                    <p class="iw-card__desc {{ $desc === '' ? 'is-placeholder' : '' }}" @if($desc !== '') title="{{ Str::limit($desc, 300) }}" @else title="No description yet: students see this default text. Use Edit to add one." @endif>{{ $desc !== '' ? $desc : 'Explore this course and develop your skills.' }}</p>
 
-    @else
-
-        <div class="dash-cards" id="courseCards">
-
-            @foreach($courses as $course)
-
-                @php
-                    $duration = $course->duration_hours;
-
-                    $totalMinutes = $duration === null
-                        ? null
-                        : round((float) $duration * 60);
-
-                    $hours = $totalMinutes === null
-                        ? 0
-                        : intdiv((int) $totalMinutes, 60);
-
-                    $minutes = $totalMinutes === null
-                        ? 0
-                        : (int) $totalMinutes % 60;
-                @endphp
-
-                <article class="dash-course"
-                         data-status="{{ $course->is_active ? 'active' : 'inactive' }}"
-                         data-search="{{ $course->title }} {{ $course->course_name }} {{ $course->description }}">
-
-                    <div class="dash-course-head">
-                        <span class="dash-subject">
-                            {{ $course->course_name }}
-                        </span>
-
-                        <span class="dash-status {{ $course->is_active ? 'is-active' : 'is-inactive' }}">
-                            {{ $course->is_active ? '● Active' : '● Inactive' }}
-                        </span>
-                    </div>
-
-                    <h2>{{ $course->title }}</h2>
-                    <p><strong>{{ ucfirst($course->course_status) }}</strong></p>
-
-                    <p class="dash-description">
-                        {{ $course->description ?: 'No description provided.' }}
+                    <p class="iw-card__meta">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.4-3.600 2.800-5.500 6.500-5.500s6.100 1.900 6.500 5.500M16 5a3.500 3.500 0 0 1 0 6.500M18 14.800c1.900.7 3.100 2.400 3.500 5.200"/></svg>
+                        <span><b>{{ $course->students_count }}</b> {{ Str::plural('student', $course->students_count) }} enrolled</span>
                     </p>
 
-                    <div class="dash-details">
-                        <div>
-                            <span>Enrolled Students</span>
-                            <strong>{{ $course->students_count }}</strong>
-                        </div>
-
-                        <div>
-                            <span>Duration</span>
-                            <strong>
-                                @if($totalMinutes === null)
-                                    Not specified
-                                @else
-                                    {{ $hours }}h {{ $minutes }}m
-                                @endif
-                            </strong>
-                        </div>
-                    </div>
-
-                    <div class="dash-schedule">
-                        <strong>Lecture Schedule</strong>
-                        <p>
-                            {{ $course->lecture_schedule ?: 'Not scheduled yet.' }}
-                        </p>
-                    </div>
-
-                    <div class="dash-actions">
-
-                        <a class="dash-btn dash-btn-primary"
-                           href="{{ route('instructor.lessons.index', $course->offering_id) }}">
-                            Manage Lessons
+                    <div class="iw-actions">
+                        <a class="btn btn-blue" href="{{ route('instructor.lessons.index', $course->offering_id) }}">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.500" width="18" height="13" rx="3"/><path d="m10.500 9 4 2.500-4 2.500zM8 21h8"/></svg>
+                            Manage lessons
                         </a>
 
-                        <a class="dash-btn dash-btn-light"
-                           href="{{ route('instructor.students', $course->offering_id) }}">
-                            View Students
-                        </a>
+                        <div class="iw-actions__row">
+                            <a class="iw-soft iw-soft--glass" href="{{ route('instructor.students', $course->offering_id) }}">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.4-3.600 2.800-5.500 6.500-5.500s6.100 1.900 6.500 5.500M16 5a3.500 3.500 0 0 1 0 6.500"/></svg>
+                                Students
+                            </a>
+                            <a class="iw-soft iw-soft--yellow" href="{{ route('instructor.courses.edit', $course->offering_id) }}">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.800 2.800 0 0 0-4-4L4 16z"/><path d="m13.500 6.500 4 4"/></svg>
+                                Edit
+                            </a>
 
-                        
-
-                        <form method="POST" action="{{route('instructor.courses.complete',$course->offering_id)}}">@csrf @method('PATCH')<button class="dash-btn" type="submit">{{ $course->course_status==='ongoing' ? 'Mark Completed' : 'Mark Ongoing' }}</button></form>
-                        <form method="POST"
-                              action="{{ route('instructor.courses.status', $course->offering_id) }}">
-                            @csrf
-                            @method('PATCH')
-
-                            <button type="submit" class="dash-btn dash-btn-outline">
-                                {{ $course->is_active ? 'Deactivate' : 'Activate' }}
-                            </button>
-                        </form>
-
-                        <form method="POST"
-                              action="{{ route('instructor.courses.destroy', $course->offering_id) }}"
-                              class="dash-delete-form"
-                              data-course-title="{{ $course->title }}">
-                            @csrf
-                            @method('DELETE')
-
-                            <button type="submit" class="dash-btn dash-btn-danger">
-                                Delete
-                            </button>
-                        </form>
-
+                            <details class="iw-more">
+                                <summary aria-label="More actions for {{ $course->title }}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/></svg></summary>
+                                <div class="iw-more__menu" role="menu">
+                                    <form method="POST" action="{{ route('instructor.courses.complete', $course->offering_id) }}" data-submit-once>@csrf @method('PATCH')
+                                        @if($completed)
+                                            <button type="submit" class="iw-more__item iw-more__item--blue" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.300L20 9M20 4v5h-5"/></svg>Mark as ongoing</button>
+                                        @else
+                                            <button type="submit" class="iw-more__item iw-more__item--green" role="menuitem"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.500 3 3 5-6"/></svg>Mark as completed</button>
+                                        @endif
+                                    </form>
+                                    <hr>
+                                    <form method="POST" action="{{ route('instructor.courses.destroy', $course->offering_id) }}">@csrf @method('DELETE')
+                                        <button type="submit" class="iw-more__item iw-more__item--red" role="menuitem" data-zu-confirm
+                                                data-confirm-tone="red" data-confirm-icon="warning"
+                                                data-confirm-title="Delete this course?"
+                                                data-confirm-message="“{{ $course->title }}” will be permanently deleted. This cannot be undone."
+                                                data-confirm-label="Yes, delete">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4h6v3"/></svg>Delete course
+                                        </button>
+                                    </form>
+                                </div>
+                            </details>
+                        </div>
                     </div>
+                </div>
+            </article>
+        @endforeach
+    </div>
 
-                </article>
+    <section class="iw-empty" id="noSearchResults" hidden>
+        <h2>No matching courses</h2>
+        <p>Try a different search, or switch the filter back to “All”.</p>
+    </section>
 
-            @endforeach
+@endif
 
-        </div>
+@endsection
 
-        <section class="dash-empty" id="noSearchResults" hidden>
-            <h2>No matching courses</h2>
-            <p>Try another search or status filter.</p>
-        </section>
-
-    @endif
-
-</main>
-
-<script src="{{ asset('js/zu-my-courses.js') }}" defer></script>
-<script src="{{ asset('js/zu-instructor-dashboard.js') }}" defer></script>
-
-</body>
-</html>
+@push('scripts')
+<script src="{{ asset('js/zu-instructor-courses.js') }}?v={{ @filemtime(public_path('js/zu-instructor-courses.js')) }}"></script>
+@endpush

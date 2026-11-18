@@ -1,0 +1,136 @@
+/* ==========================================================================
+   ZU Hub — reusable glass confirmation modal
+   Requires css/zu-glass.css (liquid-glass panel). Tone is driven by
+   [data-tone="green|yellow|red|blue"] on .zu-modal, so one dialog serves every action.
+   ========================================================================== */
+
+.zu-modal {
+    --zm-tone: #2a86e0;
+    --zm-tone-deep: #175ab4;
+    --zm-tone-soft: rgba(42, 134, 224, .16);
+    --zm-glow: rgba(23, 90, 180, .32);
+    --zm-on: #fff;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    font-family: Inter, system-ui, Arial, sans-serif;
+}
+.zu-modal[hidden] { display: none; }
+
+.zu-modal[data-tone='green']  { --zm-tone: #1bb078; --zm-tone-deep: #0e8657; --zm-tone-soft: rgba(18, 144, 95, .16);  --zm-glow: rgba(18, 144, 95, .34); }
+.zu-modal[data-tone='yellow'] { --zm-tone: #f4bc2b; --zm-tone-deep: #dc9300; --zm-tone-soft: rgba(236, 170, 20, .2);  --zm-glow: rgba(220, 147, 0, .34); --zm-on: #3a2700; }
+.zu-modal[data-tone='red']    { --zm-tone: #ec5d77; --zm-tone-deep: #cb3550; --zm-tone-soft: rgba(214, 69, 96, .16);  --zm-glow: rgba(214, 69, 96, .34); }
+
+.zu-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 28%, rgba(40, 110, 190, .2), rgba(6, 30, 66, .42));
+    -webkit-backdrop-filter: blur(9px) saturate(1.25);
+    backdrop-filter: blur(9px) saturate(1.25);
+    animation: zmFade .35s ease both;
+}
+
+.zu-modal__panel.lg {
+    position: relative;
+    width: min(440px, 100%);
+    max-height: calc(100dvh - 40px);
+    overflow: auto;
+    padding: 34px 30px 26px;
+    border-radius: 32px;
+    text-align: center;
+    outline: none;
+    --lg-tint: rgba(246, 251, 255, .66);
+    --lg-blur: 18px;
+    --lg-shadow: 0 40px 90px rgba(6, 40, 90, .34), 0 8px 24px rgba(6, 40, 90, .14);
+    animation: zmPop .6s var(--zu-spring, cubic-bezier(.34, 1.45, .5, 1)) both;
+}
+.zu-modal__panel > * { position: relative; }
+
+/* soft tone-coloured light behind the icon */
+.zu-modal__glow {
+    position: absolute !important;
+    left: 50%;
+    top: -70px;
+    width: 340px;
+    height: 240px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--zm-tone-soft), transparent);
+    pointer-events: none;
+    transition: background .4s ease;
+}
+
+.zu-modal__icon {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    color: var(--zm-tone-deep);
+    background: linear-gradient(145deg, rgba(255, 255, 255, .95), var(--zm-tone-soft));
+    box-shadow: 0 14px 30px var(--zm-glow), inset 0 1px 0 #fff, 0 0 0 8px var(--zm-tone-soft);
+    animation: zmIcon .7s .1s var(--zu-spring, cubic-bezier(.34, 1.45, .5, 1)) both;
+}
+.zu-modal__icon svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.zu-modal__title { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.04em; line-height: 1.2; color: var(--zu-navy, #062a57); }
+.zu-modal__message { margin: 10px auto 0; max-width: 340px; font-size: 14.5px; line-height: 1.6; color: #5d7a9c; }
+
+.zu-modal__note {
+    margin: 18px 0 0;
+    padding: 12px 16px 12px 18px;
+    text-align: start;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .62);
+    border: 1px solid rgba(255, 255, 255, .95);
+    box-shadow: inset 4px 0 0 var(--zm-tone), inset 0 1px 0 #fff;
+}
+.zu-modal__note[hidden] { display: none; }
+.zu-modal__note span { display: block; margin-bottom: 5px; font-size: 10.5px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; color: #5d7a9c; }
+.zu-modal__note p { margin: 0; max-height: 92px; overflow: auto; font-size: 13.5px; line-height: 1.55; color: #0c2b54; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.zu-modal__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+
+.zu-modal__btn {
+    position: relative;
+    padding: 14px 18px;
+    border: 1px solid rgba(255, 255, 255, .5);
+    border-radius: 999px;
+    font: 750 14px/1 Inter, system-ui, Arial, sans-serif;
+    letter-spacing: -.01em;
+    cursor: pointer;
+    transition: transform .45s var(--zu-spring, cubic-bezier(.34, 1.45, .5, 1)), box-shadow .35s ease, filter .3s ease, background .3s ease;
+}
+.zu-modal__btn:hover { transform: translateY(-2px); }
+.zu-modal__btn:active { transform: scale(.97); transition-duration: .1s; }
+.zu-modal__btn:focus-visible { outline: 3px solid #5aafff; outline-offset: 3px; }
+.zu-modal__btn--cancel { color: #0c2b54; background: rgba(255, 255, 255, .8); border-color: #fff; box-shadow: 0 8px 20px rgba(50, 108, 170, .12), inset 0 1px 0 #fff; }
+.zu-modal__btn--cancel:hover { background: #fff; box-shadow: 0 14px 28px rgba(50, 108, 170, .18), inset 0 1px 0 #fff; }
+.zu-modal__btn--confirm { color: var(--zm-on); background: linear-gradient(180deg, var(--zm-tone), var(--zm-tone-deep)); box-shadow: 0 12px 26px var(--zm-glow), inset 0 1px 0 rgba(255, 255, 255, .45); }
+.zu-modal__btn--confirm:hover { filter: brightness(1.05); box-shadow: 0 18px 34px var(--zm-glow), inset 0 1px 0 rgba(255, 255, 255, .5); }
+
+/* closing */
+.zu-modal.is-closing .zu-modal__backdrop { animation: zmFadeOut .22s ease both; }
+.zu-modal.is-closing .zu-modal__panel { animation: zmOut .22s ease both; }
+
+/* page scroll lock while open */
+html.zu-modal-open { overflow: hidden; }
+
+@keyframes zmFade    { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zmFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes zmPop     { from { opacity: 0; transform: translateY(22px) scale(.92); } to { opacity: 1; transform: none; } }
+@keyframes zmOut     { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(10px) scale(.96); } }
+@keyframes zmIcon    { from { opacity: 0; transform: scale(.4) rotate(-14deg); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 420px) {
+    .zu-modal__panel.lg { padding: 28px 22px 22px; border-radius: 28px; }
+    .zu-modal__actions { grid-template-columns: 1fr; }
+    .zu-modal__btn--confirm { order: -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .zu-modal *, .zu-modal *::before { animation: none !important; transition-duration: .01ms !important; }
+}

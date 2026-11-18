@@ -1,4 +1,157 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Course Requests | ZU-Hub</title><style>body{background:#f6f8fc;color:#17233c;font-family:system-ui,Arial,sans-serif;margin:0}header{padding:22px max(24px,5vw);background:#101f3d;color:white;display:flex;align-items:center;justify-content:space-between}header a{color:white}main{max-width:1050px;margin:40px auto;padding:0 20px}a{color:#2048ad}h1{font-size:2rem}.panel{background:white;border:1px solid #e4e7ee;border-radius:14px;padding:22px;margin:18px 0;box-shadow:0 4px 15px #12234b09}.pill{display:inline-block;background:#eaf1fe;border-radius:30px;padding:6px 10px;font-size:.8rem}.primary{background:#2159bb;color:white;border:0;border-radius:9px;padding:11px 16px;cursor:pointer;text-decoration:none;display:inline-block}.warn{color:#a45a00}.muted{color:#64748b}.note{background:#fff7e6;padding:14px;border-radius:9px;white-space:pre-wrap}textarea{width:100%;box-sizing:border-box;min-height:100px;padding:12px;border:1px solid #ccd4df;border-radius:8px}select{padding:9px}button{cursor:pointer}table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #edf0f4;text-align:left}form.inline{display:inline-block;margin-right:8px} .error{color:#b91c1c}nav a{margin-right:16px}</style></head><body><header><a href="{{ route('home') }}">ZU-Hub</a><a href="{{ route('instructor.courses') }}">My Courses</a></header><main><h1>Course Requests</h1><p class="muted">Follow your requests and edit them here if the admin asks for changes.</p><a class="primary" href="{{ route('instructor.courses.create') }}">+ Submit New Course</a>@if(session('success'))<p class="panel">{{session('success')}}</p>@endif
-@forelse($requests as $req)<article class="panel"><span class="pill">{{str_replace('_',' ',ucwords($req->approval_status,'_'))}}</span><h2>{{ $req->title }}</h2><p class="muted">Submitted {{ $req->created_at }}</p>
-@if($req->review_note)<div class="note"><strong>Admin feedback:</strong><p>{{ $req->review_note }}</p></div>@endif
-@if($req->approval_status==='changes_requested')<p><a class="primary" href="{{route('instructor.courses.edit',$req->offering_id)}}">Edit & Resubmit</a></p>@elseif($req->approval_status==='approved')<p><a href="{{route('instructor.courses')}}">Manage approved course</a></p>@elseif($req->approval_status==='pending')<p class="muted">Awaiting review.</p>@else<p class="muted">Rejected. Create a new request to propose another course.</p>@endif</article>@empty<div class="panel">No course requests yet.</div>@endforelse</main></body></html>
+@extends('layouts.glass')
+@section('title', 'Course Requests')
+@section('footer_right', 'Zarqa University · Instructor workspace')
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/zu-instructor.css') }}?v={{ @filemtime(public_path('css/zu-instructor.css')) }}">
+@endpush
+
+@section('content')
+@php
+    use Carbon\Carbon;
+
+    // What each approval status means for the instructor.
+    $meaning = [
+        'pending'           => 'Waiting for the administration to review it.',
+        'changes_requested' => 'The administration asked for changes. Update the course and resubmit it.',
+        'approved'          => 'Approved. It is live for students and managed from My Courses.',
+        'rejected'          => 'This request was not approved.',
+    ];
+    $tabs = ['all' => 'All', 'pending' => 'Pending', 'changes_requested' => 'Changes requested', 'approved' => 'Approved', 'rejected' => 'Rejected'];
+    $counts = ['all' => $requests->count()];
+    foreach (array_keys($meaning) as $key) { $counts[$key] = $requests->where('approval_status', $key)->count(); }
+@endphp
+
+{{-- ================================================================ header --}}
+<section class="iw-hero iw-hero--compact reveal" style="--i:0">
+    @include('instructor.partials.hero-art')
+    <div class="iw-hero__inner">
+        <div class="iw-hero__copy">
+            <span class="eyebrow">Instructor workspace</span>
+            <h1>Course requests</h1>
+            <p>Follow every course you have sent for approval, read the administration’s feedback and resubmit when changes are requested.</p>
+        </div>
+        <div class="iw-hero__actions">
+            <a href="{{ route('instructor.courses') }}" class="iw-cta iw-cta--glass">
+                <span class="iw-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.500A1.500 1.500 0 0 1 5.500 4H20v14H5.500A1.500 1.500 0 0 0 4 19.500z"/><path d="M4 19.500A1.500 1.500 0 0 0 5.500 21H20"/></svg></span>
+                My courses
+            </a>
+            <a href="{{ route('instructor.courses.create') }}" class="iw-cta iw-cta--primary">
+                <span class="iw-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+                Create course
+            </a>
+        </div>
+    </div>
+</section>
+
+@if($requests->isEmpty())
+
+    <section class="iw-empty reveal" style="--i:1">
+        <x-course-cover :course="['offering_id' => 'first-request', 'title' => 'Your first request']" variant="preview" />
+        <h2>No requests yet</h2>
+        <p>Every new course starts as a request. Send one to the administration and you can follow it here.</p>
+        <a href="{{ route('instructor.courses.create') }}" class="iw-cta iw-cta--primary">
+            <span class="iw-cta__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+            Create a course
+        </a>
+    </section>
+
+@else
+
+    {{-- ================================================================ filter --}}
+    <section class="iw-toolbar reveal" style="--i:1" aria-label="Filter requests">
+        <div class="zu-nav zu-nav--tabs lg iw-tabs" data-zu-nav role="group" aria-label="Filter by approval status">
+            @foreach($tabs as $key => $label)
+                @continue($key !== 'all' && $counts[$key] === 0)
+                <button type="button" class="zu-nav-link {{ $key === 'all' ? 'is-active' : '' }}" data-filter="{{ $key }}" aria-pressed="{{ $key === 'all' ? 'true' : 'false' }}"><span>{{ $label }}</span><b class="count">{{ $counts[$key] }}</b></button>
+            @endforeach
+        </div>
+        <p class="iw-count" id="requestCount" role="status" aria-live="polite"></p>
+    </section>
+
+    {{-- ================================================================ requests --}}
+    <div class="iw-req-list" id="requestList">
+        @foreach($requests as $req)
+            @php $status = $req->approval_status; @endphp
+
+            <article class="iw-req iw-req--{{ $status }}" style="--i:{{ min($loop->index, 10) }}" data-status="{{ $status }}">
+                <div class="iw-req__cover"><x-course-cover :course="$req" variant="thumb" /></div>
+
+                <div class="iw-req__main">
+                    <h2 class="iw-req__title">{{ $req->title }}</h2>
+                    <div class="iw-req__meta">
+                        <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.500A1.500 1.500 0 0 1 5.500 4H20v14H5.500A1.500 1.500 0 0 0 4 19.500z"/><path d="M4 19.500A1.500 1.500 0 0 0 5.500 21H20"/></svg>{{ $req->course_name }}</span>
+                        @if($req->topic_name)<span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></svg>{{ $req->topic_name }}</span>@endif
+                        <span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.500" y="5" width="17" height="15.500" rx="3"/><path d="M8 3v4M16 3v4M3.500 10h17"/></svg>Submitted {{ $req->created_at ? Carbon::parse($req->created_at)->format('M d, Y') : '—' }}</span>
+                    </div>
+                    <div class="iw-req__status">
+                        <span class="status-badge status-{{ $status }}"><span class="status-dot"></span>{{ $tabs[$status] ?? ucfirst($status) }}</span>
+                        <span class="iw-req__hint">{{ $meaning[$status] ?? '' }}</span>
+                    </div>
+                </div>
+
+                <div class="iw-req__action">
+                    @if($status === 'changes_requested')
+                        <a class="btn btn-yellow" href="{{ route('instructor.courses.edit', $req->offering_id) }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.800 2.800 0 0 0-4-4L4 16z"/><path d="m13.500 6.500 4 4"/></svg>Edit &amp; resubmit</a>
+                    @elseif($status === 'approved')
+                        <a class="btn btn-blue" href="{{ route('instructor.courses') }}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.500" width="18" height="13" rx="3"/><path d="m10.500 9 4 2.500-4 2.500zM8 21h8"/></svg>Manage course</a>
+                    @elseif($status === 'pending')
+                        <span class="iw-req__wait"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Awaiting review</span>
+                    @else
+                        <a class="btn btn-glass" href="{{ route('instructor.courses.create') }}">Create a new request</a>
+                    @endif
+                </div>
+
+                @if($req->review_note && in_array($status, ['changes_requested', 'rejected'], true))
+                    <div class="iw-feedback">
+                        <span class="iw-feedback__label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.600 7.100L4 20l1-4.800A8 8 0 1 1 21 12z"/></svg>Administration feedback</span>
+                        <p>{{ $req->review_note }}</p>
+                        @if($req->reviewed_at)<small>Reviewed {{ Carbon::parse($req->reviewed_at)->diffForHumans() }}</small>@endif
+                    </div>
+                @elseif($req->review_note && $status === 'approved')
+                    <div class="iw-feedback">
+                        <span class="iw-feedback__label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.600 7.100L4 20l1-4.800A8 8 0 1 1 21 12z"/></svg>Note from the administration</span>
+                        <p>{{ $req->review_note }}</p>
+                    </div>
+                @endif
+            </article>
+        @endforeach
+    </div>
+
+    <section class="iw-empty" id="noRequests" hidden>
+        <h2>Nothing here</h2>
+        <p>No requests match this filter.</p>
+    </section>
+
+@endif
+@endsection
+
+@push('scripts')
+<script>
+(function () {
+    var cards = [].slice.call(document.querySelectorAll('#requestList .iw-req'));
+    var tabs = [].slice.call(document.querySelectorAll('[data-filter]'));
+    var count = document.getElementById('requestCount');
+    var empty = document.getElementById('noRequests');
+    if (!cards.length) return;
+
+    function apply(status) {
+        var shown = 0;
+        cards.forEach(function (c) {
+            var on = status === 'all' || c.dataset.status === status;
+            c.hidden = !on; if (on) shown++;
+        });
+        if (count) count.textContent = shown + (shown === 1 ? ' request' : ' requests');
+        if (empty) empty.hidden = shown !== 0;
+    }
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            tabs.forEach(function (t) { var on = t === tab; t.classList.toggle('is-active', on); t.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+            apply(tab.getAttribute('data-filter'));
+        });
+    });
+    apply('all');
+})();
+</script>
+@endpush

@@ -1,0 +1,247 @@
+/* ==========================================================================
+   ZU Hub — shared "liquid glass" primitives
+   Extracted from the homepage so every page can reuse the exact same feel.
+
+   Building blocks
+     .lg            glass surface (JS adds the edge refraction, see zu-glass.js)
+     .zu-btn        round glass button / account trigger
+     .zu-nav        glass capsule holding .zu-nav-link items
+     .zu-lens       sliding glass lens inside a .zu-nav (created by JS)
+
+   Layers per .lg element:
+     ::before = refraction + blur + tint + glow
+     ::after  = specular rim
+   ========================================================================== */
+
+@property --lg-glow {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
+:root {
+    --zu-navy: #062a57;
+    --zu-ink: #07356c;
+    --zu-spring: cubic-bezier(.34, 1.45, .5, 1);
+    --lg-dur: .7s;
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+    :root {
+        --zu-spring: linear(0, 0.0243, 0.088, 0.1787, 0.2856, 0.3997, 0.5141, 0.6234, 0.7237, 0.8125, 0.8885, 0.9513, 1.0012, 1.0389, 1.0656, 1.0829, 1.0921, 1.0948, 1.0924, 1.0863, 1.0777, 1.0676, 1.0568, 1.0459, 1.0356, 1.0261, 1.0177, 1.0105, 1.0046, 0.9998, 0.9963, 0.9938, 0.9921, 0.9913, 0.991, 0.9912, 0.9918, 0.9926, 0.9936, 0.9946, 0.9957, 0.9966, 0.9975, 1);
+    }
+}
+
+/* ---- shared glass recipe ---- */
+.lg {
+    --lg-tint: rgba(255, 255, 255, .26);
+    --lg-blur: 7px;
+    --lg-sat: 1.8;
+    --lg-bright: 1.05;
+    --lg-glow-color: 255, 255, 255;
+    --lg-shadow: 0 10px 28px rgba(14, 78, 150, .13), 0 2px 6px rgba(14, 78, 150, .09);
+}
+
+.lg.lg {
+    position: relative;
+    z-index: 0;
+    background: transparent;
+    border: 0;
+    filter: none;
+    opacity: 1;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: var(--lg-shadow);
+    transition: transform .55s var(--zu-spring), --lg-glow .35s ease, box-shadow .35s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.lg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: -1;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat)) brightness(var(--lg-bright));
+    backdrop-filter: var(--lg-bf, blur(var(--lg-blur)) saturate(var(--lg-sat)) brightness(var(--lg-bright)));
+    background:
+        radial-gradient(110px circle at var(--mx, 50%) var(--my, 0%), rgba(var(--lg-glow-color), calc(var(--lg-glow) * .85)), transparent 70%),
+        linear-gradient(180deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 55%),
+        var(--lg-tint);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .8),
+        inset 0 -1px 0 rgba(130, 180, 235, .30),
+        inset 0 0 14px rgba(255, 255, 255, .34),
+        inset 0 -7px 12px -7px rgba(40, 110, 200, .14);
+}
+
+.lg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: -1;
+    pointer-events: none;
+    padding: 1.25px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, .98) 0%, rgba(255, 255, 255, .22) 28%, rgba(255, 255, 255, .06) 50%, rgba(255, 255, 255, .22) 72%, rgba(255, 255, 255, .92) 100%);
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+}
+
+/* ---- hover / press: the glass grows, lights up and springs back ---- */
+@media (hover: hover) {
+    .lg.lg:hover {
+        --lg-glow: .5;
+        --lg-shadow: 0 14px 34px rgba(14, 78, 150, .18), 0 3px 8px rgba(14, 78, 150, .10);
+    }
+    .zu-btn.lg.lg:hover { transform: scale(1.045); }
+}
+
+.zu-btn.lg.lg:active {
+    transform: scale(1.1);
+    --lg-glow: .9;
+    --lg-tint: rgba(255, 255, 255, .12);
+    --lg-blur: 3px;
+    --lg-bright: 1.12;
+}
+
+/* ---- glass button ---- */
+.zu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 45px;
+    min-width: 45px;
+    padding: 0 15px;
+    border-radius: 999px;
+    color: var(--zu-navy);
+    font: 750 12px/1 Inter, system-ui, Arial, sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+}
+.zu-btn.lg { --lg-tint: rgba(255, 255, 255, .34); }
+.zu-btn.lg[aria-expanded='true'] { --lg-tint: rgba(140, 200, 255, .46); }
+.zu-btn svg { height: 19px; width: 19px; flex: none; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---- navigation: glass capsule + sliding lens ---- */
+.zu-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+    border-radius: 999px;
+    max-width: 100%;
+}
+.zu-nav.lg {
+    --lg-tint: rgba(206, 227, 250, .40);
+    --lg-blur: 10px;
+    --lg-shadow: 0 12px 38px rgba(12, 58, 113, .08), inset 0 1px 1px #fff;
+}
+
+.zu-nav-link.zu-nav-link {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #44709b;
+    font: 750 12px/1 Inter, system-ui, Arial, sans-serif;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color .35s ease, background .3s ease;
+}
+.zu-nav-link.zu-nav-link:hover { background: rgba(255, 255, 255, .2); color: #0a3d78; }
+.zu-nav-link.zu-nav-link.is-active,
+.zu-nav-link.zu-nav-link.peek { background: transparent; color: var(--zu-navy); }
+.zu-nav-link--icon.zu-nav-link { padding-inline: 14px; }
+.zu-nav-link svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.zu-nav-link:focus-visible, .zu-btn:focus-visible { outline: 3px solid #5aafff; outline-offset: 3px; }
+
+.zu-nav-badge {
+    min-width: 19px;
+    height: 19px;
+    padding: 0 6px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f3b72c, #e08a00);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    box-shadow: 0 4px 10px rgba(224, 138, 0, .32);
+}
+
+/* the lens: a clear piece of glass that glides to the active item */
+.zu-nav .zu-lens.lg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border-radius: 999px;
+    pointer-events: none;
+    --ix: 0px;
+    --iy: 0px;
+    --is: 1;
+    --lg-tint: rgba(255, 255, 255, .58);
+    --lg-blur: 4px;
+    --lg-sat: 1.6;
+    --lg-bright: 1.06;
+    --lg-shadow: 0 3px 8px rgba(14, 78, 150, .14), 0 1px 2px rgba(14, 78, 150, .10);
+    transform: translate3d(var(--ix), var(--iy), 0) scale(var(--is));
+    transform-origin: 50% 50%;
+    transition: transform var(--lg-dur) var(--zu-spring), width var(--lg-dur) var(--zu-spring), height var(--lg-dur) var(--zu-spring), opacity .3s ease, --lg-glow .3s ease, box-shadow .3s ease;
+}
+.zu-nav .zu-lens.lg.is-empty { opacity: 0; }
+
+/* pointer down: the lens lifts, grows and turns clearer (this is where the refraction shows) */
+.zu-nav .zu-lens.lg.is-pressed {
+    --is: 1.16;
+    --lg-glow: .7;
+    --lg-tint: rgba(255, 255, 255, .16);
+    --lg-blur: 1.5px;
+    --lg-bright: 1.14;
+    --lg-sat: 1.9;
+    --lg-shadow: 0 10px 20px rgba(14, 78, 150, .20), 0 2px 6px rgba(14, 78, 150, .12);
+}
+.zu-nav .zu-lens.lg.is-dragging {
+    transition: transform .16s cubic-bezier(.2, .75, .3, 1), width var(--lg-dur) var(--zu-spring), height var(--lg-dur) var(--zu-spring), --lg-glow .3s ease, box-shadow .3s ease;
+}
+.zu-nav .zu-lens.lg.no-anim { transition: none; }
+
+@keyframes zuLensStretch {
+    0%   { scale: 1 1; }
+    30%  { scale: 1.1 .94; }
+    65%  { scale: .985 1.025; }
+    100% { scale: 1 1; }
+}
+.zu-nav .zu-lens.lg.stretch { animation: zuLensStretch .6s ease-out; }
+
+@media (max-width: 720px) {
+    .zu-nav-link.zu-nav-link { padding: 11px 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lg.lg, .zu-nav .zu-lens.lg, .zu-nav-link.zu-nav-link { transition: none !important; animation: none !important; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .lg { --lg-tint: rgba(240, 248, 255, .9); }
+    .zu-nav .zu-lens.lg { --lg-tint: rgba(255, 255, 255, .95); }
+}

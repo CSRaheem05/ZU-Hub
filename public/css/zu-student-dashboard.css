@@ -176,11 +176,11 @@
     background: #15345b;
 }
 
-.stat-active {
+.stat-ongoing {
     background: #205ba2;
 }
 
-.stat-inactive {
+.stat-completed {
     background: #176c83;
 }
 
@@ -290,7 +290,7 @@
     position: relative;
     display: flex;
     align-items: end;
-    min-height: 110px;
+    min-height: 150px;
     padding: 20px;
     overflow: hidden;
     background: linear-gradient(
@@ -369,14 +369,14 @@
     font-weight: 800;
 }
 
-.status-active {
-    background: #e5f8ee;
-    color: #137552;
+.status-ongoing {
+    background: #e3f0ff;
+    color: #175ab4;
 }
 
-.status-inactive {
-    background: #fff0da;
-    color: #a45c10;
+.status-completed {
+    background: #ece9ff;
+    color: #5646bf;
 }
 
 .student-card-body h3 {

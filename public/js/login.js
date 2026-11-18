@@ -1,58 +1,131 @@
 (() => {
   'use strict';
+
   const dict = {
     en: {
-      back: 'Back to homepage', brandTagline: 'ZARQA UNIVERSITY · LEARNING PLATFORM',
-      welcome: 'WELCOME BACK', title: 'Your learning starts here.',
-      description: 'Sign in to access your courses and university learning space.',
-      email: 'Email address', password: 'Password', signIn: 'Sign in',
-      show: 'Show', hide: 'Hide',
-      footer: 'One secure space for students, instructors and management.', copyright: 'Zarqa University',
-      emailPlaceholder: 'name@example.com', passwordPlaceholder: 'Enter your password'
+      back: 'Back to homepage', welcome: 'Welcome back', title: 'Sign in',
+      email: 'University email', password: 'Password', signIn: 'Sign in', signingIn: 'Signing in…',
+      show: 'Show password', hide: 'Hide password', copyright: 'Zarqa University',
+      emailPlaceholder: 'name@zu.edu.jo', passwordPlaceholder: 'Enter your password',
+      switchTo: 'العربية', logoAlt: 'Zarqa University logo', capsOn: 'Caps Lock is on'
     },
     ar: {
-      back: 'العودة إلى الرئيسية', brandTagline: 'جامعة الزرقاء · المنصة التعليمية',
-      welcome: 'مرحبًا بعودتك', title: 'رحلتك التعليمية تبدأ هنا.',
-      description: 'سجّل الدخول للوصول إلى دوراتك ومساحتك التعليمية الجامعية.',
-      email: 'البريد الإلكتروني', password: 'كلمة المرور', signIn: 'تسجيل الدخول',
-      show: 'إظهار', hide: 'إخفاء',
-      footer: 'مساحة آمنة واحدة للطلاب وأعضاء الهيئة التدريسية والإدارة.', copyright: 'جامعة الزرقاء',
-      emailPlaceholder: 'name@example.com', passwordPlaceholder: 'أدخل كلمة المرور'
+      back: 'العودة إلى الرئيسية', welcome: 'مرحبًا بعودتك', title: 'تسجيل الدخول',
+      email: 'البريد الإلكتروني الجامعي', password: 'كلمة المرور', signIn: 'تسجيل الدخول', signingIn: 'جارٍ تسجيل الدخول…',
+      show: 'إظهار كلمة المرور', hide: 'إخفاء كلمة المرور', copyright: 'جامعة الزرقاء',
+      emailPlaceholder: 'name@zu.edu.jo', passwordPlaceholder: 'أدخل كلمة المرور',
+      switchTo: 'English', logoAlt: 'شعار جامعة الزرقاء', capsOn: 'مفتاح Caps Lock مفعّل'
     }
   };
-  const button = document.getElementById('languageButton');
-  const password = document.getElementById('password');
-  const toggle = document.getElementById('passwordToggle');
-  const logo = document.getElementById('universityLogo');
-  let lang = 'en';
-  try { lang = localStorage.getItem('zu-language') === 'ar' ? 'ar' : 'en'; } catch (_) {}
+
+  // Laravel's own (English) validation messages, so the page speaks one language.
+  const serverAr = [
+    [/email field is required/i, 'يرجى إدخال البريد الإلكتروني.'],
+    [/email field must be a valid/i, 'يرجى إدخال بريد إلكتروني صالح.'],
+    [/password field is required/i, 'يرجى إدخال كلمة المرور.'],
+    [/too many/i, 'محاولات كثيرة. يرجى المحاولة لاحقًا.']
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const html = document.documentElement;
+  const form = $('loginForm'), email = $('email'), password = $('password');
+  const toggle = $('passwordToggle'), submit = $('submitButton'), errorBox = $('loginError');
+  const langBtn = $('languageButton'), logo = $('universityLogo'), hint = $('capsHint');
+  const rawError = errorBox.textContent.trim();     // what Laravel rendered (bilingual for bad credentials)
+
+  let lang = html.lang === 'ar' ? 'ar' : 'en';
+  let busy = false;
+
+  function localisedError(t) {
+    if (!rawError) return '';
+    const parts = rawError.split(/\s+\/\s+/);
+    if (parts.length === 2) return lang === 'ar' ? parts[1] : parts[0];           // "English / العربية"
+    if (lang === 'ar') for (const [re, ar] of serverAr) if (re.test(rawError)) return ar;
+    return rawError;
+  }
+
   function render() {
     const t = dict[lang];
-    document.documentElement.lang = lang;
-    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    html.lang = lang;
+    html.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = el.getAttribute('data-i18n');
       if (Object.hasOwn(t, key)) el.textContent = t[key];
     });
-    document.getElementById('email').placeholder = t.emailPlaceholder;
+    email.placeholder = t.emailPlaceholder;
     password.placeholder = t.passwordPlaceholder;
-    toggle.textContent = password.type === 'password' ? t.show : t.hide;
-    button.textContent = lang === 'ar' ? 'English' : 'العربية';
+    langBtn.querySelector('span').textContent = t.switchTo;
+    langBtn.setAttribute('lang', lang === 'ar' ? 'en' : 'ar');
+    langBtn.setAttribute('aria-label', lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية');
     logo.src = lang === 'ar' ? logo.dataset.arSrc : logo.dataset.enSrc;
+    logo.alt = t.logoAlt;
+    toggle.setAttribute('aria-label', password.type === 'password' ? t.show : t.hide);
+    errorBox.textContent = localisedError(t);
+    if (!hint.hidden) hint.textContent = t.capsOn;
+    document.title = 'ZU Hub | ' + t.title;
   }
-  button.addEventListener('click', () => {
+
+  langBtn.addEventListener('click', () => {
     lang = lang === 'ar' ? 'en' : 'ar';
-    try { localStorage.setItem('zu-language', lang); } catch (_) {}
+    try { localStorage.setItem('zu-language', lang); } catch (_) { /* storage blocked */ }
     render();
   });
+
   toggle.addEventListener('click', () => {
-    password.type = password.type === 'password' ? 'text' : 'password';
-    toggle.setAttribute('aria-pressed', password.type === 'text' ? 'true' : 'false');
+    const show = password.type === 'password';
+    password.type = show ? 'text' : 'password';
+    toggle.setAttribute('aria-pressed', String(show));
     render();
+    password.focus({ preventScroll: true });
   });
-  document.getElementById('loginForm').addEventListener('submit', () => {
-    const submit = document.getElementById('submitButton');
-    submit.disabled = true;
+
+  // mark the fields the server complained about, and clear the mark once the person starts fixing it
+  const wraps = [email, password].map((i) => i.closest('.input-wrap'));
+  if (rawError) {
+    email.setAttribute('aria-invalid', 'true');
+    email.setAttribute('aria-describedby', 'loginError');
+    wraps[0].classList.add('is-invalid');
+  }
+  [email, password].forEach((input, i) => input.addEventListener('input', () => {
+    wraps[i].classList.remove('is-invalid');
+    input.removeAttribute('aria-invalid');
+  }));
+
+  // Caps Lock hint on the password field
+  function caps(e) {
+    if (typeof e.getModifierState !== 'function') return;
+    const on = e.getModifierState('CapsLock');
+    hint.hidden = !on;
+    hint.textContent = on ? dict[lang].capsOn : '';
+  }
+  password.addEventListener('keydown', caps);
+  password.addEventListener('keyup', caps);
+  password.addEventListener('blur', () => { hint.hidden = true; hint.textContent = '' });
+
+  // submission feedback. The form posts normally (CSRF, validation and throttling stay server-side); we only
+  // show progress and ignore a second press while the request is in flight.
+  form.addEventListener('submit', (e) => {
+    if (busy) { e.preventDefault(); return; }
+    if (!form.checkValidity()) return;                 // native validation shows its own message first
+    busy = true;
+    submit.classList.add('is-loading');
+    submit.setAttribute('aria-disabled', 'true');
+    submit.setAttribute('aria-busy', 'true');
+    submit.querySelector('[data-i18n="signIn"]').textContent = dict[lang].signingIn;
   });
+
+  // coming back via the browser's back button must not leave the form stuck in its loading state
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    busy = false;
+    submit.classList.remove('is-loading');
+    submit.removeAttribute('aria-disabled'); submit.removeAttribute('aria-busy');
+    submit.querySelector('[data-i18n="signIn"]').textContent = dict[lang].signIn;
+  });
+
   render();
+
+  // focus the email field on roomy, hover-capable screens only (on phones it would pop the keyboard and scroll the page)
+  if (window.matchMedia('(hover: hover) and (min-height: 600px)').matches && !email.value) email.focus({ preventScroll: true });
+  else if (email.value && rawError) password.focus({ preventScroll: true });
 })();

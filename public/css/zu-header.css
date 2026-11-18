@@ -1,0 +1,117 @@
+/* ==========================================================================
+   ZU Hub — shared site header layout (English / LTR)
+   [ account ]            [ glass navigation ]            [ university logo ]
+   Requires css/zu-glass.css.
+   ========================================================================== */
+
+:root { --zu-header-h: 100px; }
+
+.zu-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 18px;
+    padding: 18px clamp(20px, 3vw, 46px);
+    direction: ltr;
+    background: none;   /* legacy page stylesheets style every bare <header> */
+    border: 0;
+    margin: 0;
+    flex-wrap: nowrap;
+    pointer-events: none;
+    animation: zuHeaderIn 1s cubic-bezier(.2, .8, .2, 1) both;
+}
+.zu-header > * { pointer-events: auto; }
+
+/* soft fade so scrolling content never collides with the floating controls */
+.zu-header::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -26px 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(240, 247, 255, .92) 0%, rgba(240, 247, 255, .66) 58%, rgba(240, 247, 255, 0) 100%);
+}
+
+.zu-header__start { justify-self: start; min-width: 0; }
+.zu-header > .zu-nav { justify-self: center; min-width: max-content; }
+
+/* university logo — original 300×100 artwork, never cropped or reframed */
+.zu-brand { justify-self: end; display: block; line-height: 0; transition: transform .5s var(--zu-spring), filter .3s ease; }
+.zu-brand img {
+    display: block;
+    width: clamp(135px, 12.6vw, 195px);
+    height: auto;
+    aspect-ratio: 3 / 1;
+    object-fit: contain;
+}
+.zu-brand:hover { transform: scale(1.04); filter: drop-shadow(0 6px 14px rgba(14, 78, 150, .16)); }
+.zu-brand:focus-visible { outline: 3px solid #5aafff; outline-offset: 4px; border-radius: 12px; }
+
+/* ---- account menu ---- */
+.zu-account { position: relative; z-index: 80; }
+.zu-account summary { list-style: none; }
+.zu-account summary::-webkit-details-marker { display: none; }
+.zu-account__trigger { height: auto; min-height: 45px; padding: 6px 14px 6px 15px; }
+.zu-account__text { display: flex; flex-direction: column; gap: 3px; line-height: 1.15; text-align: start; }
+.zu-account__text strong { max-width: 150px; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 800; }
+.zu-account__text small { font-size: 10px; font-weight: 650; opacity: .68; }
+.zu-account__chevron { width: 15px !important; height: 15px !important; opacity: .65; transition: transform .45s var(--zu-spring); }
+.zu-account[open] .zu-account__chevron { transform: rotate(180deg); }
+
+.zu-account__menu.lg {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 210px;
+    padding: 10px;
+    border-radius: 22px;
+    --lg-tint: rgba(240, 248, 255, .66);
+    --lg-blur: 14px;
+    --lg-shadow: 0 22px 50px rgba(11, 70, 124, .2), 0 3px 10px rgba(11, 70, 124, .08);
+    transform-origin: 24px -6px;
+    animation: zuMenuIn .5s var(--zu-spring) both;
+}
+.zu-account__identity { display: grid; gap: 3px; padding: 10px 12px 12px; margin-bottom: 6px; border-bottom: 1px solid rgba(23, 90, 180, .1); }
+.zu-account__identity strong { font-size: 13px; font-weight: 800; color: #0a366a; }
+.zu-account__identity span { font-size: 11px; font-weight: 650; color: #5b85ae; }
+.zu-account__menu form { margin: 0; }
+.zu-account__menu button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #b0364a;
+    font: 750 13px/1 Inter, system-ui, Arial, sans-serif;
+    text-align: start;
+    cursor: pointer;
+    transition: background .25s ease, transform .4s var(--zu-spring);
+}
+.zu-account__menu button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.zu-account__menu button:hover { background: rgba(214, 69, 96, .12); transform: translateX(3px); }
+.zu-account__menu button:focus-visible { outline: 3px solid #5aafff; outline-offset: 2px; }
+
+@keyframes zuHeaderIn { from { transform: translateY(-140%); } to { transform: none; } }
+@keyframes zuMenuIn { from { opacity: 0; transform: translateY(-8px) scale(.94); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+    .zu-header, .zu-account__menu { animation: none !important; }
+}
+
+/* ---- tablet / mobile: account + logo on top, navigation below ---- */
+@media (max-width: 900px) {
+    :root { --zu-header-h: 150px; }
+    .zu-header { grid-template-columns: 1fr auto; row-gap: 12px; padding-top: 14px; }
+    .zu-header > .zu-nav { grid-column: 1 / -1; grid-row: 2; justify-self: center; min-width: 0; }
+    .zu-brand img { width: clamp(120px, 30vw, 160px); }
+}
+@media (max-width: 560px) {
+    .zu-account__text { display: none; }
+    .zu-account__trigger { min-height: 45px; padding: 0 12px; }
+}

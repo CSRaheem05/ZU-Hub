@@ -1,372 +1,251 @@
-<!doctype html>
-<html lang="en" dir="ltr">
+@extends('layouts.glass')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@php
+    // create   : a brand-new request, sent for approval
+    // resubmit : the administration asked for changes; saving sends it back for approval
+    // edit     : an approved course; only details that do not change what was approved
+    $mode = ! $course ? 'create' : ($course->approval_status === 'approved' ? 'edit' : 'resubmit');
+    $locked = $mode === 'edit';
 
-    <title>
-        {{ $course ? 'Edit Course' : 'Create Course' }} | ZU Hub
-    </title>
+    $subject = $course ? $subjects->firstWhere('course_id', $course->course_id) : null;
+    $topicName = $course && $course->topic_id ? optional($topics->firstWhere('topic_id', $course->topic_id))->topic_name : null;
 
-    <link rel="stylesheet"
-          href="{{ asset('css/zu-my-courses.css') }}">
+    $heading = ['create' => 'Create Course', 'resubmit' => 'Update Request', 'edit' => 'Edit Course'][$mode];
+    $submitLabel = ['create' => 'Submit for approval', 'resubmit' => 'Resubmit for approval', 'edit' => 'Save changes'][$mode];
+    $leaveUrl = $mode === 'edit' ? route('instructor.courses') : route('instructor.requests');
 
-    <link rel="stylesheet"
-          href="{{ asset('css/zu-course-form.css') }}">
-</head>
+    $coverUrl = ($course && $course->cover_image) ? route('courses.cover', $course->offering_id).'?v='.substr(md5($course->cover_image), 0, 10) : null;
+    $previewCourse = $course ?: (object) ['offering_id' => 'new-course-preview', 'title' => 'Your course', 'cover_image' => null];
+    $previewDesc = trim((string) old('description', $course->description ?? ''));
+@endphp
 
-<body>
+@section('title', $heading)
+@section('footer_right', 'Zarqa University · Instructor workspace')
 
-<header class="page-header">
-    <div class="header-content">
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/zu-instructor.css') }}?v={{ @filemtime(public_path('css/zu-instructor.css')) }}">
+<link rel="stylesheet" href="{{ asset('css/zu-instructor-form.css') }}?v={{ @filemtime(public_path('css/zu-instructor-form.css')) }}">
+@endpush
 
-        <a href="{{ route('home') }}" class="brand">
-            ⌂ ZU Hub
+@section('content')
+
+{{-- ================================================================ heading --}}
+<header class="iw-pagehead reveal" style="--i:0">
+    <h1>
+        <span class="iw-pagehead__icon" aria-hidden="true">
+            @if($mode === 'create')<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>@else<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.800 2.800 0 0 0-4-4L4 16z"/><path d="m13.500 6.500 4 4"/></svg>@endif
+        </span>
+        {{ $heading }}
+    </h1>
+    @if($mode !== 'create')
+        <a href="{{ $leaveUrl }}" class="iw-pagehead__back">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+            {{ $mode === 'edit' ? 'Back to My Courses' : 'Back to requests' }}
         </a>
-
-        <div class="header-right">
-            <div class="identity">
-                <strong>{{ auth()->user()->name }}</strong>
-                · Instructor
-            </div>
-
-            <a href="{{ route('instructor.courses') }}"
-               class="back">
-                My Courses
-            </a>
-        </div>
-
-    </div>
+    @endif
 </header>
 
-<main class="zc-container">
+@if($mode === 'resubmit' && $course->review_note)
+    <div class="iw-feedback iw-feedback--banner reveal" style="--i:1; --rq:#dc9300">
+        <span class="iw-feedback__label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.600 7.100L4 20l1-4.800A8 8 0 1 1 21 12z"/></svg>Administration feedback</span>
+        <p>{{ $course->review_note }}</p>
+    </div>
+@endif
 
-    <div class="zc-heading">
-        <p class="zc-eyebrow">INSTRUCTOR WORKSPACE</p>
+<form id="courseForm" class="iw-form" method="POST" enctype="multipart/form-data" novalidate data-submit-once data-mode="{{ $mode }}"
+      action="{{ $course ? route('instructor.courses.update', $course->offering_id) : route('instructor.courses.store') }}">
+    @csrf
+    @if($course) @method('PUT') @endif
 
-        <h1>
-            {{ $course ? 'Edit Course' : 'Create Course' }}
-        </h1>
+    {{-- ================================================================ the sheet: four connected steps --}}
+    <div class="iw-sheet reveal" style="--i:1">
 
-        <p>
-            {{ $course
-                ? 'Update the requested details and resubmit for admin approval.'
-                : 'Submit your course details for admin approval.' }}
-        </p>
+        {{-- ============================================================ 1 · cover --}}
+        <section class="iw-section">
+            <span class="iw-section__no">1</span>
+            <div class="iw-section__body">
+                <h2>Cover image <span class="iw-opt">optional</span></h2>
+
+                <div class="iw-drop" id="coverDrop" data-existing="{{ $coverUrl }}" data-max-kb="{{ \App\Services\CourseCoverService::MAX_KILOBYTES }}"
+                     data-min-w="{{ \App\Services\CourseCoverService::MIN_WIDTH }}" data-min-h="{{ \App\Services\CourseCoverService::MIN_HEIGHT }}" data-max-side="{{ \App\Services\CourseCoverService::MAX_SIDE }}">
+                    <input type="file" name="cover_image" id="coverInput" class="iw-drop__input" accept="image/jpeg,image/png,image/webp" aria-describedby="coverHelp coverError">
+
+                    <label for="coverInput" class="iw-drop__prompt" id="coverPrompt">
+                        <span class="iw-drop__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3.500"/><circle cx="9" cy="10" r="1.800"/><path d="m21 16-5.200-5.200a1.500 1.500 0 0 0-2.100 0L5 19.500"/></svg></span>
+                        <strong>Drag &amp; drop a cover, or <u>browse</u></strong>
+                        <small>JPG, PNG or WebP · up to {{ \App\Services\CourseCoverService::MAX_KILOBYTES / 1024 }} MB</small>
+                    </label>
+
+                    <div class="iw-drop__preview" id="coverPreview" hidden>
+                        <img id="coverImg" alt="Selected cover preview">
+                        <div class="iw-drop__bar">
+                            <span class="iw-drop__file"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg><span id="coverName">Cover image</span></span>
+                            <span class="iw-drop__actions">
+                                <button type="button" class="iw-drop__btn" id="coverReplace"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.300L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.300L4 15M4 20v-5h5"/></svg>Replace</button>
+                                <button type="button" class="iw-drop__btn iw-drop__btn--danger" id="coverRemove"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12M9 7V4h6v3"/></svg>Remove</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="iw-drop__removed" id="coverRemoved" hidden>The current cover will be removed when you save.</p>
+                </div>
+                <input type="hidden" name="remove_cover" id="removeCover" value="0">
+
+                <p class="iw-hint" id="coverHelp">16:9 works best · at least {{ \App\Services\CourseCoverService::MIN_WIDTH }}×{{ \App\Services\CourseCoverService::MIN_HEIGHT }} px. Without a cover, we create one for you.</p>
+                <p class="iw-field-error" id="coverError" role="alert" @if(! $errors->has('cover_image')) hidden @endif>{{ $errors->first('cover_image') }}</p>
+            </div>
+        </section>
+
+        {{-- ============================================================ 2 · subject --}}
+        <section class="iw-section">
+            <span class="iw-section__no">2</span>
+            <div class="iw-section__body">
+                <h2>University subject</h2>
+
+                @if($locked)
+                    <dl class="iw-locked">
+                        <div class="iw-locked__wide"><dt>Course title</dt><dd>{{ $course->title }}</dd></div>
+                        <div><dt>College</dt><dd>{{ $subject->college_name ?? '—' }}</dd></div>
+                        <div><dt>Department</dt><dd>{{ $subject->department_name ?? '—' }}</dd></div>
+                        <div><dt>Subject</dt><dd>{{ $subject->course_name ?? '—' }}</dd></div>
+                        <div><dt>Topic</dt><dd>{{ $topicName ?? 'General / not specified' }}</dd></div>
+                    </dl>
+                    <p class="iw-lock-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Approved by the administration. To change these, create a new course request.</p>
+                @else
+                    <div class="iw-fields">
+                        @foreach([['college', 'College', 'Select a college', 'Search colleges…'], ['department', 'Department', 'Select a college first', 'Search departments…'], ['subject', 'Subject', 'Select a department first', 'Search by name or code…']] as [$key, $label, $placeholder, $searchHint])
+                            <div class="iw-field" data-field="{{ $key }}">
+                                <label for="{{ $key }}Toggle">{{ $label }} <em>*</em></label>
+                                <div class="iw-combo" id="{{ $key }}Dropdown">
+                                    <button type="button" id="{{ $key }}Toggle" class="iw-combo__toggle" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ $key }}Panel" @if($key !== 'college') disabled @endif>
+                                        <span id="{{ $key }}Label" class="iw-combo__label">{{ $placeholder }}</span>
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                                    </button>
+                                    <div class="iw-combo__panel" id="{{ $key }}Panel" hidden>
+                                        <input type="search" id="{{ $key }}Search" class="iw-combo__search" aria-label="{{ $searchHint }}" placeholder="{{ $searchHint }}" autocomplete="off">
+                                        <div class="iw-combo__options" id="{{ $key }}Options" role="listbox"></div>
+                                    </div>
+                                </div>
+                                @if($key === 'college') <input type="hidden" id="college_id">
+                                @elseif($key === 'department') <input type="hidden" id="department_id">
+                                @else <input type="hidden" name="course_id" id="course_id" value="{{ old('course_id', $course->course_id ?? '') }}"> @endif
+                                <p class="iw-field-error" id="{{ $key }}Error" role="alert" @if(! ($key === 'subject' && $errors->has('course_id'))) hidden @endif>{{ $key === 'subject' ? $errors->first('course_id') : '' }}</p>
+                            </div>
+                        @endforeach
+
+                        <div class="iw-field">
+                            <label for="topic_id">Topic <span class="iw-opt">optional</span></label>
+                            <select name="topic_id" id="topic_id" class="iw-select">
+                                <option value="">General / not specified</option>
+                                @foreach($topics as $topic)
+                                    <option value="{{ $topic->topic_id }}" data-college="{{ $topic->college_code }}" @selected(old('topic_id', $course->topic_id ?? '') === $topic->topic_id)>{{ $topic->topic_name }}</option>
+                                @endforeach
+                            </select>
+                            <p class="iw-field-error" role="alert" @if(! $errors->has('topic_id')) hidden @endif>{{ $errors->first('topic_id') }}</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        {{-- ============================================================ 3 · details --}}
+        <section class="iw-section">
+            <span class="iw-section__no">3</span>
+            <div class="iw-section__body">
+                <h2>Course details</h2>
+
+                <div class="iw-fields iw-fields--single">
+                    @unless($locked)
+                        <div class="iw-field">
+                            <label for="title">Course title <em>*</em></label>
+                            <input type="text" name="title" id="title" class="iw-input" maxlength="255" required placeholder="Example: Java Programming Basics" value="{{ old('title', $course->title ?? '') }}">
+                            <p class="iw-field-error" id="titleError" role="alert" @if(! $errors->has('title')) hidden @endif>{{ $errors->first('title') }}</p>
+                        </div>
+                    @endunless
+
+                    <div class="iw-field">
+                        <label for="description">Description <span class="iw-opt">optional</span></label>
+                        <textarea name="description" id="description" class="iw-input iw-textarea" rows="5" maxlength="5000" placeholder="What will students learn? Who is it for?">{{ old('description', $course->description ?? '') }}</textarea>
+                        <p class="iw-hint iw-hint--end"><span id="descCount">0</span> / 5000</p>
+                        <p class="iw-field-error" role="alert" @if(! $errors->has('description')) hidden @endif>{{ $errors->first('description') }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- ============================================================ 4 · time --}}
+        <section class="iw-section">
+            <span class="iw-section__no">4</span>
+            <div class="iw-section__body">
+                <h2>Duration &amp; schedule <span class="iw-opt">optional</span></h2>
+
+                <div class="iw-fields">
+                    <div class="iw-field">
+                        <span class="iw-label">Total duration</span>
+                        <div class="iw-duration">
+                            <label class="iw-num"><input type="number" id="durationHours" min="0" max="9999" step="1" placeholder="0" inputmode="numeric"><span>hours</span></label>
+                            <label class="iw-num"><input type="number" id="durationMinutes" min="0" max="59" step="1" value="0" inputmode="numeric"><span>min</span></label>
+                        </div>
+                        <input type="hidden" name="duration_hours" id="duration_hours" value="{{ old('duration_hours', $course->duration_hours ?? '') }}">
+                        <p class="iw-hint" id="durationPreview">Duration not specified.</p>
+                        <p class="iw-field-error" id="durationError" role="alert" @if(! $errors->has('duration_hours')) hidden @endif>{{ $errors->first('duration_hours') }}</p>
+                    </div>
+
+                    <div class="iw-field">
+                        <label for="lectureTime">Start time</label>
+                        <input type="time" id="lectureTime" class="iw-input">
+                    </div>
+
+                    <div class="iw-field iw-field--wide">
+                        <span class="iw-label" id="daysLabel">Lecture days</span>
+                        <div class="iw-days" role="group" aria-labelledby="daysLabel">
+                            @foreach(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as $day)
+                                <label class="iw-day"><input type="checkbox" class="lectureDay" value="{{ $day }}"><span><b>{{ substr($day, 0, 3) }}</b><small>{{ $day }}</small></span></label>
+                            @endforeach
+                        </div>
+                        <input type="hidden" name="lecture_schedule" id="lecture_schedule" value="{{ old('lecture_schedule', $course->lecture_schedule ?? '') }}">
+                        <p class="iw-hint" id="schedulePreview">No lecture schedule selected.</p>
+                        <p class="iw-field-error" id="scheduleError" role="alert" hidden></p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
-    @if($errors->any())
-        <div class="zc-errors" role="alert">
-            <strong>Please correct these errors:</strong>
+    {{-- ================================================================ preview + submit --}}
+    <aside class="iw-form__aside">
+        <div class="iw-aside reveal" style="--i:2">
+            <span class="iw-aside__label"><i aria-hidden="true"></i>Live preview</span>
 
-            <ul>
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+            <div class="iw-card iw-card--preview zu-cover-host">
+                <div class="iw-card__media" id="previewMedia">
+                    <x-course-cover :course="$previewCourse" variant="card" />
+                    <img class="iw-preview__img" id="previewImg" alt="" @if($coverUrl) src="{{ $coverUrl }}" @else hidden @endif>
+                    <span class="iw-glass-chip iw-subject"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.500A1.500 1.500 0 0 1 5.500 4H20v14H5.500A1.500 1.500 0 0 0 4 19.500z"/><path d="M4 19.500A1.500 1.500 0 0 0 5.500 21H20"/></svg><span id="previewSubject">{{ $subject->course_name ?? 'University subject' }}</span></span>
+                    <span class="iw-glass-chip iw-state"><i aria-hidden="true"></i><span>{{ $mode === 'edit' ? ($course->course_status === 'completed' ? 'Completed' : 'Ongoing') : 'Awaiting approval' }}</span></span>
+                </div>
+                <div class="iw-card__body">
+                    <h3 class="iw-card__title" id="previewTitle">{{ old('title', $course->title ?? '') ?: 'Your course title' }}</h3>
+                    <p class="iw-card__desc {{ $previewDesc === '' ? 'is-placeholder' : '' }}" id="previewDesc">{{ $previewDesc !== '' ? $previewDesc : 'Explore this course and develop your skills.' }}</p>
+                    <p class="iw-card__meta"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.4-3.600 2.800-5.500 6.500-5.500s6.100 1.900 6.500 5.500M16 5a3.500 3.500 0 0 1 0 6.500M18 14.800c1.900.7 3.100 2.400 3.500 5.200"/></svg><span><b>{{ $course->students_count ?? 0 }}</b> students enrolled</span></p>
+                </div>
+            </div>
+
+            <div class="iw-submit">
+                <button type="submit" class="btn {{ $mode === 'edit' ? 'btn-green' : 'btn-blue' }} btn-lg" id="submitBtn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">@if($mode === 'edit')<path d="m5 12.500 4.500 4.500L19 7.500"/>@else<path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/>@endif</svg>
+                    {{ $submitLabel }}
+                </button>
+                <a href="{{ $leaveUrl }}" class="iw-cancel">Cancel</a>
+                @if($mode !== 'edit')<p class="iw-note">The administration reviews it before students can see it.</p>@endif
+            </div>
         </div>
-    @endif
-
-    @if($course && $course->review_note)
-        <div style="background:#fff7e7;border-left:4px solid #e0a239;padding:15px;margin:18px 0;border-radius:8px"><strong>Admin Feedback</strong><p>{{ $course->review_note }}</p></div>
-    @endif
-    <form id="courseForm"
-          method="POST"
-          action="{{ $course
-              ? route('instructor.courses.update', $course->offering_id)
-              : route('instructor.courses.store') }}">
-
-        @csrf
-
-        @if($course)
-            @method('PUT')
-        @endif
-
-        <!-- 1. Academic Information -->
-
-        <section class="zc-card">
-
-            <h2>01. Academic Information</h2>
-            <p>Select the college, department and subject.</p>
-
-            <div class="zc-field">
-                <label for="collegeToggle">College *</label>
-
-                <div class="zc-dropdown" id="collegeDropdown">
-                    <button type="button"
-                            id="collegeToggle"
-                            class="zc-dropdown-toggle"
-                            aria-expanded="false"
-                            aria-controls="collegePanel">
-                        <span id="collegeLabel">Select College</span>
-                        <span aria-hidden="true">▾</span>
-                    </button>
-
-                    <div class="zc-dropdown-panel"
-                         id="collegePanel" hidden>
-                        <input type="search"
-                               id="collegeSearch"
-                               aria-label="Search colleges"
-                               placeholder="Search colleges..."
-                               autocomplete="off">
-
-                        <div class="zc-options"
-                             id="collegeOptions"></div>
-                    </div>
-                </div>
-
-                <input type="hidden" id="college_id">
-            </div>
-
-            <div class="zc-field">
-                <label for="departmentToggle">Department *</label>
-
-                <div class="zc-dropdown" id="departmentDropdown">
-                    <button type="button"
-                            id="departmentToggle"
-                            class="zc-dropdown-toggle"
-                            aria-expanded="false"
-                            aria-controls="departmentPanel"
-                            disabled>
-                        <span id="departmentLabel">
-                            Select College First
-                        </span>
-                        <span aria-hidden="true">▾</span>
-                    </button>
-
-                    <div class="zc-dropdown-panel"
-                         id="departmentPanel" hidden>
-                        <input type="search"
-                               id="departmentSearch"
-                               aria-label="Search departments"
-                               placeholder="Search departments..."
-                               autocomplete="off">
-
-                        <div class="zc-options"
-                             id="departmentOptions"></div>
-                    </div>
-                </div>
-
-                <input type="hidden" id="department_id">
-            </div>
-
-            <div class="zc-field">
-                <label for="subjectToggle">Subject *</label>
-
-                <div class="zc-dropdown" id="subjectDropdown">
-                    <button type="button"
-                            id="subjectToggle"
-                            class="zc-dropdown-toggle"
-                            aria-expanded="false"
-                            aria-controls="subjectPanel"
-                            disabled>
-                        <span id="subjectLabel">
-                            Select Department First
-                        </span>
-                        <span aria-hidden="true">▾</span>
-                    </button>
-
-                    <div class="zc-dropdown-panel"
-                         id="subjectPanel" hidden>
-                        <input type="search"
-                               id="subjectSearch"
-                               aria-label="Search subjects"
-                               placeholder="Search by name or code..."
-                               autocomplete="off">
-
-                        <div class="zc-options"
-                             id="subjectOptions"></div>
-                    </div>
-                </div>
-
-                <input type="hidden"
-                       name="course_id"
-                       id="course_id"
-                       value="{{ old('course_id', $course->course_id ?? '') }}">
-            </div>
-
-        </section>
-
-        <!-- 2. Course Details -->
-
-        <section class="zc-card">
-
-            <h2>02. Course Details</h2>
-            <p>Describe your training course.</p>
-
-            <div class="zc-field">
-                <label for="title">Course Title *</label>
-
-                <input type="text"
-                       name="title"
-                       id="title"
-                       maxlength="255"
-                       required
-                       placeholder="Example: Java Programming Basics"
-                       value="{{ old('title', $course->title ?? '') }}">
-            </div>
-
-            <div class="zc-field">
-                <label for="description">Description</label>
-
-                <textarea name="description"
-                          id="description"
-                          rows="5"
-                          placeholder="What will students learn?">{{ old('description', $course->description ?? '') }}</textarea>
-            </div>
-
-        </section>
-
-        <!-- 3. Course Duration -->
-
-        <section class="zc-card">
-
-            <h2>03. Course Duration</h2>
-            <p>Enter the estimated duration.</p>
-
-            <div class="zc-grid">
-
-                <div class="zc-field">
-                    <label for="durationHours">Hours</label>
-
-                    <input type="number"
-                           id="durationHours"
-                           min="0"
-                           max="9999"
-                           step="1"
-                           placeholder="0">
-                </div>
-
-                <div class="zc-field">
-                    <label for="durationMinutes">Minutes</label>
-
-                    <input type="number"
-                           id="durationMinutes"
-                           min="0"
-                           max="59"
-                           step="1"
-                           value="0">
-                </div>
-
-            </div>
-
-            <input type="hidden"
-                   name="duration_hours"
-                   id="duration_hours"
-                   value="{{ old('duration_hours', $course->duration_hours ?? '') }}">
-
-            <div class="zc-preview" id="durationPreview">
-                Duration not specified.
-            </div>
-
-        </section>
-
-        <!-- 4. Lecture Schedule -->
-
-        <section class="zc-card">
-
-            <h2>04. Lecture Schedule</h2>
-            <p>Select lecture days and starting time.</p>
-
-            <div class="zc-field">
-                <label>Lecture Days</label>
-
-                <div class="zc-days">
-
-                    @foreach([
-                        'Sunday', 'Monday', 'Tuesday',
-                        'Wednesday', 'Thursday',
-                        'Friday', 'Saturday'
-                    ] as $day)
-
-                        <label class="zc-day">
-                            <input type="checkbox"
-                                   class="lectureDay"
-                                   value="{{ $day }}">
-
-                            {{ $day }}
-                        </label>
-
-                    @endforeach
-
-                </div>
-            </div>
-
-            <div class="zc-field">
-                <label for="lectureTime">Start Time</label>
-
-                <input type="time" id="lectureTime">
-            </div>
-
-            <input type="hidden"
-                   name="lecture_schedule"
-                   id="lecture_schedule"
-                   value="{{ old('lecture_schedule', $course->lecture_schedule ?? '') }}">
-
-            <div class="zc-preview" id="schedulePreview">
-                No lecture schedule selected.
-            </div>
-
-        </section>
-
-        <section style="padding:15px;background:#f2f6fc;border-radius:10px;margin:15px 0">
-            <label for="topic_id"><strong>Course Topic</strong></label>
-            <select name="topic_id" id="topic_id" style="display:block;width:100%;padding:10px;margin-top:8px">
-                <option value="">General / Not specified</option>
-                @foreach($topics as $topic)
-                    <option value="{{ $topic->topic_id }}" data-college="{{ $topic->college_code }}" @selected(old('topic_id',$course->topic_id ?? '')===$topic->topic_id)>{{ $topic->topic_name }}</option>
-                @endforeach
-            </select><small>Choose a topic belonging to the same college as the related university course.</small>
-        </section>
-        <!-- Actions -->
-
-        <div class="zc-actions">
-
-            <a href="{{ route('instructor.courses') }}"
-               class="zc-btn zc-secondary">
-                Cancel
-            </a>
-
-            <button type="submit"
-                    class="zc-btn zc-primary">
-
-                {{ $course ? 'Resubmit for Approval' : 'Submit for Approval' }}
-
-            </button>
-
-        </div>
-
-    </form>
-
-</main>
-
-<!-- Subject data from Laravel -->
-<script id="subjectsData" type="application/json">
-{!! json_encode($subjects, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}
-</script>
-
-<script src="{{ asset('js/zu-course-form.js') }}" defer></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
- const college = document.getElementById('college_id');
- const topic = document.getElementById('topic_id');
- if (!college || !topic) return;
- function refreshTopics() {
-   const code = college.value;
-   Array.from(topic.options).forEach(option => {
-     if (!option.value) return;
-     const allowed = option.dataset.college === code;
-     option.hidden = !allowed;
-     option.disabled = !allowed;
-   });
-   if (topic.selectedOptions[0]?.disabled) topic.value = '';
- }
- document.addEventListener('click', () => setTimeout(refreshTopics, 0));
- college.addEventListener('change', refreshTopics);
- refreshTopics();
-});
-</script>
-</body>
-</html>
+    </aside>
+</form>
+
+<script id="subjectsData" type="application/json">{!! json_encode($subjects, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+@endsection
+
+@push('scripts')
+<script src="{{ asset('js/zu-course-form.js') }}?v={{ @filemtime(public_path('js/zu-course-form.js')) }}"></script>
+@endpush

@@ -20,7 +20,11 @@ class AdminCourseRequestController extends Controller {
         $status=$r->query('status','pending');
         $q=$this->query();
         if(in_array($status,['pending','changes_requested','approved','rejected'],true)) $q->where('o.approval_status',$status);
-        return view('management.requests',['requests'=>$q->orderByDesc('o.created_at')->get(),'status'=>$status]);
+        $counts=DB::table('course_offerings')->selectRaw('approval_status, COUNT(*) as total')->groupBy('approval_status')->pluck('total','approval_status');
+        $counts=['pending'=>(int)($counts['pending']??0),'changes_requested'=>(int)($counts['changes_requested']??0),
+            'approved'=>(int)($counts['approved']??0),'rejected'=>(int)($counts['rejected']??0)]+['all'=>0];
+        $counts['all']=array_sum($counts);
+        return view('management.requests',['requests'=>$q->orderByDesc('o.created_at')->get(),'status'=>$status,'counts'=>$counts]);
     }
     public function show(Request $r,string $offeringId) {
         $this->authorizeManager($r);
@@ -67,8 +71,7 @@ class AdminCourseRequestController extends Controller {
             abort_unless($c->approval_status==='pending',409,'Only pending requests can be reviewed.');
             return DB::table('course_offerings')->where('offering_id',$offeringId)->update([
                 'approval_status'=>$data['decision'],'review_note'=>trim($data['review_note']??'')?:null,
-                'reviewed_by'=>$r->user()->user_id,'reviewed_at'=>now(),
-                'is_active'=>$data['decision']==='approved'?1:0
+                'reviewed_by'=>$r->user()->user_id,'reviewed_at'=>now()
             ]);
         });
         return redirect()->route('management.requests')->with('success','Request decision saved.');

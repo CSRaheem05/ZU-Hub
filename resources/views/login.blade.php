@@ -9,192 +9,87 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
-    <style>
-        /* Overrides for the original login design */
-        .login-card .brand {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        .login-card .brand img,
-        .login-card .brand #universityLogo {
-            display: block;
-            width: min(100%, 300px);
-            max-width: 300px;
-            height: auto;
-            object-fit: contain;
-            flex: none;
-            margin: 0 auto;
-        }
-        .login-card .heading { text-align: center; }
-        .login-card .heading h1 {
-            margin-top: 12px;
-            letter-spacing: -.045em;
-        }
-        html[dir="rtl"] body { font-family: 'Cairo', Arial, sans-serif; }
-        html[dir="rtl"] .login-card .heading h1 { letter-spacing: 0; }
-        html[dir="rtl"] .form-group label { text-align: right; }
-        html[dir="rtl"] .input-wrap input { text-align: right; }
-        html[dir="rtl"] .submit-arrow { transform: rotate(180deg); }
-        html[dir="rtl"] .back-arrow { transform: rotate(180deg); }
-        .login-card .brand-divider,
-        .login-card .brand-name,
-        .login-card .card-footer { display: none; }
-        .error-box:empty { display: none; }
-        /* Always display the login form and both fields */
-        #loginForm, #loginForm .form-group, #loginForm .input-wrap, #loginForm input,
-        #loginForm .submit-button { visibility: visible; opacity: 1; }
-        #loginForm { display: block; width: 100%; }
-        #loginForm .form-group { display: block; }
-        #loginForm .input-wrap { display: flex; }
-        #loginForm input { display: block; }
-        #loginForm .submit-button { display: flex; }
-        @@media (max-width: 540px) {
-            .login-card .brand img,
-            .login-card .brand #universityLogo {
-                width: min(100%, 260px);
-            }
-        }
-    </style>
+    <script>
+        /* apply the saved language before first paint, so an Arabic visitor never sees the page flip direction */
+        try { if (localStorage.getItem('zu-language') === 'ar') { document.documentElement.lang = 'ar'; document.documentElement.dir = 'rtl'; } } catch (e) {}
+    </script>
 </head>
 <body>
+    <svg class="waves" viewBox="0 0 1440 960" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke-width="2.2" opacity=".8">
+            <path d="M -260 1040 C 40 800 85 510 460 375 S 1010 152 1690 -110" />
+            <path d="M -220 1066 C 90 826 130 544 490 403 S 1030 180 1720 -65" stroke-width="3.8" />
+            <path d="M -185 1090 C 112 858 170 571 520 435 S 1060 218 1740 -30" />
+            <path d="M -160 1120 C 145 890 210 604 562 472 S 1110 254 1760 18" stroke-width="1.3" />
+            <path d="M -138 1150 C 175 927 246 648 601 511 S 1150 298 1770 62" stroke-width="3.1" />
+            <path d="M -110 1180 C 204 955 285 686 638 552 S 1190 340 1800 105" />
+            <path d="M -52 1240 C 265 1014 345 760 712 633 S 1270 420 1850 195" stroke-width="3.7" />
+            <path d="M 10 1300 C 332 1074 420 850 790 711 S 1370 506 1900 275" stroke-width="2.9" />
+            <path d="M 74 1366 C 398 1142 490 925 867 786 S 1460 584 1940 360" stroke-width="3.8" />
+        </g>
+    </svg>
+
     <header class="topbar">
-        <a class="back-link" href="{{ route('home') }}">
-            <span class="back-arrow" aria-hidden="true">←</span>
+        <a class="glass-pill back-link" href="{{ route('home') }}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
             <span data-i18n="back">Back to homepage</span>
         </a>
-        <button class="language-button" id="languageButton" type="button" aria-label="Switch language">العربية</button>
+        <button class="glass-pill language-button" id="languageButton" type="button" aria-label="التبديل إلى العربية" lang="ar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></svg>
+            <span>العربية</span>
+        </button>
     </header>
 
-    <main class="page">
-        <section class="login-card" aria-labelledby="loginTitle">
-            <div class="brand">
+    <main class="stage">
+        <section class="panel" aria-labelledby="loginTitle">
+            <div class="logo-plate">
                 <img id="universityLogo"
                      src="{{ asset('assets/zarqa-en-edge.png') }}"
                      data-en-src="{{ asset('assets/zarqa-en-edge.png') }}"
                      data-ar-src="{{ asset('assets/zarqa-ar-edge.png') }}"
                      alt="Zarqa University logo">
             </div>
-
-            <div class="heading">
-                <div class="eyebrow">
-                    <span class="eyebrow-dot"></span>
-                    <span data-i18n="welcome">WELCOME BACK</span>
-                </div>
-                <h1 id="loginTitle">ZU Hub</h1>
-                <p data-i18n="description">Sign in with your university email and password.</p>
-            </div>
+            <h1 id="loginTitle" class="wordmark" aria-label="ZU Hub"><span class="half left" aria-hidden="true">ZU</span> <span class="half right" aria-hidden="true">Hub</span></h1>
 
             <div class="error-box" id="loginError" role="alert">{{ $errors->first() }}</div>
 
             <form action="{{ route('login.store') }}" method="POST" id="loginForm">
                 @csrf
-                <div class="form-group">
+                <div class="field" style="--i:1">
                     <label for="email" data-i18n="email">University email</label>
                     <div class="input-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-                            <rect x="3" y="5" width="18" height="14" rx="3"/>
-                            <path d="m4 7 8 6 8-6"/>
-                        </svg>
-                        <input type="email" name="email" id="email"
-                               value="{{ old('email') }}" maxlength="255"
-                               autocomplete="username" placeholder="name@zu.edu.jo"
-                               required autofocus>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg>
+                        <input type="email" name="email" id="email" value="{{ old('email') }}" maxlength="255"
+                               autocomplete="username" inputmode="email" autocapitalize="none" spellcheck="false"
+                               placeholder="name@zu.edu.jo" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="field" style="--i:2">
                     <label for="password" data-i18n="password">Password</label>
                     <div class="input-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-                            <rect x="5" y="10" width="14" height="11" rx="2"/>
-                            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-                        </svg>
-                        <input type="password" name="password" id="password"
-                               autocomplete="current-password" placeholder="Enter your password" required>
-                        <button type="button" id="passwordToggle"
-                                class="show-password" aria-controls="password"
-                                aria-pressed="false" data-i18n="show">Show</button>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        <input type="password" name="password" id="password" autocomplete="current-password"
+                               placeholder="Enter your password" aria-describedby="capsHint" required>
+                        <button type="button" id="passwordToggle" class="reveal-btn" aria-controls="password" aria-pressed="false" aria-label="Show password">
+                            <svg class="eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.6C3.6 8.4 2 12 2 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+                        </button>
                     </div>
+                    <p class="hint" id="capsHint" role="status" hidden></p>
                 </div>
 
-                <button type="submit" class="submit-button" id="submitButton">
+                <button type="submit" class="submit-button" id="submitButton" style="--i:3">
+                    <span class="spinner" aria-hidden="true"></span>
                     <span data-i18n="signIn">Sign in</span>
-                    <span aria-hidden="true" class="submit-arrow">→</span>
+                    <svg class="submit-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                 </button>
             </form>
+
+            <p class="fineprint" style="--i:4">© {{ date('Y') }} ZU Hub · <span data-i18n="copyright">Zarqa University</span></p>
         </section>
-        <p class="copyright">© {{ date('Y') }} ZU Hub · <span data-i18n="copyright">Zarqa University</span></p>
     </main>
 
-    <script>
-        (() => {
-            const translations = {
-                en: {
-                    back: 'Back to homepage', welcome: 'WELCOME BACK',
-                    description: 'Sign in with your university email and password.',
-                    email: 'University email', password: 'Password',
-                    show: 'Show', hide: 'Hide', signIn: 'Sign in',
-                    copyright: 'Zarqa University',
-                    emailPlaceholder: 'name@zu.edu.jo',
-                    passwordPlaceholder: 'Enter your password'
-                },
-                ar: {
-                    back: 'العودة إلى الرئيسية', welcome: 'مرحبًا بعودتك',
-                    description: 'سجّل الدخول باستخدام بريدك الإلكتروني الجامعي وكلمة المرور.',
-                    email: 'البريد الإلكتروني الجامعي', password: 'كلمة المرور',
-                    show: 'إظهار', hide: 'إخفاء', signIn: 'تسجيل الدخول',
-                    copyright: 'جامعة الزرقاء',
-                    emailPlaceholder: 'name@zu.edu.jo',
-                    passwordPlaceholder: 'أدخل كلمة المرور'
-                }
-            };
-
-            const languageButton = document.getElementById('languageButton');
-            const passwordInput = document.getElementById('password');
-            const passwordToggle = document.getElementById('passwordToggle');
-            const emailInput = document.getElementById('email');
-            const universityLogo = document.getElementById('universityLogo');
-            let language = 'en';
-            try {
-                language = localStorage.getItem('zu-language') === 'ar' ? 'ar' : 'en';
-            } catch (error) { /* Storage may be blocked */ }
-
-            function render() {
-                const t = translations[language];
-                document.documentElement.lang = language;
-                document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-                document.querySelectorAll('[data-i18n]').forEach(element => {
-                    const key = element.getAttribute('data-i18n');
-                    if (Object.prototype.hasOwnProperty.call(t, key)) {
-                        element.textContent = t[key];
-                    }
-                });
-                document.getElementById('loginTitle').textContent = 'ZU Hub';
-                languageButton.textContent = language === 'ar' ? 'English' : 'العربية';
-                emailInput.placeholder = t.emailPlaceholder;
-                passwordInput.placeholder = t.passwordPlaceholder;
-                passwordToggle.textContent = passwordInput.type === 'password' ? t.show : t.hide;
-                universityLogo.src = language === 'ar' ? universityLogo.dataset.arSrc : universityLogo.dataset.enSrc;
-            }
-
-            languageButton.addEventListener('click', () => {
-                language = language === 'ar' ? 'en' : 'ar';
-                try { localStorage.setItem('zu-language', language); } catch (error) {}
-                render();
-            });
-            passwordToggle.addEventListener('click', () => {
-                const show = passwordInput.type === 'password';
-                passwordInput.type = show ? 'text' : 'password';
-                passwordToggle.setAttribute('aria-pressed', String(show));
-                render();
-            });
-            render();
-        })();
-    </script>
+    <script src="{{ asset('js/login.js') }}"></script>
 </body>
 </html>

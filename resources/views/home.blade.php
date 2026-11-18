@@ -11,6 +11,7 @@
 
  <link rel="stylesheet" href="{{ asset('css/home.css') }}">
   <link rel="stylesheet" href="{{ asset('css/home-extra.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/zu-alerts.css') }}?v={{ @filemtime(public_path('css/zu-alerts.css')) }}">
  
 </head>
 
@@ -63,7 +64,7 @@
           </details>
           @endguest
           <div class="nav-actions">
-            <button class="glass-btn" type="button" id="notifBtn" @guest style="display:none" @endguest aria-label="Notifications" aria-haspopup="dialog"
+            <button class="glass-btn" type="button" id="notifBtn" @if(! auth()->check() || auth()->user()->role === 'manager') style="display:none" @endif aria-label="Notifications" aria-haspopup="dialog"
               aria-expanded="false" title="Notifications">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
@@ -83,7 +84,7 @@
         </div>
       </div>
       <nav class="nav-links" aria-label="Main navigation" id="mainNav">
-        <button class="nav-link active zu-home-link" type="button" data-view="home" aria-label="Home" title="Home">
+        <button class="nav-link active zu-home-link" type="button" aria-label="Home" aria-current="page" title="Home">
           <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
         </button>
         @guest
@@ -94,8 +95,10 @@
             <a class="nav-link zu-nav-anchor" href="{{ route('student.courses') }}" data-nav-label="myCourses">My Courses</a>
           @elseif(auth()->user()->role === 'instructor')
             <a class="nav-link zu-nav-anchor" href="{{ route('instructor.courses') }}" data-nav-label="myCourses">My Courses</a>
+            <a class="nav-link zu-nav-anchor" href="{{ route('announcements.index') }}" data-nav-label="announcements">Announcements</a>
           @elseif(auth()->user()->role === 'manager')
             <a class="nav-link zu-nav-anchor" href="{{ route('management.index') }}" data-nav-label="management">Management</a>
+            <a class="nav-link zu-nav-anchor" href="{{ route('announcements.index') }}" data-nav-label="announcements">Announcements</a>
           @endif
         @endguest
       </nav>
@@ -131,48 +134,14 @@
       </div>
       <p class="microcopy" id="microcopy" data-i18n="tagline">Learn beyond the classroom</p>
     </section>
-
-    <footer class="footer" id="footer" aria-hidden="true"><span class="footer-rule" id="footerRule"></span></footer>
-    <div class="footer-small" id="footerSmall">ZU HUB © 2026 · MADE FOR THE NEXT GENERATION</div>
-    <div class="overlay" id="overlay" hidden>
-      <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-        <div class="sheet-top"><span class="eyebrow" id="sheetEyebrow">ZU HUB EXPERIENCE</span><button
-            class="glass-btn close-btn" id="closeSheet" type="button" aria-label="Close"><svg viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 6l12 12M18 6 6 18" />
-            </svg></button></div>
-        <h2 id="sheetTitle"></h2>
-        <p class="lead" id="sheetLead"></p>
-        <div id="sheetContent"></div>
-        <p class="sheet-foot" id="sheetNote"></p>
-      </section>
-    </div>
   </main>
 
 
-  <!-- A compact introduction below the existing robot hero. -->
-  <div class="zu-bottom-content" id="zuBottomContent">
-    <section class="zu-intro" id="zuIntro" aria-labelledby="zuIntroTitle">
-      <div class="zu-intro-inner">
-        <span class="zu-intro-kicker" data-zu-en="WELCOME TO ZU HUB" data-zu-ar="مرحبًا بك في ZU HUB">WELCOME TO ZU HUB</span>
-        <h2 id="zuIntroTitle" data-zu-en="A simpler way to learn." data-zu-ar="تجربة تعليمية أسهل.">A simpler way to learn.</h2>
-        <p data-zu-en="Explore courses, follow your learning, and stay connected to your university experience — all in one place." data-zu-ar="اكتشف الدورات، وتابع تعلمك، واستمتع بتجربة جامعية متكاملة في مكان واحد.">Explore courses, follow your learning, and stay connected to your university experience — all in one place.</p>
-        @guest
-          <a class="zu-intro-action" href="{{ route('login') }}"><span data-zu-en="Explore courses" data-zu-ar="استكشف الدورات">Explore courses</span><span aria-hidden="true">↗</span></a>
-        @else
-          <a class="zu-intro-action" href="{{ route('courses.index') }}"><span data-zu-en="Explore courses" data-zu-ar="استكشف الدورات">Explore courses</span><span aria-hidden="true">↗</span></a>
-        @endguest
-      </div>
-    </section>
-    <footer class="site-footer zu-restored-footer">
-      <div class="landing-shell footer-layout">
-        <div class="footer-brand">ZU Hub<span style="color:#3a9de2">.</span></div>
-        <p data-zu-en="Zarqa University · A space for learning · © {{ date('Y') }}" data-zu-ar="جامعة الزرقاء · مساحة للتعلّم · © {{ date('Y') }}">Zarqa University · A space for learning · © {{ date('Y') }}</p>
-        <a href="#home" class="zu-backtop" data-zu-en="Back to top ↑" data-zu-ar="العودة للأعلى ↑">Back to top ↑</a>
-      </div>
-    </footer>
-  </div>
-
+  @if(auth()->check() && auth()->user()->role !== 'manager')
+  <script>window.ZU_NOTIFS = @json(\App\Models\UserNotification::homepageFeed(auth()->user()->user_id)); window.ZU_CSRF = @json(csrf_token());</script>
+  @endif
+  <x-announcement-banner />
+  <script src="{{ asset('js/zu-alerts.js') }}?v={{ @filemtime(public_path('js/zu-alerts.js')) }}" defer></script>
   <script src="{{ asset('js/home.js') }}" defer></script>
 </body>
 

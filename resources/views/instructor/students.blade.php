@@ -4,16 +4,11 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ZU Hub | Enrolled Students</title>
   <link rel="stylesheet" href="{{ asset('css/zu-my-courses.css') }}">
+@include('partials.header-assets')
 </head>
 <body>
-<header class="page-header"><div class="header-content">
-  <a href="{{ route('home') }}" class="brand">⌂ ZU Hub</a>
-  <div class="header-right">
-    <div class="identity"><strong>{{ auth()->user()->name }}</strong> · <span data-role>{{ ucfirst(auth()->user()->role) }}</span></div>
-    <button class="language" id="languageButton" type="button">العربية</button>
-    <form method="POST" action="{{ route('logout') }}">@csrf<button class="logout" type="submit" data-en="Log out" data-ar="تسجيل الخروج">Log out</button></form>
-  </div>
-</div></header>
+<x-site-header :language="true" />
+<div class="zu-header-spacer"></div>
 <main class="container">
  <div class="heading"><div class="eyebrow" data-en="INSTRUCTOR WORKSPACE" data-ar="مساحة المدرس">INSTRUCTOR WORKSPACE</div>
  <h1 data-en="Enrolled Students" data-ar="الطلاب المسجلون">Enrolled Students</h1><p>{{ $course->title }}</p></div>
@@ -27,4 +22,5 @@
  <a class="back" href="{{ route('instructor.courses') }}" data-en="← Back to My Courses" data-ar="← العودة إلى دوراتي">← Back to My Courses</a>
 </main>
 <script src="{{ asset('js/zu-my-courses.js') }}" defer></script>
+@include('partials.header-scripts')
 </body></html>

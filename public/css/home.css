@@ -194,7 +194,6 @@
      object-position: center top
  }
 
-
  .pill video {
      z-index: 2;
      opacity: 1;
@@ -204,7 +203,6 @@
      object-fit: cover;
      object-position: center 70%;
  }
-
 
  .pill .poster {
      z-index: 1
@@ -237,46 +235,9 @@
      pointer-events: none
  }
 
- .pill-icon {
-     width: .28em;
-     height: .28em;
-     display: grid;
-     place-items: center;
-     pointer-events: auto;
-     background: transparent;
-     border: 0;
-     color: #fff;
-     padding: 0;
-     filter: drop-shadow(0 1px 4px #0006);
-     opacity: .9
- }
-
- .pill-icon svg {
-     display: block;
-     width: 100%;
-     height: 100%;
-     stroke: currentColor;
-     stroke-width: 1.6;
-     stroke-linecap: round;
-     stroke-linejoin: round;
-     fill: none
- }
-
- .pill-icon:focus-visible,
- .cta:focus-visible,
  .nav a:focus-visible {
      outline: 2px solid #476ccf;
      outline-offset: 5px
- }
-
- .pill-icon .wave-a,
- .pill-icon .wave-b {
-     transition: opacity .2s
- }
-
- .pill-icon[aria-pressed="false"] .wave-a,
- .pill-icon[aria-pressed="false"] .wave-b {
-     opacity: 0
  }
 
  .microcopy {
@@ -288,18 +249,6 @@
      text-align: center;
      opacity: 0;
      transform: translateY(14px)
- }
-
- .footer {
-     position: absolute;
-     left: clamp(24px, 3.55vw, 52px);
-     right: clamp(24px, 3.55vw, 52px);
-     bottom: clamp(26px, 3vw, 45px);
-     display: flex;
-     align-items: flex-end;
-     gap: clamp(25px, 2.7vw, 44px);
-     transform: translateY(160%);
-     z-index: 3
  }
 
  .intro {
@@ -321,48 +270,6 @@
      font-weight: 650
  }
 
- .footer-rule {
-     height: 1px;
-     flex: 1;
-     background: var(--rule);
-     margin-bottom: 21px;
-     transform: scaleX(0);
-     transform-origin: center
- }
-
- .cta {
-     background: #1b1b1b;
-     border: 1px solid #1b1b1b;
-     color: white;
-     padding: 17px 27px;
-     border-radius: 100px;
-     white-space: nowrap;
-     min-height: 51px;
-     font-size: clamp(12px, .95vw, 15px);
-     font-weight: 600;
-     transition: background .25s, transform .25s
- }
-
- .cta:hover {
-     background: #3d3d3d;
-     transform: translateY(-3px)
- }
-
- .cta:disabled {
-     cursor: wait;
-     opacity: .72
- }
-
- .footer-small {
-     position: absolute;
-     left: clamp(24px, 3.55vw, 52px);
-     bottom: 13px;
-     font-size: 10px;
-     letter-spacing: .12em;
-     color: #777;
-     opacity: 0
- }
-
  @media(max-width:1100px) and (min-width:721px) {
      :root {
          --fs: min(16.5vh, 11.6vw)
@@ -370,10 +277,6 @@
 
      .nav {
          padding-top: 23px
-     }
-
-     .footer {
-         gap: 22px
      }
  }
 
@@ -433,25 +336,10 @@
          padding: 0 22px
      }
 
-     .pill-icon {
-         width: 30px;
-         height: 30px
-     }
-
      .microcopy {
          margin-top: 17px;
          font-size: 9px;
          letter-spacing: .22em
-     }
-
-     .footer {
-         left: 20px;
-         right: 20px;
-         bottom: 27px;
-         flex-wrap: wrap;
-         align-items: center;
-         column-gap: 18px;
-         row-gap: 17px
      }
 
      .intro {
@@ -462,21 +350,6 @@
 
      .dropcap {
          font-size: 2.1em
-     }
-
-     .footer-rule {
-         margin: 0;
-         min-width: 40px
-     }
-
-     .cta {
-         min-height: 38px;
-         padding: 11px 17px;
-         font-size: 12px
-     }
-
-     .footer-small {
-         display: none
      }
  }
 
@@ -489,22 +362,12 @@
          font-size: min(30vw, 14.2vh)
      }
 
-     .footer {
-         bottom: 14px
-     }
-
      .intro {
          font-size: 11px
      }
 
      .microcopy {
          display: none
-     }
- }
-
- @media(prefers-reduced-motion:reduce) {
-     .cta {
-         transition: none
      }
  }
 
@@ -596,9 +459,8 @@
  }
 
  .nav-link:focus-visible,
- .glass-btn:focus-visible,
- .cta:focus-visible,
- .panel button:focus-visible {
+.glass-btn:focus-visible,
+.panel button:focus-visible {
      outline: 3px solid #5aafff;
      outline-offset: 3px
  }
@@ -704,34 +566,10 @@
      padding: 0 .23em
  }
 
- .pill-icon {
-     background: rgba(255, 255, 255, .20);
-     border: 1px solid rgba(255, 255, 255, .43);
-     border-radius: 50%;
-     width: .34em;
-     height: .34em;
-     padding: .07em;
-     backdrop-filter: blur(14px);
-     -webkit-backdrop-filter: blur(14px);
-     box-shadow: 0 4px 18px #001c4860;
-     transition: background .25s, transform .25s
- }
-
- .pill-icon:hover {
-     background: rgba(255, 255, 255, .36);
-     transform: scale(1.08)
- }
-
  .microcopy {
      color: #416b94;
      letter-spacing: .32em;
      font-size: clamp(10px, .7vw, 13px)
- }
-
- .footer {
-     bottom: clamp(35px, 4vw, 62px);
-     align-items: center;
-     gap: 25px
  }
 
  .intro {
@@ -745,48 +583,10 @@
      color: #0b4a90
  }
 
- .footer-rule {
-     background: linear-gradient(90deg, transparent, #5e9bd2, transparent);
-     margin-bottom: 0
- }
-
- .footer-buttons {
-     display: flex;
-     gap: 10px;
-     align-items: center
- }
-
- .cta {
-     border: 1px solid rgba(255, 255, 255, .7);
-     background: linear-gradient(125deg, #0b4c98, #0e72d4);
-     color: white;
-     box-shadow: 0 10px 27px #0966c341, inset 0 1px 1px #ffffff70;
-     display: flex;
-     align-items: center;
-     gap: 12px;
-     transition: transform .24s, box-shadow .24s, background .24s
- }
-
- .cta:hover {
-     background: linear-gradient(125deg, #073e80, #1164be);
-     box-shadow: 0 14px 32px #0966c354;
-     transform: translateY(-3px)
- }
-
- .cta svg {
-     width: 17px;
-     height: 17px
- }
-
  .replay-btn {
      height: 51px;
      min-width: 51px;
      padding: 0
- }
-
- .footer-small {
-     color: #6c91b4;
-     bottom: 15px
  }
 
  /* Interactive floating sheets */
@@ -807,8 +607,7 @@
      animation: panelIn .28s cubic-bezier(.2, .8, .2, 1)
  }
 
- .popover-panel[hidden],
- .overlay[hidden] {
+ .popover-panel[hidden] {
      display: none !important
  }
 
@@ -907,145 +706,6 @@
      cursor: pointer
  }
 
- .overlay {
-     position: absolute;
-     inset: 0;
-     z-index: 12;
-     display: grid;
-     place-items: center;
-     padding: 20px;
-     background: rgba(15, 54, 92, .12);
-     backdrop-filter: blur(11px);
-     -webkit-backdrop-filter: blur(11px);
-     animation: panelIn .3s ease
- }
-
- .sheet {
-     position: relative;
-     width: min(640px, 100%);
-     max-height: min(82dvh, 700px);
-     overflow: auto;
-     padding: clamp(23px, 4vw, 44px);
-     border-radius: 32px;
-     background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(228, 244, 255, .86));
-     border: 1px solid white;
-     box-shadow: 0 35px 100px #0c477b35, inset 0 1px #fff
- }
-
- .sheet-top {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     gap: 16px
- }
-
- .sheet .eyebrow {
-     font-size: 11px;
-     text-transform: uppercase;
-     letter-spacing: .2em;
-     font-weight: 800;
-     color: #3a89d0
- }
-
- .sheet h2 {
-     font-size: clamp(27px, 4vw, 43px);
-     line-height: 1.08;
-     letter-spacing: -.055em;
-     color: var(--navy);
-     margin: 16px 0 12px
- }
-
- .sheet .lead {
-     color: #527391;
-     font-size: 14px;
-     line-height: 1.8;
-     max-width: 540px
- }
-
- .close-btn {
-     min-width: 37px;
-     width: 37px;
-     height: 37px;
-     padding: 0
- }
-
- .card-grid {
-     display: grid;
-     grid-template-columns: repeat(2, minmax(0, 1fr));
-     gap: 12px;
-     margin-top: 25px
- }
-
- .feature-card {
-     border: 1px solid white;
-     border-radius: 20px;
-     padding: 18px;
-     background: rgba(255, 255, 255, .56);
-     box-shadow: 0 6px 15px #2c7eb20b
- }
-
- .feature-card .card-icon {
-     width: 37px;
-     height: 37px;
-     display: grid;
-     place-items: center;
-     background: #dfedff;
-     color: #0d63b4;
-     border-radius: 12px;
-     font-size: 19px
- }
-
- .feature-card h3 {
-     font-size: 14px;
-     color: #123c68;
-     margin: 14px 0 5px
- }
-
- .feature-card p {
-     font-size: 12px;
-     color: #5f7f9d;
-     line-height: 1.55;
-     margin: 0
- }
-
- .sheet-foot {
-     margin-top: 20px;
-     padding-top: 15px;
-     border-top: 1px solid #d6e6f3;
-     color: #6884a1;
-     font-size: 11px;
-     line-height: 1.55
- }
-
- .course-tags {
-     display: flex;
-     flex-wrap: wrap;
-     gap: 9px;
-     margin-top: 25px
- }
-
- .course-tag {
-     display: flex;
-     align-items: center;
-     gap: 8px;
-     padding: 13px 16px;
-     border: 1px solid white;
-     border-radius: 999px;
-     background: #fff9;
-     color: #1e5487;
-     font-weight: 700;
-     font-size: 12px;
-     box-shadow: 0 7px 15px #216fa40d
- }
-
- .course-tag::before {
-     content: '';
-     height: 8px;
-     width: 8px;
-     background: #3c95e8;
-     border-radius: 50%
- }
-
  /* Arabic text direction; brand remains Latin */
  html[dir='rtl'] .nav {
      direction: rtl
@@ -1065,25 +725,12 @@
      text-align: right
  }
 
- html[dir='rtl'] .footer {
-     direction: rtl
- }
-
- html[dir='rtl'] .sheet {
-     text-align: right
- }
-
  html[dir='rtl'] .notice {
      text-align: right
  }
 
  html[dir='rtl'] .nav-links {
      direction: rtl
- }
-
- html[dir='rtl'] .footer-small {
-     left: auto;
-     right: clamp(24px, 3.55vw, 52px)
  }
 
  html[dir='rtl'] .microcopy {
@@ -1184,30 +831,8 @@
          box-shadow: 0 16px 35px #0c519e2b
      }
 
-     .pill-icon {
-         width: 30px;
-         height: 30px;
-         padding: 6px
-     }
-
-     .footer {
-         bottom: 30px;
-         gap: 15px;
-         row-gap: 14px
-     }
-
      .intro {
          color: #416c94
-     }
-
-     .footer-buttons {
-         gap: 8px
-     }
-
-     .footer .cta {
-         min-height: 42px;
-         padding: 11px 17px;
-         font-size: 11px
      }
 
      .replay-btn {
@@ -1226,24 +851,8 @@
          left: 12px
      }
 
-     .sheet {
-         border-radius: 24px
-     }
-
-     .card-grid {
-         gap: 9px
-     }
-
-     .feature-card {
-         padding: 14px
-     }
-
      .microcopy {
          margin-top: 14px
-     }
-
-     .footer-small {
-         display: none
      }
  }
 
@@ -1273,13 +882,10 @@
  @media(prefers-reduced-motion:reduce) {
 
      .glass-btn,
-     .cta,
-     .nav-link,
-     .pill-icon {
+.nav-link {
          transition: none
      }
 
-     .overlay,
      .popover-panel {
          animation: none
      }
@@ -1467,31 +1073,18 @@
          --lg-shadow: 0 14px 34px rgba(14, 78, 150, .18), 0 3px 8px rgba(14, 78, 150, .10)
      }
 
-     .glass-btn.lg.lg:hover,
-     .cta.lg.lg:hover {
+     .glass-btn.lg.lg:hover {
          transform: scale(1.045)
-     }
-
-     .pill-icon.lg.lg:hover {
-         transform: scale(1.12)
      }
  }
 
  .glass-btn.lg.lg:active,
- .cta.lg.lg:active,
- .panel-action.lg.lg:active {
+.panel-action.lg.lg:active {
      transform: scale(1.1);
      --lg-glow: .9;
      --lg-tint: rgba(255, 255, 255, .12);
      --lg-blur: 3px;
      --lg-bright: 1.12
- }
-
- .pill-icon.lg.lg:active {
-     transform: scale(1.22);
-     --lg-glow: .9;
-     --lg-tint: rgba(255, 255, 255, .06);
-     --lg-blur: 2px
  }
 
  /* ---- variants ---- */
@@ -1506,27 +1099,6 @@
 
  .glass-btn.lg[aria-expanded='true'] {
      --lg-tint: rgba(140, 200, 255, .46)
- }
-
- .cta.lg {
-     --lg-tint: rgba(14, 108, 212, .80);
-     --lg-blur: 6px;
-     --lg-sat: 1.5;
-     --lg-shadow: 0 12px 30px rgba(9, 102, 195, .34), 0 2px 8px rgba(9, 102, 195, .22);
-     color: #fff;
-     text-shadow: 0 1px 2px rgba(0, 40, 100, .28);
- }
-
- .cta.lg:active {
-     --lg-tint: rgba(40, 140, 235, .55)
- }
-
- .pill-icon.lg {
-     --lg-tint: rgba(255, 255, 255, .16);
-     --lg-blur: 5px;
-     --lg-sat: 1.5;
-     --lg-shadow: 0 6px 18px rgba(0, 28, 72, .32);
-     color: #fff
  }
 
  .panel-action.lg {
@@ -1655,76 +1227,14 @@
          --lg-tint: rgba(240, 248, 255, .9)
      }
 
-     .cta.lg {
-         --lg-tint: rgba(14, 108, 212, .95)
-     }
-
      .nav-links .lg-indicator.lg {
          --lg-tint: rgba(255, 255, 255, .95)
      }
  }
 
- /* =====================================================================
-   LIQUID GLASS — surfaces: sheet, notifications popover, cards, chips
-   ===================================================================== */
- /* the dimming/blur layer must NOT be a backdrop-filter ancestor of the sheet,
-   otherwise the sheet could only "see" the overlay and not the page behind it */
- .overlay {
-     -webkit-backdrop-filter: none;
-     backdrop-filter: none;
-     background: transparent
- }
-
- .overlay::before {
-     content: '';
-     position: absolute;
-     inset: 0;
-     z-index: -1;
-     pointer-events: none;
-     background: rgba(15, 54, 92, .14);
-     -webkit-backdrop-filter: blur(9px) saturate(1.25);
-     backdrop-filter: blur(9px) saturate(1.25);
- }
-
  .lg::before {
      width: auto;
      height: auto
- }
-
- /* .course-tag used ::before for its dot */
- .tag-dot {
-     display: block;
-     flex: none;
-     width: 8px;
-     height: 8px;
-     border-radius: 50%;
-     background: #3c95e8;
-     box-shadow: 0 0 7px rgba(60, 149, 232, .65), inset 0 1px 1px rgba(255, 255, 255, .7)
- }
-
- /* big sheet */
- .sheet.lg.lg {
-     padding: 0;
-     overflow: visible;
-     max-height: none;
-     --lg-tint: rgba(244, 250, 255, .50);
-     --lg-blur: 28px;
-     --lg-sat: 1.9;
-     --lg-bright: 1.05;
-     --lg-shadow: 0 34px 90px rgba(12, 71, 123, .30), 0 6px 18px rgba(12, 71, 123, .12);
- }
-
- .sheet:focus {
-     outline: none
- }
-
- .sheet-scroll {
-     position: relative;
-     padding: clamp(23px, 4vw, 44px);
-     max-height: min(82dvh, 700px);
-     overflow: auto;
-     border-radius: inherit;
-     scrollbar-width: thin;
  }
 
  /* notifications popover (keeps its own absolute position + stacking) */
@@ -1739,18 +1249,10 @@
 
  @media(hover:hover) {
 
-     .sheet.lg.lg:hover,
      .popover-panel.lg.lg:hover {
          --lg-glow: .22;
          --lg-shadow: 0 34px 90px rgba(12, 71, 123, .30), 0 6px 18px rgba(12, 71, 123, .12)
      }
- }
-
- /* items inside surfaces */
- .feature-card.lg {
-     --lg-tint: rgba(255, 255, 255, .34);
-     --lg-blur: 10px;
-     --lg-shadow: 0 8px 20px rgba(14, 78, 150, .09), 0 1px 3px rgba(14, 78, 150, .07)
  }
 
  .notice.lg {
@@ -1759,25 +1261,13 @@
      --lg-shadow: 0 5px 14px rgba(14, 78, 150, .08)
  }
 
- .course-tag.lg {
-     --lg-tint: rgba(255, 255, 255, .40);
-     --lg-blur: 8px;
-     --lg-shadow: 0 6px 14px rgba(14, 78, 150, .10)
- }
-
  @media(hover:hover) {
 
-     .feature-card.lg.lg:hover,
      .notice.lg.lg:hover {
          transform: scale(1.02)
      }
-
-     .course-tag.lg.lg:hover {
-         transform: scale(1.06)
-     }
  }
 
- .feature-card.lg.lg:active,
  .notice.lg.lg:active {
      transform: scale(1.035);
      --lg-glow: .8;
@@ -1785,14 +1275,6 @@
      --lg-blur: 3px
  }
 
- .course-tag.lg.lg:active {
-     transform: scale(1.12);
-     --lg-glow: .9;
-     --lg-tint: rgba(255, 255, 255, .12);
-     --lg-blur: 3px
- }
-
- .feature-card .card-icon,
  .notice-icon {
      background: rgba(214, 234, 255, .7);
      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8)
@@ -1925,11 +1407,6 @@
  .landing button {
      font: inherit;
      cursor: pointer
- }
-
- .landing-shell {
-     width: min(1320px, calc(100% - 96px));
-     margin-inline: auto
  }
 
  .section-eyebrow {
@@ -2736,41 +2213,6 @@
      transform: translateY(-4px)
  }
 
- .site-footer {
-     padding: 35px 0 45px;
-     background: #f5faff;
-     border-top: 1px solid #e0ecf7
- }
-
- .footer-layout {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     gap: 20px;
-     color: #6c89a5;
-     font-size: 12px
- }
-
- .footer-brand {
-     font-size: 25px;
-     font-weight: 800;
-     letter-spacing: -.07em;
-     color: #0b417b
- }
-
- .footer-links {
-     display: flex;
-     gap: 25px
- }
-
- .footer-links button {
-     border: 0;
-     background: none;
-     color: #47749b;
-     font-size: 12px;
-     font-weight: 700
- }
-
  /* localized refinements */
  html[dir=rtl] .landing {
      font-family: Cairo, Inter, Arial, sans-serif
@@ -2812,9 +2254,6 @@
 
  /* responsive */
  @media(max-width:1000px) {
-     .landing-shell {
-         width: calc(100% - 56px)
-     }
 
      .course-grid {
          grid-template-columns: repeat(2, minmax(0, 1fr))
@@ -2856,10 +2295,6 @@
 
      .nav {
          padding: 17px 15px !important
-     }
-
-     .landing-shell {
-         width: calc(100% - 36px)
      }
 
      .hero-accent {
@@ -2955,14 +2390,6 @@
          padding: 42px 28px
      }
 
-     .footer-layout {
-         flex-wrap: wrap
-     }
-
-     .footer-links {
-         gap: 15px
-     }
-
      .section-heading {
          font-size: clamp(37px, 11vw, 58px)
      }
@@ -3012,7 +2439,6 @@
          animation: none
      }
  }
-
 
  /* ===== Cinematic scroll direction system — ZU Hub ===== */
  :root {
@@ -3274,7 +2700,6 @@
      }
  }
 
-
  /* ============= ZU HUB: THE UNIVERSITY EDITION ============= */
  :root {
      --campus-ink: #07356e;
@@ -3430,27 +2855,6 @@
      background: rgba(255, 255, 255, .70) !important
  }
 
- /* No irrelevant hero copy, keep the opening cinematic spacious */
- .footer {
-     left: auto !important;
-     right: clamp(24px, 3.55vw, 52px) !important;
-     bottom: clamp(38px, 4.4vw, 62px) !important;
-     gap: 12px !important;
-     justify-content: flex-end !important
- }
-
- .footer .footer-rule {
-     display: none !important
- }
-
- .footer-buttons {
-     margin-left: auto
- }
-
- .footer-small {
-     bottom: 18px !important
- }
-
  .hero-bottom-hint {
      position: absolute !important;
      z-index: 5;
@@ -3572,15 +2976,6 @@
      right: auto !important
  }
 
- html[dir=rtl] .footer {
-     direction: ltr !important
- }
-
- html[dir=rtl] .footer-small {
-     left: clamp(24px, 3.55vw, 52px) !important;
-     right: auto !important
- }
-
  /* Laptops: compact brand strings, maintain balanced centered menu */
  @media(max-width:1350px) {
      .nav {
@@ -3674,10 +3069,6 @@
          top: 48%
      }
 
-     .footer {
-         bottom: 52px !important
-     }
-
      .hero-bottom-hint {
          bottom: 10px !important
      }
@@ -3749,20 +3140,6 @@
          width: 27px !important;
          height: 27px !important
      }
-
-     .footer {
-         right: 16px !important;
-         bottom: 58px !important
-     }
-
-     .footer .cta {
-         font-size: 10px !important;
-         padding: 11px 13px !important
-     }
-
-     .footer-small {
-         display: none
-     }
  }
 
  @media(prefers-reduced-motion:reduce) {
@@ -3774,7 +3151,6 @@
          transform: none
      }
  }
-
 
  /* ZU HUB — original university wordmarks & polished controls */
  .nav {
@@ -3872,11 +3248,6 @@
      height: 17px;
      flex-shrink: 0;
      display: block
- }
-
- /* Retire the old lower-right replay/course controls entirely. */
- .footer {
-     display: none !important
  }
 
  .hero-bottom-hint {
@@ -4384,4 +3755,4 @@
 .zu-account-dropdown form button {width:100%;text-align:start;cursor:pointer;border:0;background:transparent;border-radius:9px;padding:11px;color:#a03541;font-weight:750;font-size:13px}
 .zu-account-dropdown form button:hover {background:#fff0f2}
 html[dir=rtl] .zu-account-dropdown {left:auto;right:0}
-@media(max-width:720px){.zu-account summary {padding:5px 7px;gap:5px;min-height:36px}.zu-account-text strong{font-size:10px}.zu-account-text small{font-size:9px}.zu-account-trigger svg{width:14px;height:14px}.nav-links .zu-home-link{padding-inline:9px}}
+@media(max-width:720px) {.zu-account summary {padding:5px 7px;gap:5px;min-height:36px}.zu-account-text strong{font-size:10px}.zu-account-text small{font-size:9px}.zu-account-trigger svg{width:14px;height:14px}.nav-links .zu-home-link{padding-inline:9px}}

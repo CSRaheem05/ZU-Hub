@@ -1,123 +1,59 @@
-/* Lightweight extra content under the existing ZU Hub robot hero. */
-.zu-bottom-content {
-    position: relative;
-    background: #f8fbff;
-    color: #103e73;
-    font-family: Inter, Cairo, Arial, sans-serif
-}
+/* Real notifications in the homepage bell */
+a.zu-notice{text-decoration:none;color:inherit;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+a.zu-notice:hover{transform:translateY(-1px)}
+.zu-notice.is-read{opacity:.62}
+.zu-notice:not(.is-read) strong::after{content:'';display:inline-block;width:7px;height:7px;margin-inline-start:8px;border-radius:50%;background:#2a86e0;vertical-align:middle}
+.zu-notice.is-alert strong{color:#9b2440}
+.zu-notice.is-alert:not(.is-read) strong::after{background:#cb3550}
+.zu-notice.is-alert .notice-icon{color:#c43550}
+.zu-notice.is-instructor .notice-icon{color:#5646bf}
+.zu-notice-all{display:block;text-align:center;padding:12px;font-size:12.5px;font-weight:750;color:#175ab4;text-decoration:none}
+.zu-notice-all:hover{text-decoration:underline}
+.zu-notice.is-expired{opacity:.55}
+.zu-notice.is-expired strong::after{display:none}
+/* bell: a calm ring + red glow while an important announcement is unread */
+.glass-btn.zu-ring{color:#b02a46;box-shadow:0 0 0 3px rgba(214,69,96,.14),0 10px 28px rgba(214,69,96,.32)!important;animation:zuHomeGlow 2.8s ease-in-out infinite}
+.glass-btn.zu-ring svg{transform-origin:50% 0;animation:zuHomeRing 5.5s ease-in-out infinite}
+.glass-btn.zu-ring .notif-badge{background:#cb3550;width:9px;height:9px;right:6px;top:6px}
+@keyframes zuHomeRing{0%,56%,100%{transform:rotate(0)}60%{transform:rotate(13deg)}64%{transform:rotate(-11deg)}68%{transform:rotate(8deg)}72%{transform:rotate(-5deg)}76%{transform:rotate(2deg)}80%{transform:rotate(0)}}
+@keyframes zuHomeGlow{0%,100%{box-shadow:0 0 0 3px rgba(214,69,96,.13),0 10px 26px rgba(214,69,96,.26)}50%{box-shadow:0 0 0 7px rgba(214,69,96,.06),0 12px 34px rgba(214,69,96,.44)}}
+@media (prefers-reduced-motion:reduce){.glass-btn.zu-ring,.glass-btn.zu-ring svg{animation:none!important}}
 
-.zu-intro {
-    padding: 90px 24px 95px;
-    text-align: center;
-    background: linear-gradient(180deg, #f8fbff 0%, #eef7ff 100%)
-}
+/* Notification dropdown: positioned by home.js directly under the bell (not a fixed page corner) */
+.popover-panel.lg.lg{position:fixed;overflow:visible;transform-origin:var(--caret-x,36px) -12px;animation:zuDropIn .45s cubic-bezier(.2,.9,.25,1) both;--lg-tint:rgba(246,251,255,.62);--lg-blur:26px}
+.popover-panel.lg.lg.is-closing{animation:zuDropOut .17s ease forwards;pointer-events:none}
+#noticeList{max-height:var(--list-max,360px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;margin:0 -4px;padding:0 4px}
+/* the little glass tab that connects the panel to the bell */
+.popover-panel .zu-caret{position:absolute;top:-10px;left:var(--caret-x,36px);width:22px;height:11px;margin-left:-11px;pointer-events:none;
+  background:rgba(247,252,255,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);clip-path:polygon(50% 0,0 100%,100% 100%)}
+@keyframes zuDropIn{from{opacity:0;transform:translateY(-10px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes zuDropOut{to{opacity:0;transform:translateY(-6px) scale(.96)}}
+@media (prefers-reduced-motion:reduce){.popover-panel.lg.lg,.popover-panel.lg.lg.is-closing{animation:none!important}}
 
-.zu-intro-inner {
-    width: min(100%, 750px);
-    margin: 0 auto
-}
+/* ======================================================================
+   Refinements (the composition itself is untouched)
+   ====================================================================== */
 
-.zu-intro-kicker {
-    display: block;
-    color: #287cb8;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: .19em;
-    margin-bottom: 20px
-}
+/* One screen. Nothing follows the hero any more, so the page is exactly the viewport tall; only a window that is genuinely
+   too short for the composition (phone landscape, very high zoom) scrolls, instead of clipping it. */
+html { scroll-padding-top: 0 }
+.page { height: 100vh; height: 100dvh; min-height: 460px }
+/* the narrow stacked layout (ZU / video / Hub in a column) in a short window, e.g. 200% zoom or a phone on its side, needs room
+   below the header: let the page scroll naturally instead of squeezing it under the navigation */
+@media (max-width: 720px) and (max-height: 700px) and (min-aspect-ratio: 1/1) { .page { min-height: 780px } }
 
-.zu-intro h2 {
-    font-size: clamp(29px, 4.2vw, 52px);
-    letter-spacing: -.055em;
-    line-height: 1.18;
-    margin: 0 0 18px;
-    color: #0b3d78;
-    font-weight: 800
-}
+/* The header settles in just behind the wordmark reveal: crest, glass navigation and tools fade in one after another
+   (the header's own slide-in is unchanged). */
+@keyframes zuHeadIn { from { opacity: 0 } }
+.nav-links { animation: zuHeadIn .7s cubic-bezier(.22, .8, .24, 1) 1.15s backwards }
+.header-left, .header-right { animation: zuHeadIn .8s cubic-bezier(.22, .8, .24, 1) 1.3s backwards }
 
-.zu-intro p {
-    font-size: 15px;
-    line-height: 1.9;
-    color: #6384a2;
-    max-width: 640px;
-    margin: 0 auto 30px
-}
+/* Pressing a link in the glass navigation must never start the browser's own "drag this link" ghost (it used to cancel the lens gesture). */
+.nav-links a, .nav-links button { -webkit-user-drag: none; user-select: none; -webkit-user-select: none }
 
-.zu-intro-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    min-height: 46px;
-    padding: 10px 22px;
-    border-radius: 999px;
-    background: linear-gradient(110deg, #094d91, #1984d8);
-    color: #fff !important;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 750;
-    box-shadow: 0 12px 25px #176dbb25
-}
+/* Keyboard focus: the same soft ring on everything in the header (the account menu used to have none). */
+.zu-account summary:focus-visible, .campus-brand a:focus-visible { outline: 2px solid rgba(42, 134, 224, .75); outline-offset: 3px }
 
-.zu-intro-action:hover {
-    filter: brightness(1.06);
-    transform: translateY(-1px)
-}
-
-.zu-restored-footer {
-    border-top: 1px solid #dbe9f7 !important;
-    background: #f4faff !important;
-    padding: 28px 0 34px !important
-}
-
-.zu-restored-footer .footer-layout {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap
-}
-
-.zu-restored-footer .footer-layout p {
-    font-size: 12px;
-    color: #6e8ba7;
-    margin: 0
-}
-
-.zu-backtop {
-    font-size: 12px;
-    font-weight: 700;
-    color: #216ba4;
-    text-decoration: none
-}
-
-.zu-backtop:hover {
-    text-decoration: underline
-}
-
-html[dir=rtl] .zu-bottom-content {
-    font-family: Cairo, Inter, Arial, sans-serif
-}
-
-html[dir=rtl] .zu-intro h2 {
-    letter-spacing: 0
-}
-
-html[dir=rtl] .zu-intro-kicker {
-    letter-spacing: 0
-}
-
-@media(max-width:700px) {
-    .zu-intro {
-        padding: 64px 22px 70px
-    }
-
-    .zu-restored-footer .footer-layout {
-        flex-direction: column;
-        text-align: center
-    }
-
-    .zu-restored-footer .footer-brand {
-        font-size: 24px
-    }
+@media (prefers-reduced-motion: reduce) {
+    .nav-links, .header-left, .header-right { animation: none !important }
 }

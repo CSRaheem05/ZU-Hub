@@ -56,10 +56,7 @@ function createReveal() {
     animations.push(animate('hairline', [{ opacity: 1, offset: 0 }, { opacity: 1, offset: .14 }, { opacity: 0, offset: .30 }, { opacity: 0, offset: 1 }]));
     animations.push(animate('paper', [{ opacity: 0, offset: 0 }, { opacity: 0, offset: .45 }, { opacity: 1, offset: .78 }, { opacity: 1, offset: 1 }]));
     animations.push(animate('nav', [{ transform: 'translateY(-140%)', offset: 0 }, { transform: 'translateY(-140%)', easing: 'cubic-bezier(.2,.8,.2,1)', offset: .5 }, { transform: 'translateY(0)', offset: .86 }, { transform: 'translateY(0)', offset: 1 }]));
-    animations.push(animate('footer', [{ transform: 'translateY(160%)', offset: 0 }, { transform: 'translateY(160%)', easing: 'cubic-bezier(.2,.8,.2,1)', offset: .52 }, { transform: 'translateY(0)', offset: .90 }, { transform: 'translateY(0)', offset: 1 }]));
-    animations.push(animate('footerRule', [{ transform: 'scaleX(0)', offset: 0 }, { transform: 'scaleX(0)', offset: .4 }, { transform: 'scaleX(1)', offset: .95 }, { transform: 'scaleX(1)', offset: 1 }]));
     animations.push(animate('microcopy', [{ opacity: 0, transform: 'translateY(14px)', offset: 0 }, { opacity: 0, transform: 'translateY(14px)', offset: .72 }, { opacity: 1, transform: 'translateY(0)', offset: 1 }]));
-    animations.push(animate('footerSmall', [{ opacity: 0, offset: 0 }, { opacity: 0, offset: .85 }, { opacity: 1, offset: 1 }]));
     animations.forEach(a => a.pause());
 }
 function seekAll(ms) { animations.forEach(a => { a.playbackRate = 1; a.currentTime = ms; a.pause() }) }
@@ -88,33 +85,67 @@ document.fonts.ready.then(() => { init(); if (rec && !reduced) { setTimeout(() =
 // Functional bilingual UI. Demo notifications/panels are sample content, not connected to Laravel.
 const TEXT = {
     en: {
-        home: 'Home', features: 'Features', courses: 'Courses', contact: 'Contact', notifications: 'Notifications', demoNotices: 'Preview only', markRead: 'Mark all as read', tagline: 'Learn beyond the classroom', intro: '', explore: 'Explore Courses', unread: 'New', empty: 'You are all caught up.', note: 'Preview interface only — connect these sections to Laravel routes and your database when integrating ZU Hub.', eyebrow: 'THE ZU HUB EXPERIENCE',
-        panels: { features: { title: 'Everything you need, beautifully connected.', lead: 'A focused digital learning experience for students, instructors, and administrators.', cards: [['✦', 'Your learning space', 'One place for lessons, resources, and progress.'], ['▤', 'Course materials', 'Find the files and content you need.'], ['◷', 'Stay in the loop', 'Follow important course updates.'], ['◎', 'Built for everyone', 'Thoughtful bilingual support and clear navigation.']] }, courses: { title: 'Your next skill starts here.', lead: 'Explore a selection of course areas. Live course listings will appear when connected to the ZU Hub database.', tags: ['Laravel & PHP', 'Python', 'Databases', 'Artificial Intelligence', 'Web Development', 'Data Structures', 'Cybersecurity'] }, contact: { title: 'Let’s stay connected.', lead: 'ZU Hub is a university learning project. Official contact information and support forms will be added when the platform is connected.', cards: [['✉', 'Student support', 'Contact details will be provided by the project team.'], ['◇', 'Course questions', 'Instructors and students can connect through the platform.']] } },
+        home: 'Home', features: 'Features', courses: 'Courses', contact: 'Contact', notifications: 'Notifications', demoNotices: 'Preview only', markRead: 'Mark all as read', tagline: 'Learn beyond the classroom', intro: '', explore: 'Explore Courses', unread: 'New', empty: 'You are all caught up.',
         notices: [['Welcome to ZU Hub', 'Your learning space is getting ready.', 'Just now'], ['A better way to learn', 'Explore courses, resources, and updates in one place.', 'Preview']]
     },
     ar: {
-        home: 'الرئيسية', features: 'المميزات', courses: 'الدورات', contact: 'تواصل معنا', notifications: 'التنبيهات', demoNotices: 'تنبيهات تجريبية', markRead: 'تحديد الكل كمقروء', tagline: 'تعلّم بلا حدود', intro: 'اكتشف تجربة تعلم أكثر ذكاءً. استكشف الدورات، وتواصل مع مجتمعك الجامعي، وحوّل شغفك بالمعرفة إلى إنجاز.', explore: 'استكشف الدورات', unread: 'جديد', empty: 'لا توجد تنبيهات غير مقروءة.', note: 'هذه واجهة تجريبية؛ سيتم ربط الأقسام والتنبيهات بمشروع Laravel وقاعدة بيانات ZU Hub لاحقًا.', eyebrow: 'تجربة ZU HUB',
-        panels: { features: { title: 'كل ما تحتاجه في مكان واحد.', lead: 'تجربة تعليمية متكاملة للطلاب والمدرسين والإدارة، بتصميم واضح وعصري.', cards: [['✦', 'مساحة تعلم خاصة بك', 'دروسك وملفاتك وتقدمك في مكان واحد.'], ['▤', 'المواد التعليمية', 'الوصول إلى الملفات والمحتوى بسهولة.'], ['◷', 'ابقَ على اطلاع', 'تابع آخر التحديثات المهمة لدوراتك.'], ['◎', 'مصمم للجميع', 'دعم العربية والإنجليزية وتنقل سلس.']] }, courses: { title: 'مهارتك القادمة تبدأ هنا.', lead: 'استكشف مجالات الدورات المقترحة. ستظهر الدورات الحقيقية بعد ربط الواجهة بقاعدة البيانات.', tags: ['Laravel و PHP', 'Python', 'قواعد البيانات', 'الذكاء الاصطناعي', 'تطوير الويب', 'تراكيب البيانات', 'الأمن السيبراني'] }, contact: { title: 'خلّينا على تواصل.', lead: 'ZU Hub مشروع تعليمي جامعي. ستُضاف بيانات التواصل الرسمية ونموذج الدعم عند ربط المنصة.', cards: [['✉', 'دعم الطلاب', 'سيتم توفير بيانات التواصل من فريق المشروع.'], ['◇', 'استفسارات الدورات', 'تواصل الطلاب والمدرسين من داخل المنصة.']] } },
+        home: 'الرئيسية', features: 'المميزات', courses: 'الدورات', contact: 'تواصل معنا', notifications: 'التنبيهات', demoNotices: 'تنبيهات تجريبية', markRead: 'تحديد الكل كمقروء', tagline: 'تعلّم بلا حدود', intro: 'اكتشف تجربة تعلم أكثر ذكاءً. استكشف الدورات، وتواصل مع مجتمعك الجامعي، وحوّل شغفك بالمعرفة إلى إنجاز.', explore: 'استكشف الدورات', unread: 'جديد', empty: 'لا توجد تنبيهات غير مقروءة.',
         notices: [['مرحبًا بك في ZU Hub', 'مساحتك التعليمية الجديدة قيد التجهيز.', 'الآن'], ['تعلّم بطريقة أفضل', 'استكشف الدورات والمصادر والتنبيهات في مكان واحد.', 'تجريبي']]
     }
 };
 let language = 'en'; try { language = localStorage.getItem('zu-language') === 'ar' ? 'ar' : 'en' } catch { }
-let noticesRead = false; let currentView = 'home';
+let noticesRead = false;
 const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-function applyLanguage() { const t = TEXT[language]; document.documentElement.lang = language; document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'; document.querySelectorAll('[data-i18n]').forEach(n => { n.textContent = t[n.dataset.i18n] || n.textContent }); $('langLabel').textContent = language === 'ar' ? 'English' : 'العربية'; $('langBtn').setAttribute('aria-label', language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'); $('notifBtn').setAttribute('aria-label', t.notifications); renderNotices(); if (!$('overlay').hidden) populateSheet(currentView) }
+function applyLanguage() { const t = TEXT[language]; document.documentElement.lang = language; document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'; document.querySelectorAll('[data-i18n]').forEach(n => { n.textContent = t[n.dataset.i18n] || n.textContent }); $('langLabel').textContent = language === 'ar' ? 'English' : 'العربية'; $('langBtn').setAttribute('aria-label', language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'); $('notifBtn').setAttribute('aria-label', t.notifications); renderNotices(); }
 function renderNotices() { const t = TEXT[language]; $('notifDot').classList.toggle('hidden', noticesRead); $('noticeList').innerHTML = noticesRead ? '<div class="notice"><div class="notice-icon">✓</div><div><strong>' + escapeHTML(t.empty) + '</strong></div></div>' : t.notices.map(([h, p, time]) => '<article class="notice"><div class="notice-icon"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/></svg></div><div><strong>' + escapeHTML(h) + '</strong><p>' + escapeHTML(p) + '</p><small>' + escapeHTML(time) + '</small></div></article>').join(''); $('markRead').hidden = noticesRead }
-function hideNotices() { $('notifPanel').hidden = true; $('notifBtn').setAttribute('aria-expanded', 'false') }
-function populateSheet(view) { const t = TEXT[language], p = t.panels[view]; if (!p) return; $('sheetEyebrow').textContent = t.eyebrow; $('sheetTitle').textContent = p.title; $('sheetLead').textContent = p.lead; $('sheetNote').textContent = t.note; $('sheetContent').innerHTML = p.cards ? '<div class="card-grid">' + p.cards.map(([i, h, body]) => '<article class="feature-card"><div class="card-icon">' + escapeHTML(i) + '</div><h3>' + escapeHTML(h) + '</h3><p>' + escapeHTML(body) + '</p></article>').join('') + '</div>' : '<div class="course-tags">' + p.tags.map(x => '<span class="course-tag"><i class="tag-dot"></i>' + escapeHTML(x) + '</span>').join('') + '</div>' }
-function openSheet(view) { if (view === 'home') { closeSheet(); return } hideNotices(); currentView = view; populateSheet(view); $('overlay').hidden = false; document.querySelectorAll('.nav-link').forEach(b => b.classList.toggle('active', b.dataset.view === view)); $('sheet').focus({ preventScroll: true }) }
-function closeSheet() { $('overlay').hidden = true; currentView = 'home'; document.querySelectorAll('.nav-link').forEach(b => b.classList.toggle('active', b.dataset.view === 'home')) }
+/* Notification dropdown: anchored to the bell, kept inside the viewport, animated open/closed. */
+let noticeTimer = 0;
+function placeNotices() {
+    const panel = $('notifPanel'), btn = $('notifBtn'); if (panel.hidden) return;
+    const m = 12, gap = 12, vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    const b = btn.getBoundingClientRect();
+    panel.style.position = 'fixed'; panel.style.right = 'auto'; panel.style.bottom = 'auto';
+    const w = Math.min(panel.offsetWidth || 370, vw - 2 * m);
+    const left = Math.min(Math.max(b.left + b.width / 2 - 36, m), Math.max(vw - w - m, m));   // starts just left of the bell centre, then clamped into view
+    const top = b.bottom + gap;
+    panel.style.left = left + 'px'; panel.style.top = top + 'px';
+    panel.style.setProperty('--caret-x', Math.min(Math.max(b.left + b.width / 2 - left, 24), w - 24) + 'px');   // the caret always points at the bell
+    panel.style.setProperty('--list-max', Math.max(vh - top - m - 150, 120) + 'px');                            // the list scrolls instead of overflowing the screen
+}
+function showNotices() {
+    const panel = $('notifPanel'); clearTimeout(noticeTimer);
+    panel.classList.remove('is-closing'); panel.hidden = false; placeNotices();
+    $('notifBtn').setAttribute('aria-expanded', 'true');
+    document.documentElement.classList.add('zu-notify-open');   // the slide-down banner steps aside while the bell is open
+    trackNotices();
+}
+/* While open, stay locked to the bell's live position: the header slides in on load, and layout can shift (fonts, language, resize). */
+let noticeRaf = 0, noticeKey = '';
+function trackNotices() {
+    cancelAnimationFrame(noticeRaf);
+    const step = () => {
+        if ($('notifPanel').hidden) return;
+        const b = $('notifBtn').getBoundingClientRect();
+        const key = [b.left, b.top, b.width, b.height, innerWidth, innerHeight].map(Math.round).join();
+        if (key !== noticeKey) { noticeKey = key; placeNotices() }
+        noticeRaf = requestAnimationFrame(step);
+    };
+    noticeKey = ''; step();
+}
+function hideNotices() {
+    const panel = $('notifPanel'); if (panel.hidden || panel.classList.contains('is-closing')) return;
+    $('notifBtn').setAttribute('aria-expanded', 'false'); panel.classList.add('is-closing'); clearTimeout(noticeTimer);
+    document.documentElement.classList.remove('zu-notify-open');
+    noticeTimer = setTimeout(() => { panel.hidden = true; panel.classList.remove('is-closing') }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 170);
+}
+(() => { const caret = document.createElement('span'); caret.className = 'zu-caret'; caret.setAttribute('aria-hidden', 'true'); $('notifPanel').prepend(caret) })();
+window.addEventListener('resize', placeNotices); window.addEventListener('orientationchange', placeNotices);
+new MutationObserver(() => requestAnimationFrame(placeNotices)).observe(document.documentElement, { attributes: true, attributeFilter: ['dir', 'lang'] });
 $('langBtn').addEventListener('click', () => { language = language === 'en' ? 'ar' : 'en'; try { localStorage.setItem('zu-language', language) } catch { } applyLanguage() });
-$('notifBtn').addEventListener('click', () => { const willOpen = $('notifPanel').hidden; $('notifPanel').hidden = !willOpen; $('notifBtn').setAttribute('aria-expanded', String(willOpen)) });
+$('notifBtn').addEventListener('click', () => { const open = !$('notifPanel').hidden && !$('notifPanel').classList.contains('is-closing'); open ? hideNotices() : showNotices() });
 $('markRead').addEventListener('click', () => { noticesRead = true; renderNotices() });
-document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => openSheet(b.dataset.view)));
-$('explore')?.addEventListener('click', () => openSheet('courses'));
-$('closeSheet').addEventListener('click', closeSheet); $('overlay').addEventListener('click', e => { if (e.target === $('overlay')) closeSheet() });
 document.addEventListener('pointerdown', e => { if (!$('notifPanel').hidden && !$('notifPanel').contains(e.target) && !$('notifBtn').contains(e.target)) hideNotices() });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeSheet(); hideNotices() } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { const wasOpen = !$('notifPanel').hidden; hideNotices(); if (wasOpen) $('notifBtn').focus() } });
 applyLanguage();
 
 
@@ -129,7 +160,7 @@ applyLanguage();
     // SVG filters inside backdrop-filter only work in Chromium. Others keep blur+saturate.
     const REFRACT = /Chrome\/\d+/.test(ua) && !/Firefox\//.test(ua);
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const GLASS = '.nav-links,.glass-btn,.cta,.pill-icon,.panel-action,.popover-panel,.sheet,.feature-card,.course-tag,.notice';
+    const GLASS = '.nav-links,.glass-btn,.panel-action,.popover-panel,.notice';
     const nav = document.getElementById('mainNav');
     const links = [...nav.querySelectorAll('.nav-link')];
 
@@ -138,13 +169,6 @@ applyLanguage();
     ind.className = 'lg-indicator lg'; ind.setAttribute('aria-hidden', 'true');
     nav.prepend(ind);
 
-    /* the sheet scrolls inside its own wrapper, so the glass layers on the sheet itself never scroll away */
-    const sheetEl = document.getElementById('sheet');
-    if (sheetEl && !sheetEl.querySelector('.sheet-scroll')) {
-        const wrap = document.createElement('div'); wrap.className = 'sheet-scroll';
-        while (sheetEl.firstChild) wrap.appendChild(sheetEl.firstChild);
-        sheetEl.appendChild(wrap); sheetEl.setAttribute('tabindex', '-1');
-    }
     document.querySelectorAll(GLASS).forEach(el => el.classList.add('lg'));
 
     /* ---- refraction map ---- */
@@ -212,9 +236,9 @@ applyLanguage();
         ro = new ResizeObserver(es => es.forEach(e => { if (e.target !== ind) build(e.target) }));
         document.querySelectorAll('.lg').forEach(el => { if (el !== ind) ro.observe(el) });
     }
-    /* cards, chips and notices are re-rendered by the page's own code: give every new one glass, free the old filters */
+    /* notices are re-rendered by the page's own code: give every new one glass, free the old filters */
     function adopt(root) {
-        root.querySelectorAll('.feature-card,.course-tag,.notice').forEach(el => {
+        root.querySelectorAll('.notice').forEach(el => {
             if (el.classList.contains('lg')) return;
             el.classList.add('lg'); if (ro) ro.observe(el);
         });
@@ -225,7 +249,7 @@ applyLanguage();
             if (e.__lgId) { const f = document.getElementById(e.__lgId); if (f) f.remove(); e.__lgId = null }
         });
     }
-    ['sheetContent', 'noticeList'].forEach(id => {
+    ['noticeList'].forEach(id => {
         const host = document.getElementById(id); if (!host) return;
         adopt(host);
         new MutationObserver(ms => ms.forEach(m => { m.removedNodes.forEach(drop); adopt(host) })).observe(host, { childList: true });
@@ -299,19 +323,25 @@ applyLanguage();
         }
         setPeek(best);
     }
-    function onUp() {
+    function onUp(e) {
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp);
         ind.classList.remove('is-pressed', 'is-dragging'); setPeek(null);
-        if (moved && current) {
-            swallowClick = true; setTimeout(() => { swallowClick = false }, 0);
-            openSheet(current.dataset.view);        // existing function: toggles .active, opens/closes the sheet
-            settle();
+        const target = current;
+        // commit only when the pointer is let go over the nav itself (not cancelled, not dropped somewhere else)
+        const r = nav.getBoundingClientRect(), pad = 8;
+        const over = e && e.type === 'pointerup' && e.clientX >= r.left - pad && e.clientX <= r.right + pad && e.clientY >= r.top - pad && e.clientY <= r.bottom + pad;
+        if (moved) { swallowClick = true; setTimeout(() => { swallowClick = false }, 0) }   // the drag was the gesture: no second, accidental click
+        if (moved && over && target && target.tagName === 'A' && target.href && !target.classList.contains('active')) {
+            settle(); window.location.assign(target.href);
+        } else if (moved) {
+            current = null; settle();                                                          // snap the lens back to the current page
         } else {
-            setTimeout(settle, 80);                  // if nothing changed, glide back to the active button
+            setTimeout(settle, 80);                                                            // a plain press: the click itself navigates
         }
         pressed = null; moved = false;
     }
+    nav.addEventListener('dragstart', e => e.preventDefault());           // a pressed link must not turn into a browser drag-and-drop
     nav.addEventListener('click', e => { if (swallowClick) { e.stopPropagation(); e.preventDefault() } }, true);
 })();
 
@@ -363,31 +393,37 @@ applyLanguage();
     }
     document.getElementById('langBtn')?.addEventListener('click', () => queueMicrotask(translateZuNav));
     translateZuNav();
-    // Demo rule: guests must sign in before accessing course listings or course cards.
-    if (document.body.dataset.zuGuest === '1') {
-        const login = document.body.dataset.loginUrl || '/login';
-        document.addEventListener('click', function (e) {
-            const target = e.target.closest('#explore, #finalExplore, .course-card, [data-jump="courses"], [data-jump="contact"]');
-            if (!target) return;
-            e.preventDefault(); e.stopImmediatePropagation(); window.location.assign(login);
-        }, true);
-    }
     document.addEventListener('click', function (e) {
         document.querySelectorAll('.zu-account[open]').forEach(menu => { if (!menu.contains(e.target)) menu.removeAttribute('open') });
     });
 })();
 
-// Translate the compact bottom section when the existing language control changes.
+/* Real notifications for signed-in users (replaces the preview notices). Data comes from Laravel via window.ZU_NOTIFS. */
 (function () {
-    function syncBottomLanguage() {
-        const ar = document.documentElement.lang === 'ar';
-        document.querySelectorAll('[data-zu-en][data-zu-ar]').forEach(el => {
-            el.textContent = el.getAttribute(ar ? 'data-zu-ar' : 'data-zu-en');
-        });
-    }
-    syncBottomLanguage();
-    document.getElementById('langBtn')?.addEventListener('click', () => queueMicrotask(syncBottomLanguage));
-    document.querySelector('.zu-backtop')?.addEventListener('click', function (e) {
-        e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    const data = window.ZU_NOTIFS; if (!data) return;
+    const items = data.items;
+    let alerts = data.alerts || 0;
+    const label = document.querySelector('#notifPanel .panel-count');
+    if (label) label.removeAttribute('data-i18n');
+    const bell = '<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>';
+    const shield = '<svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.5 3.1 8.2 7.5 9.5 4.4-1.3 7.5-5 7.5-9.5V6z"/></svg>';
+    renderNotices = function () {
+        const unread = items.filter(n => !n.read).length;
+        $('notifDot').classList.toggle('hidden', unread === 0);
+        $('notifBtn').classList.toggle('zu-ring', alerts > 0);
+        $('markRead').hidden = unread === 0;
+        if (label) label.textContent = unread ? unread + ' new' : 'All caught up';
+        $('noticeList').innerHTML = (items.length ? items.map(n =>
+            '<a class="notice zu-notice' + (n.read ? ' is-read' : '') + (n.expired ? ' is-expired' : '') + (n.alert ? ' is-alert' : '') + (n.official ? '' : ' is-instructor') + '" href="' + escapeHTML(n.url) + '">' +
+            '<div class="notice-icon">' + (n.official ? shield : bell) + '</div><div><strong>' + escapeHTML(n.title) + '</strong>' +
+            (n.excerpt ? '<p>' + escapeHTML(n.excerpt) + '</p>' : '') +
+            '<small>' + escapeHTML(n.sender) + ' · ' + escapeHTML(n.time || '') + '</small></div></a>'
+        ).join('') : '<div class="notice"><div class="notice-icon">✓</div><div><strong>No notifications yet</strong></div></div>') +
+            '<a class="zu-notice-all" href="' + escapeHTML(data.inboxUrl) + '">View all notifications →</a>';
+    };
+    $('markRead').addEventListener('click', () => {
+        fetch(data.readAllUrl, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-TOKEN': window.ZU_CSRF, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => { if (!r.ok) throw 0; items.forEach(n => { n.read = true; n.alert = false }); alerts = 0; renderNotices() }).catch(() => { });
     });
+    renderNotices();
 })();

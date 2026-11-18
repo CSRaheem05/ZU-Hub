@@ -5,6 +5,12 @@ use App\Http\Controllers\CoursePageController;
 use App\Http\Controllers\InstructorOfferingController;
 use App\Http\Controllers\InstructorCourseManagementController;
 use App\Http\Controllers\AdminCourseRequestController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CourseCoverController;
+use App\Http\Controllers\InstructorLessonController;
+use App\Http\Controllers\InstructorSectionController;
+use App\Http\Controllers\LessonFileController;
 
 
 // ========================================
@@ -135,16 +141,6 @@ Route::middleware('auth')->group(function () {
 
 
     // ========================================
-    // INSTRUCTOR: ACTIVATE / DEACTIVATE
-    // ========================================
-
-    Route::patch(
-        '/instructor/courses/{offeringId}/status',
-        [InstructorOfferingController::class, 'toggleStatus']
-    )->name('instructor.courses.status');
-
-
-    // ========================================
     // INSTRUCTOR: DELETE COURSE
     // ========================================
 
@@ -155,32 +151,24 @@ Route::middleware('auth')->group(function () {
 
 
     // ========================================
-    // INSTRUCTOR: MANAGE LESSONS
+    // INSTRUCTOR: COURSE CONTENT (owner only)
     // ========================================
 
-    // View lessons
-    Route::get(
-        '/instructor/courses/{offeringId}/lessons',
-        [InstructorCourseManagementController::class, 'lessons']
-    )->name('instructor.lessons.index');
+    Route::get('/instructor/courses/{offeringId}/lessons', [InstructorLessonController::class, 'index'])->name('instructor.lessons.index');
+    Route::get('/instructor/courses/{offeringId}/lessons/preview', [InstructorLessonController::class, 'preview'])->name('instructor.lessons.preview');
+    Route::post('/instructor/courses/{offeringId}/lessons', [InstructorLessonController::class, 'store'])->name('instructor.lessons.store');
+    // one call saves every drag / move / keyboard action: section order, lesson order and the section of each lesson
+    Route::post('/instructor/courses/{offeringId}/lessons/layout', [InstructorLessonController::class, 'layout'])->name('instructor.lessons.layout');
+    Route::put('/instructor/courses/{offeringId}/lessons/{lessonId}', [InstructorLessonController::class, 'update'])->name('instructor.lessons.update');
+    Route::delete('/instructor/courses/{offeringId}/lessons/{lessonId}', [InstructorLessonController::class, 'destroy'])->name('instructor.lessons.destroy');
 
-    // Add lesson
-    Route::post(
-        '/instructor/courses/{offeringId}/lessons',
-        [InstructorCourseManagementController::class, 'storeLesson']
-    )->name('instructor.lessons.store');
+    // Sections (owner only)
+    Route::post('/instructor/courses/{offeringId}/sections', [InstructorSectionController::class, 'store'])->name('instructor.sections.store');
+    Route::put('/instructor/courses/{offeringId}/sections/{sectionId}', [InstructorSectionController::class, 'update'])->name('instructor.sections.update');
+    Route::delete('/instructor/courses/{offeringId}/sections/{sectionId}', [InstructorSectionController::class, 'destroy'])->name('instructor.sections.destroy');
 
-    // Update lesson
-    Route::put(
-        '/instructor/courses/{offeringId}/lessons/{lessonId}',
-        [InstructorCourseManagementController::class, 'updateLesson']
-    )->name('instructor.lessons.update');
-
-    // Delete lesson
-    Route::delete(
-        '/instructor/courses/{offeringId}/lessons/{lessonId}',
-        [InstructorCourseManagementController::class, 'destroyLesson']
-    )->name('instructor.lessons.destroy');
+    // Uploaded materials: the owner, an enrolled student (ongoing course) or any student (completed course)
+    Route::get('/lessons/{lessonId}/file', [LessonFileController::class, 'show'])->name('lessons.file');
 
 
     // ========================================
@@ -221,5 +209,31 @@ Route::middleware('auth')->group(function () {
     Route::post('/management/course-requests/{offeringId}/decision', [AdminCourseRequestController::class,'decide'])->name('management.requests.decide');
     Route::post('/courses/{offeringId}/save', [CoursePageController::class,'saveCompleted'])->name('courses.save');
     Route::delete('/courses/{offeringId}/save', [CoursePageController::class,'unsaveCompleted'])->name('courses.unsave');
+
+    // ========================================
+    // COURSE COVER IMAGES (any signed-in user; approved courses, or the owner / an administrator)
+    // ========================================
+    Route::get('/course-covers/{offeringId}', [CourseCoverController::class, 'show'])->name('courses.cover');
+
+    // ========================================
+    // NOTIFICATIONS (every signed-in user: own inbox only)
+    // ========================================
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/notifications/alerts/seen', [NotificationController::class, 'alertsSeen'])->name('notifications.alerts-seen');
+    Route::get('/notifications/{notificationId}', [NotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'read'])->name('notifications.read');
+
+    // ========================================
+    // ANNOUNCEMENTS (administrators + instructors; see AnnouncementPolicy)
+    // ========================================
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::get('/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])->name('announcements.edit');
+    Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
+    Route::post('/announcements/{announcement}/publish', [AnnouncementController::class, 'publish'])->name('announcements.publish');
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
 
 });
