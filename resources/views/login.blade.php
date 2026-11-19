@@ -7,7 +7,7 @@
     <title>ZU Hub | Sign in</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <script>
         /* apply the saved language before first paint, so an Arabic visitor never sees the page flip direction */
@@ -15,8 +15,25 @@
     </script>
 </head>
 <body>
+    {{-- decorative backdrop: soft aurora light, a fading dot grid and a light beam behind the card --}}
+    <div class="backdrop" aria-hidden="true">
+        <span class="aurora a1"></span>
+        <span class="aurora a2"></span>
+        <span class="aurora a3"></span>
+        <span class="dot-grid"></span>
+        <span class="beam"></span>
+    </div>
+
     <svg class="waves" viewBox="0 0 1440 960" preserveAspectRatio="none" aria-hidden="true">
-        <g stroke-width="2.2" opacity=".8">
+        <defs>
+            <linearGradient id="flowGlow" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset=".45" stop-color="#9bd3ff"/>
+                <stop offset=".7" stop-color="#ffffff"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
+        </defs>
+        <g class="wave-lines" stroke-width="2.2" opacity=".8">
             <path d="M -260 1040 C 40 800 85 510 460 375 S 1010 152 1690 -110" />
             <path d="M -220 1066 C 90 826 130 544 490 403 S 1030 180 1720 -65" stroke-width="3.8" />
             <path d="M -185 1090 C 112 858 170 571 520 435 S 1060 218 1740 -30" />
@@ -26,6 +43,12 @@
             <path d="M -52 1240 C 265 1014 345 760 712 633 S 1270 420 1850 195" stroke-width="3.7" />
             <path d="M 10 1300 C 332 1074 420 850 790 711 S 1370 506 1900 275" stroke-width="2.9" />
             <path d="M 74 1366 C 398 1142 490 925 867 786 S 1460 584 1940 360" stroke-width="3.8" />
+        </g>
+        {{-- light travelling along three of the lines --}}
+        <g class="flow-lines" stroke="url(#flowGlow)">
+            <path pathLength="1" d="M -220 1066 C 90 826 130 544 490 403 S 1030 180 1720 -65" stroke-width="3.2" style="--d:0s" />
+            <path pathLength="1" d="M -138 1150 C 175 927 246 648 601 511 S 1150 298 1770 62" stroke-width="2.6" style="--d:-4.5s" />
+            <path pathLength="1" d="M 10 1300 C 332 1074 420 850 790 711 S 1370 506 1900 275" stroke-width="2.4" style="--d:-8s" />
         </g>
     </svg>
 
@@ -42,6 +65,9 @@
 
     <main class="stage">
         <section class="panel" aria-labelledby="loginTitle">
+            <span class="panel-fx panel-sheen" aria-hidden="true"></span>
+            <span class="panel-fx panel-spot" aria-hidden="true"></span>
+
             <div class="logo-plate">
                 <img id="universityLogo"
                      src="{{ asset('assets/zarqa-en-edge.png') }}"
@@ -49,7 +75,12 @@
                      data-ar-src="{{ asset('assets/zarqa-ar-edge.png') }}"
                      alt="Zarqa University logo">
             </div>
-            <h1 id="loginTitle" class="wordmark" aria-label="ZU Hub"><span class="half left" data-text="ZU" aria-hidden="true">ZU</span> <span class="half right" data-text="Hub" aria-hidden="true">Hub</span></h1>
+
+            <div class="brand">
+                <span class="brand-halo" aria-hidden="true"></span>
+                <h1 id="loginTitle" class="wordmark" aria-label="ZU Hub"><span class="half left" data-text="ZU" aria-hidden="true">ZU</span> <span class="half right" data-text="Hub" aria-hidden="true">Hub</span></h1>
+                <span class="ornament" aria-hidden="true"><i></i></span>
+            </div>
 
             <div class="error-box" id="loginError" role="alert">{{ $errors->first() }}</div>
 

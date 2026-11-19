@@ -1,5 +1,5 @@
-/* ZU Hub sign-in — the same sky-blue paper, white flowing lines and glass as the homepage.
-   Composition: brand stage on one side, a floating glass sign-in panel on the other (stacked on small screens). */
+/* ZU Hub sign-in — sky-blue paper, white flowing lines and layered glass (same identity as the homepage).
+   Layers, back to front: aurora light + dot grid + beam -> white wave lines with travelling light -> glass card. */
 
 :root {
     --ink: #07356c;
@@ -7,13 +7,19 @@
     --blue: #2079d9;
     --blue-deep: #0b4a96;
     --sky: #58b4fa;
-    --muted: #5d7a99;
-    --line: rgba(32, 121, 217, .16);
-    --glass: rgba(255, 255, 255, .58);
-    --glass-border: rgba(255, 255, 255, .88);
+    --sky-soft: #9bd3ff;
+    --muted: #55728f;
+    --glass-border: rgba(255, 255, 255, .9);
     --danger: #a52c26;
     --ease: cubic-bezier(.22, .8, .24, 1);
-    --shadow: 0 30px 80px rgba(20, 83, 145, .15), 0 8px 24px rgba(20, 83, 145, .06), 0 1px 3px rgba(20, 83, 145, .05), inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -1px 0 rgba(120, 180, 240, .14)
+    --ease-spring: cubic-bezier(.34, 1.4, .64, 1);
+    --shadow:
+        0 50px 100px -20px rgba(20, 83, 145, .22),
+        0 30px 60px -30px rgba(9, 52, 110, .25),
+        0 8px 24px rgba(20, 83, 145, .06),
+        inset 0 1px 0 rgba(255, 255, 255, .95),
+        inset 0 0 0 1px rgba(255, 255, 255, .35),
+        inset 0 -1px 0 rgba(120, 180, 240, .16)
 }
 
 *, *::before, *::after { box-sizing: border-box }
@@ -27,7 +33,10 @@ body {
     color: var(--ink);
     font-family: Inter, system-ui, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    background: radial-gradient(ellipse at 82% 9%, #d8edff 0, transparent 42%), radial-gradient(ellipse at 6% 100%, #d7edff 0, transparent 44%), linear-gradient(133deg, #f9fcff, #edf5ff 65%, #e9f4ff);
+    background:
+        radial-gradient(ellipse at 82% 9%, #d6ecff 0, transparent 42%),
+        radial-gradient(ellipse at 6% 100%, #d5ecff 0, transparent 44%),
+        linear-gradient(133deg, #f9fcff, #edf5ff 62%, #e6f2ff);
     overflow-x: hidden
 }
 
@@ -36,11 +45,55 @@ html[dir="rtl"] body { font-family: Cairo, Inter, system-ui, Arial, sans-serif }
 button, input { font: inherit }
 a { color: inherit; text-decoration: none }
 
-.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+/* ---------- backdrop ---------- */
+.backdrop { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden }
+
+.aurora { position: absolute; border-radius: 50%; will-change: transform }
+.aurora.a1 { /* sky glow, upper right */
+    width: 62vmax; height: 62vmax; top: -26vmax; inset-inline-end: -18vmax;
+    background: radial-gradient(circle, rgba(120, 196, 255, .55) 0, rgba(120, 196, 255, .18) 38%, transparent 66%);
+    animation: float1 26s ease-in-out infinite alternate
+}
+.aurora.a2 { /* deeper blue, lower left */
+    width: 58vmax; height: 58vmax; bottom: -30vmax; inset-inline-start: -20vmax;
+    background: radial-gradient(circle, rgba(64, 150, 236, .32) 0, rgba(64, 150, 236, .1) 40%, transparent 68%);
+    animation: float2 32s ease-in-out infinite alternate
+}
+.aurora.a3 { /* white light pooled behind the card */
+    width: 46vmax; height: 46vmax; top: 50%; left: 50%; margin: -23vmax 0 0 -23vmax;
+    background: radial-gradient(circle, rgba(255, 255, 255, .95) 0, rgba(235, 246, 255, .55) 34%, transparent 64%);
+    animation: breathe 12s ease-in-out infinite
+}
+@keyframes float1 { to { transform: translate3d(-6vmax, 5vmax, 0) scale(1.08) } }
+@keyframes float2 { to { transform: translate3d(7vmax, -4vmax, 0) scale(1.1) } }
+@keyframes breathe { 50% { transform: scale(1.08); opacity: .85 } }
+
+.dot-grid {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(32, 121, 217, .2) 1px, transparent 1.2px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 50%, #000 0, transparent 75%);
+    mask-image: radial-gradient(ellipse 60% 55% at 50% 50%, #000 0, transparent 75%);
+    opacity: .55
+}
+
+.beam { /* a soft cone of light falling onto the card */
+    position: absolute; top: -10vh; left: 50%; width: min(900px, 120vw); height: 75vh; transform: translateX(-50%);
+    background: conic-gradient(from 180deg at 50% 0, transparent 160deg, rgba(255, 255, 255, .65) 180deg, transparent 200deg);
+    -webkit-mask-image: linear-gradient(#000, transparent 85%); mask-image: linear-gradient(#000, transparent 85%);
+    filter: blur(6px); opacity: .9
+}
 
 /* ---------- the flowing lines ---------- */
-.waves { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: .8 }
-.waves path { fill: none; stroke: #fff; stroke-linecap: round }
+.waves { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; opacity: .85 }
+.waves path { fill: none; stroke-linecap: round }
+.wave-lines path { stroke: #fff }
+.flow-lines path {
+    stroke-dasharray: .16 .84; stroke-dashoffset: 1;
+    animation: flow 13s linear var(--d, 0s) infinite;
+    filter: drop-shadow(0 0 4px rgba(120, 196, 255, .9))
+}
+@keyframes flow { to { stroke-dashoffset: 0 } }
 html[dir="rtl"] .waves { transform: scaleX(-1) }
 
 /* ---------- top bar ---------- */
@@ -52,212 +105,324 @@ html[dir="rtl"] .waves { transform: scaleX(-1) }
 
 .glass-pill {
     display: inline-flex; align-items: center; justify-content: center; gap: 9px;
-    height: 44px; padding: 0 17px;
+    height: 44px; padding: 0 18px;
     border-radius: 999px;
     border: 1px solid var(--glass-border);
-    background: linear-gradient(145deg, rgba(255, 255, 255, .86), rgba(235, 247, 255, .45));
-    box-shadow: 0 14px 40px rgba(20, 83, 145, .12), inset 0 1px 0 rgba(255, 255, 255, .9);
+    background: linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(232, 245, 255, .5));
+    box-shadow: 0 14px 34px -8px rgba(20, 83, 145, .2), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(120, 180, 240, .14);
     -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
     color: var(--navy); font-size: 12.5px; font-weight: 700; cursor: pointer;
-    transition: transform .24s var(--ease), box-shadow .24s var(--ease)
+    transition: transform .28s var(--ease), box-shadow .28s var(--ease), color .2s
 }
-.glass-pill svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; transition: transform .28s var(--ease) }
-.glass-pill:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(20, 86, 157, .18), inset 0 1px #fff }
+.glass-pill svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; transition: transform .4s var(--ease) }
+.glass-pill:hover { transform: translateY(-2px); color: var(--blue-deep); box-shadow: 0 20px 40px -10px rgba(20, 86, 157, .3), 0 0 0 4px rgba(88, 180, 250, .12), inset 0 1px #fff }
 .glass-pill:active { transform: translateY(0) scale(.97) }
 .back-link:hover svg { transform: translateX(-3px) }
 html[dir="rtl"] .back-link svg { transform: scaleX(-1) }
 html[dir="rtl"] .back-link:hover svg { transform: scaleX(-1) translateX(-3px) }
 .language-button { min-width: 104px }
+.language-button:hover svg { transform: rotate(160deg) }
 
 :is(.glass-pill, .submit-button, .reveal-btn):focus-visible { outline: 3px solid rgba(32, 121, 217, .75); outline-offset: 3px }
 
-/* ---------- stage: one centered column ---------- */
+/* ---------- stage ---------- */
 .stage {
     position: relative; z-index: 2;
     min-height: 100vh; min-height: 100dvh;
     display: grid; place-items: center;
-    padding: 84px 16px
+    padding: 88px 16px 40px
 }
 
+/* ---------- glass card ---------- */
 .panel {
-    position: relative; width: min(100%, 460px);
+    --mx: 50%; --my: 0%;
+    position: relative; width: min(100%, 468px);
     display: flex; flex-direction: column; align-items: stretch; text-align: center;
-    padding: clamp(24px, 4vh, 38px) clamp(24px, 3vw, 40px) clamp(20px, 3vh, 28px);
-    border-radius: 30px;
-    background: linear-gradient(155deg, rgba(255, 255, 255, .88), rgba(237, 248, 255, .56));
+    padding: clamp(26px, 4.2vh, 40px) clamp(24px, 3.2vw, 42px) clamp(20px, 3vh, 28px);
+    border-radius: 32px;
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, .9) 0%, rgba(244, 250, 255, .72) 45%, rgba(226, 242, 255, .6) 100%);
     border: 1px solid var(--glass-border);
     box-shadow: var(--shadow);
-    -webkit-backdrop-filter: blur(26px) saturate(170%); backdrop-filter: blur(26px) saturate(170%)
+    -webkit-backdrop-filter: blur(28px) saturate(180%); backdrop-filter: blur(28px) saturate(180%)
 }
-/* A hairline edge that follows the rounded corners: a sky-blue light travels slowly around the card.
-   (Ring is the gradient painted in a 1px mask, so it takes no space and cannot shift layout.) */
+.panel > :not(.panel-fx) { position: relative; z-index: 1 }
+
+/* Travelling hairline: a sky-blue light circles the card edge (gradient in a 1px mask: no layout cost). */
 @property --edge { syntax: "<angle>"; initial-value: 0deg; inherits: false }
 .panel::before {
-    content: ""; position: absolute; inset: -1px; padding: 1px; border-radius: inherit; pointer-events: none;
-    background: conic-gradient(from var(--edge), rgba(255, 255, 255, .55) 0deg, rgba(88, 180, 250, .95) 60deg, rgba(32, 121, 217, .7) 100deg, rgba(255, 255, 255, .55) 170deg, rgba(255, 255, 255, .55) 230deg, rgba(116, 202, 255, .85) 290deg, rgba(255, 255, 255, .55) 360deg);
+    content: ""; position: absolute; inset: -1px; padding: 1.2px; border-radius: inherit; pointer-events: none; z-index: 2;
+    background: conic-gradient(from var(--edge), rgba(255, 255, 255, .5) 0deg, rgba(88, 180, 250, .95) 50deg, rgba(32, 121, 217, .75) 90deg, rgba(255, 255, 255, .5) 150deg, rgba(255, 255, 255, .5) 220deg, rgba(116, 202, 255, .85) 290deg, rgba(255, 255, 255, .5) 360deg);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor; mask-composite: exclude;
     animation: edgeTravel 14s linear infinite
 }
+/* grounded contact shadow under the card */
+.panel::after {
+    content: ""; position: absolute; z-index: -1; left: 10%; right: 10%; bottom: -26px; height: 40px; border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(13, 70, 140, .22), transparent); filter: blur(8px); pointer-events: none
+}
 @keyframes edgeTravel { to { --edge: 360deg } }
 
-.logo-plate { align-self: center; display: inline-flex; padding: 4px 6px }
-.logo-plate img { display: block; width: clamp(190px, 26vh, 250px); height: auto }
+.panel-fx { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 0 }
+.panel-sheen { /* specular reflection across the top of the glass */
+    background:
+        linear-gradient(172deg, rgba(255, 255, 255, .85) 0%, rgba(255, 255, 255, .25) 18%, transparent 34%),
+        radial-gradient(120% 60% at 50% -10%, rgba(155, 211, 255, .28), transparent 60%)
+}
+.panel-spot { /* follows the pointer (set by login.js on fine pointers only) */
+    background: radial-gradient(360px circle at var(--mx) var(--my), rgba(120, 196, 255, .2), transparent 60%);
+    opacity: 0; transition: opacity .5s var(--ease)
+}
+.panel.is-lit .panel-spot { opacity: 1 }
 
-/* The homepage's wordmark, scaled to the card (same recipe as css/home-polish.css): light from above (bright crown -> deep navy base),
-   a thin navy underside for thickness, soft grounded shadows, a faint cool halo, and a top-edge highlight. Static: no endless shimmer. */
+/* ---------- logo ---------- */
+.logo-plate { align-self: center; display: inline-flex; padding: 4px 6px }
+.logo-plate img { display: block; width: clamp(190px, 26vh, 250px); height: auto; filter: drop-shadow(0 6px 14px rgba(20, 83, 145, .1)) }
+
+/* ---------- wordmark ----------
+   Front face: light from above (bright crown -> deep navy base). Behind it, an extruded navy copy (::before) gives
+   the letters real thickness; a specular top highlight and a one-time light pass (::after) sit on top. */
+.brand { position: relative; margin: clamp(2px, .8vh, 8px) 0 clamp(18px, 3vh, 26px); isolation: isolate }
+.brand-halo {
+    position: absolute; z-index: -1; left: 50%; top: 46%; width: 300px; height: 120px; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(120, 196, 255, .45), rgba(120, 196, 255, .12) 60%, transparent);
+    filter: blur(10px); animation: halo 7s ease-in-out infinite
+}
+@keyframes halo { 50% { opacity: .65; transform: translate(-50%, -50%) scale(1.08) } }
+
 .wordmark {
-    margin: clamp(4px, 1vh, 10px) 0 clamp(20px, 3.2vh, 28px);
-    font-weight: 800; line-height: 1.12; font-size: clamp(46px, 8.2vh, 64px);
-    font-kerning: normal; font-optical-sizing: auto; word-spacing: -.14em
+    margin: 0; font-weight: 900; line-height: 1.12; font-size: clamp(52px, 9.4vh, 74px);
+    font-kerning: normal; font-optical-sizing: auto; word-spacing: -.14em;
+    isolation: isolate;
+    filter:
+        drop-shadow(0 .09em .07em rgba(5, 34, 78, .2))
+        drop-shadow(0 .18em .24em rgba(24, 96, 186, .2))
+        drop-shadow(0 0 .3em rgba(120, 190, 255, .32))
 }
 .wordmark .half {
-    position: relative; display: inline-block; overflow: visible; line-height: 1.12;
-    padding-block: .085em .12em; margin-block: -.085em -.12em; letter-spacing: -.055em;
-    background-image: linear-gradient(170deg, #5cb6ff 0%, #2b88e8 20%, #1364c2 48%, #0a3f82 76%, #06285a 100%);
-    background-size: 100% 100%; background-repeat: no-repeat;
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: #0b4d96;
-    filter:
-        drop-shadow(0 .012em 0 #0a3a78)
-        drop-shadow(0 .026em 0 #072c5c)
-        drop-shadow(0 .05em .03em rgba(5, 34, 78, .22))
-        drop-shadow(0 .11em .16em rgba(24, 96, 186, .22))
-        drop-shadow(0 0 .22em rgba(120, 190, 255, .26))
+    position: relative; display: inline-block; line-height: 1.12;
+    padding-block: .085em .14em; margin-block: -.085em -.14em; letter-spacing: -.055em;
+    background-image: linear-gradient(172deg, #7cc6ff 0%, #3a95ee 18%, #1667c6 46%, #0b4188 74%, #062a5c 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: #0b4d96
 }
-.wordmark .half::after {
-    content: attr(data-text); position: absolute; inset: 0; padding: inherit; text-align: inherit; pointer-events: none;
+.wordmark .half::before { /* the extrusion */
+    content: attr(data-text); position: absolute; inset: 0; padding: inherit; z-index: -1; pointer-events: none;
+    -webkit-text-fill-color: #0a3c7c; color: #0a3c7c;
+    text-shadow:
+        0 1px 0 #0a3a78, 0 2px 0 #09356f, 0 3px 0 #083065, 0 4px 0 #072b5c, 0 5px 0 #062653,
+        0 6px 1px rgba(4, 28, 64, .5), 0 10px 14px rgba(6, 40, 92, .28)
+}
+.wordmark .half::after { /* top-edge highlight + light pass */
+    content: attr(data-text); position: absolute; inset: 0; padding: inherit; pointer-events: none;
     background-image:
-        linear-gradient(104deg, transparent 40%, rgba(255, 255, 255, .6) 50%, transparent 60%),
-        linear-gradient(180deg, rgba(255, 255, 255, .7) 0%, rgba(255, 255, 255, .2) 28%, rgba(255, 255, 255, 0) 50%);
+        linear-gradient(104deg, transparent 40%, rgba(255, 255, 255, .75) 50%, transparent 60%),
+        linear-gradient(180deg, rgba(255, 255, 255, .78) 0%, rgba(255, 255, 255, .22) 26%, rgba(255, 255, 255, 0) 48%);
     background-size: 280% 100%, 100% 100%; background-position: 140% 0, 0 0; background-repeat: no-repeat;
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
-    animation: zuLightPass 1.5s cubic-bezier(.4, 0, .2, 1) 1s 1 both
+    animation: zuLightPass 1.6s cubic-bezier(.4, 0, .2, 1) 1.1s 1 both
 }
+.wordmark .half.right::after { animation-delay: 1.25s }
+.brand:hover .wordmark .half::after { animation-name: zuLightPassAgain; animation-delay: 0s }
 .wordmark .half.left { padding-inline: 0 .085em }
 .wordmark .half.right { padding-inline: .045em .10em }
 @keyframes zuLightPass { from { background-position: 140% 0, 0 0 } to { background-position: -40% 0, 0 0 } }
-html[dir="rtl"] .wordmark { line-height: 1.12; direction: ltr }
-html[dir="rtl"] .wordmark .half { letter-spacing: -.055em }
+@keyframes zuLightPassAgain { from { background-position: 140% 0, 0 0 } to { background-position: -40% 0, 0 0 } }
+html[dir="rtl"] .wordmark { direction: ltr }
+
+.ornament { /* fine rule with a lit centre gem */
+    display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: clamp(8px, 1.4vh, 12px)
+}
+.ornament::before, .ornament::after { content: ""; height: 1px; width: 64px }
+.ornament::before { background: linear-gradient(90deg, transparent, rgba(32, 121, 217, .45)) }
+.ornament::after { background: linear-gradient(270deg, transparent, rgba(32, 121, 217, .45)) }
+.ornament i {
+    width: 7px; height: 7px; transform: rotate(45deg); border-radius: 2px;
+    background: linear-gradient(135deg, #fff, var(--sky) 55%, var(--blue));
+    box-shadow: 0 0 0 3px rgba(88, 180, 250, .14), 0 0 12px rgba(88, 180, 250, .8)
+}
 
 form { text-align: start }
 
-/* error */
+/* ---------- error ---------- */
 .error-box {
-    display: flex; gap: 10px; align-items: flex-start;
+    display: flex; gap: 10px; align-items: flex-start; text-align: start;
     margin: 0 0 16px; padding: 12px 14px; border-radius: 14px;
-    background: rgba(255, 240, 239, .92); border: 1px solid #ffceca; color: var(--danger);
-    font-size: 13px; line-height: 1.55; font-weight: 600
+    background: linear-gradient(180deg, rgba(255, 244, 243, .95), rgba(255, 236, 234, .9)); border: 1px solid #ffceca; color: var(--danger);
+    box-shadow: 0 8px 20px -10px rgba(165, 44, 38, .3);
+    font-size: 13px; line-height: 1.55; font-weight: 600;
+    animation: shake .5s var(--ease) .6s 1 backwards
 }
 .error-box:empty { display: none }
-.error-box { text-align: start }
 .error-box::before { content: "!"; flex: none; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; background: var(--danger); color: #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; line-height: 1 }
+@keyframes shake { 20%, 60% { transform: translateX(-5px) } 40%, 80% { transform: translateX(5px) } }
 
-/* fields */
+/* ---------- fields ---------- */
 .field + .field { margin-top: clamp(12px, 2.2vh, 18px) }
-.field label { display: block; margin-bottom: 8px; font-size: 12.5px; font-weight: 700; letter-spacing: .005em; color: var(--navy); transition: color .22s }
+.field label { display: block; margin-bottom: 8px; padding-inline-start: 2px; font-size: 12.5px; font-weight: 700; letter-spacing: .01em; color: var(--navy); transition: color .22s }
 .field:focus-within label { color: var(--blue-deep) }
 
 .input-wrap {
-    display: flex; align-items: center; min-height: 54px;
-    border-radius: 16px; border: 1px solid rgba(32, 121, 217, .16);
-    background: rgba(255, 255, 255, .86);
-    box-shadow: inset 0 1px 2px rgba(20, 83, 145, .05), 0 1px 0 rgba(255, 255, 255, .8);
-    transition: border-color .22s, box-shadow .22s, background .22s
+    position: relative; display: flex; align-items: center; min-height: 56px;
+    border-radius: 17px; border: 1px solid transparent;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(248, 252, 255, .9)) padding-box,
+        linear-gradient(180deg, rgba(32, 121, 217, .2), rgba(32, 121, 217, .12)) border-box;
+    box-shadow: inset 0 1px 2px rgba(20, 83, 145, .06), 0 1px 0 rgba(255, 255, 255, .9), 0 6px 16px -10px rgba(20, 83, 145, .18);
+    transition: box-shadow .3s var(--ease), transform .3s var(--ease)
 }
-.input-wrap:hover { border-color: rgba(32, 121, 217, .32) }
-.input-wrap:focus-within { background: #fff; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(32, 121, 217, .14), 0 8px 20px rgba(32, 121, 217, .10) }
-.input-wrap.is-invalid { border-color: #e2837d; box-shadow: 0 0 0 4px rgba(200, 60, 52, .1) }
-.input-wrap > svg { width: 18px; height: 18px; margin-inline-start: 16px; flex: none; fill: none; stroke: #7f9fbd; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: stroke .22s }
-.input-wrap:focus-within > svg { stroke: var(--blue) }
+.input-wrap:hover {
+    background:
+        linear-gradient(180deg, #fff, rgba(248, 252, 255, .95)) padding-box,
+        linear-gradient(180deg, rgba(32, 121, 217, .36), rgba(32, 121, 217, .2)) border-box
+}
+.input-wrap:focus-within {
+    background:
+        linear-gradient(#fff, #fff) padding-box,
+        linear-gradient(120deg, var(--sky), var(--blue) 55%, #0e55ae) border-box;
+    box-shadow: 0 0 0 4px rgba(32, 121, 217, .13), 0 12px 26px -10px rgba(32, 121, 217, .35);
+    transform: translateY(-1px)
+}
+.input-wrap.is-invalid {
+    background: linear-gradient(#fff, #fff) padding-box, linear-gradient(#e2837d, #e2837d) border-box;
+    box-shadow: 0 0 0 4px rgba(200, 60, 52, .1)
+}
+/* focus glow line that grows from the centre */
+.input-wrap::after {
+    content: ""; position: absolute; left: 18px; right: 18px; bottom: -1px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--sky), transparent);
+    transform: scaleX(0); opacity: 0; transition: transform .45s var(--ease), opacity .3s
+}
+.input-wrap:focus-within::after { transform: scaleX(1); opacity: 1 }
+
+/* icon chip */
+.input-wrap > svg {
+    width: 34px; height: 34px; padding: 8px; margin-inline-start: 11px; flex: none; border-radius: 11px;
+    fill: none; stroke: #6f93b6; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+    background: rgba(32, 121, 217, .06);
+    transition: stroke .25s, background .25s, box-shadow .25s, transform .4s var(--ease-spring)
+}
+.input-wrap:has(input:not(:placeholder-shown)) > svg { stroke: var(--blue-deep) }
+.input-wrap:focus-within > svg {
+    stroke: #fff; background: linear-gradient(140deg, var(--sky), var(--blue) 70%);
+    box-shadow: 0 6px 14px -4px rgba(32, 121, 217, .55), inset 0 1px 0 rgba(255, 255, 255, .4);
+    transform: scale(1.04)
+}
 
 .input-wrap input {
-    flex: 1; width: 100%; min-width: 0; padding: 15px 12px; border: 0; background: transparent; outline: 0;
-    color: var(--navy); font-size: 14.5px; direction: ltr; text-align: left
+    flex: 1; width: 100%; min-width: 0; padding: 16px 12px; border: 0; background: transparent; outline: 0;
+    color: var(--navy); font-size: 15px; font-weight: 500; direction: ltr; text-align: left
 }
 html[dir="rtl"] .input-wrap input { text-align: right }
-.input-wrap input::placeholder { color: #8da5ba; opacity: 1; transition: opacity .2s }
-.input-wrap input:focus::placeholder { opacity: .55 }
-.input-wrap input:-webkit-autofill { -webkit-text-fill-color: var(--navy); -webkit-box-shadow: 0 0 0 40px #eef6ff inset }
+.input-wrap input::placeholder { color: #8aa3b9; font-weight: 400; opacity: 1; transition: opacity .2s, transform .3s var(--ease) }
+.input-wrap input:focus::placeholder { opacity: .5 }
+.input-wrap input:-webkit-autofill { -webkit-text-fill-color: var(--navy); -webkit-box-shadow: 0 0 0 40px #fff inset; caret-color: var(--navy) }
 
 .reveal-btn {
-    flex: none; width: 40px; height: 40px; margin-inline-end: 7px; display: grid; place-items: center;
+    flex: none; width: 44px; height: 44px; margin-inline-end: 6px; display: grid; place-items: center;
     border: 0; border-radius: 12px; background: transparent; color: #5f86ab; cursor: pointer;
     transition: background .2s, color .2s, transform .15s
 }
-.reveal-btn:active { transform: scale(.92) }
+.reveal-btn:active { transform: scale(.9) }
 .reveal-btn[aria-pressed="true"] { color: var(--blue); background: rgba(32, 121, 217, .08) }
 .reveal-btn:hover { background: rgba(32, 121, 217, .1); color: var(--blue) }
 .reveal-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
 .reveal-btn .eye-off { display: none }
 .reveal-btn[aria-pressed="true"] .eye { display: none }
-.reveal-btn[aria-pressed="true"] .eye-off { display: block }
+.reveal-btn[aria-pressed="true"] .eye-off { display: block; animation: pop .3s var(--ease-spring) }
+.reveal-btn[aria-pressed="false"] .eye { animation: pop .3s var(--ease-spring) }
+@keyframes pop { from { transform: scale(.6); opacity: 0 } }
 
-.hint { min-height: 0; margin: 6px 2px 0; font-size: 12px; color: var(--muted) }
+.hint { margin: 7px 2px 0; font-size: 12px; font-weight: 600; color: #8a5a00 }
+.hint::before { content: "⇪ " }
 .hint:empty { display: none }
 
-/* submit */
+/* ---------- submit ---------- */
 .submit-button {
     position: relative; overflow: hidden; isolation: isolate;
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    width: 100%; height: 56px; margin-top: clamp(18px, 3vh, 26px);
-    border: 1px solid rgba(133, 199, 255, .7); border-radius: 999px;
-    background: linear-gradient(180deg, #2f93ea 0%, #1a73cf 52%, #0e55ae 100%);
-    color: #fff; font-size: 14.5px; font-weight: 800; letter-spacing: .01em; text-shadow: 0 1px 0 rgba(5, 40, 90, .22); cursor: pointer;
-    box-shadow: 0 14px 28px rgba(23, 110, 188, .3), 0 2px 5px rgba(14, 85, 174, .22), inset 0 1px 0 rgba(255, 255, 255, .34), inset 0 -1px 0 rgba(5, 40, 90, .18);
-    transition: transform .24s var(--ease), box-shadow .24s var(--ease), filter .24s
+    width: 100%; height: 58px; margin-top: clamp(20px, 3.2vh, 28px);
+    border: 1px solid rgba(133, 199, 255, .75); border-radius: 999px;
+    background: linear-gradient(180deg, #3a9cf0 0%, #1d76d2 50%, #0d52aa 100%);
+    color: #fff; font-size: 15px; font-weight: 800; letter-spacing: .015em; text-shadow: 0 1px 0 rgba(5, 40, 90, .25); cursor: pointer;
+    box-shadow:
+        0 18px 34px -12px rgba(23, 110, 188, .6), 0 3px 8px rgba(14, 85, 174, .22),
+        inset 0 1px 0 rgba(255, 255, 255, .4), inset 0 -2px 0 rgba(5, 40, 90, .2), inset 0 0 0 1px rgba(255, 255, 255, .08);
+    transition: transform .3s var(--ease), box-shadow .3s var(--ease), filter .24s
 }
-.submit-button::after { /* a soft sheen that crosses on hover */
+.submit-button::before { /* glossy upper half */
+    content: ""; position: absolute; z-index: -1; inset: 1px 1px 50% 1px; border-radius: 999px 999px 40% 40% / 999px 999px 18px 18px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .32), rgba(255, 255, 255, .04)); pointer-events: none
+}
+.submit-button::after { /* sheen that crosses on hover */
     content: ""; position: absolute; z-index: -1; inset: 0 auto 0 -60%; width: 45%;
-    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .28), transparent);
-    transform: skewX(-18deg); transition: inset-inline-start .7s var(--ease)
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent);
+    transform: skewX(-18deg); transition: inset-inline-start .8s var(--ease)
 }
-.submit-button:hover { transform: translateY(-2px); box-shadow: 0 20px 36px rgba(23, 110, 188, .38), 0 3px 8px rgba(14, 85, 174, .24), inset 0 1px 0 rgba(255, 255, 255, .36), inset 0 -1px 0 rgba(5, 40, 90, .18) }
+.submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 24px 44px -12px rgba(23, 110, 188, .7), 0 0 0 5px rgba(88, 180, 250, .16), 0 4px 10px rgba(14, 85, 174, .24),
+        inset 0 1px 0 rgba(255, 255, 255, .42), inset 0 -2px 0 rgba(5, 40, 90, .2)
+}
 .submit-button:hover::after { inset-inline-start: 120% }
-.submit-button:active { transform: translateY(0) scale(.985); filter: brightness(.95); box-shadow: 0 8px 18px rgba(23, 110, 188, .3), inset 0 1px 0 rgba(255, 255, 255, .25) }
-.submit-arrow { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .24s var(--ease) }
-.submit-button:hover .submit-arrow { transform: translateX(3px) }
+.submit-button:active { transform: translateY(0) scale(.985); filter: brightness(.95); box-shadow: 0 8px 18px -6px rgba(23, 110, 188, .5), inset 0 1px 0 rgba(255, 255, 255, .25) }
+.submit-arrow { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; transition: transform .3s var(--ease-spring) }
+.submit-button:hover .submit-arrow { transform: translateX(4px) }
 html[dir="rtl"] .submit-arrow { transform: scaleX(-1) }
-html[dir="rtl"] .submit-button:hover .submit-arrow { transform: scaleX(-1) translateX(3px) }
+html[dir="rtl"] .submit-button:hover .submit-arrow { transform: scaleX(-1) translateX(4px) }
+.ripple { /* press ripple (added by login.js) */
+    position: absolute; z-index: -1; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%;
+    background: rgba(255, 255, 255, .45); pointer-events: none; animation: ripple .7s var(--ease) forwards
+}
+@keyframes ripple { to { transform: scale(36); opacity: 0 } }
 .spinner { display: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #fff; animation: spin .7s linear infinite }
 .submit-button.is-loading { cursor: progress; filter: saturate(.9) }
 .submit-button.is-loading .spinner { display: block }
 .submit-button.is-loading .submit-arrow { display: none }
 .submit-button.is-loading:hover { transform: none }
-
-.fineprint { margin: 18px 0 0; text-align: center; color: #7d97b0; font-size: 11.5px }
-
 @keyframes spin { to { transform: rotate(360deg) } }
 
-/* ---------- entrance (never hides anything from input: only opacity/translate, backwards-filled) ---------- */
+.fineprint { margin: 20px 0 0; text-align: center; color: #6c88a3; font-size: 11.5px; letter-spacing: .01em }
+
+/* ---------- entrance (opacity/transform only, backwards-filled: never blocks input) ---------- */
 @keyframes rise { from { opacity: 0; transform: translateY(14px) } }
 @keyframes fade { from { opacity: 0 } }
-@keyframes drift { from { opacity: 0; transform: translateY(18px) } }
+@keyframes drift { from { opacity: 0; transform: translateY(26px) scale(.97) } }
+@keyframes tiltIn { from { opacity: 0; transform: perspective(600px) rotateX(38deg) translateY(14px) } }
+@keyframes widen { from { opacity: 0; transform: scaleX(.2) } }
 
-.waves { animation: fade 1.1s ease-out backwards }
-.topbar { animation: fade .7s var(--ease) .1s backwards }
-.panel { animation: drift .8s var(--ease) .1s backwards }
-.logo-plate { animation: rise .7s var(--ease) .2s backwards }
-.wordmark { animation: rise .7s var(--ease) .3s backwards }
-form > * , .fineprint { animation: rise .6s var(--ease) calc(.44s + var(--i, 0) * .06s) backwards }
+.backdrop, .waves { animation: fade 1.4s ease-out backwards }
+.topbar { animation: fade .7s var(--ease) .15s backwards }
+.panel { animation: drift .9s var(--ease) .1s backwards }
+.logo-plate { animation: rise .7s var(--ease) .25s backwards }
+.wordmark { animation: tiltIn 1s var(--ease) .35s backwards; transform-origin: 50% 100% }
+.ornament { animation: widen .8s var(--ease) .6s backwards }
+form > *, .fineprint { animation: rise .6s var(--ease) calc(.5s + var(--i, 0) * .07s) backwards }
 
 /* ---------- responsive ---------- */
 @media (max-width: 520px) {
     .topbar { padding: 14px }
-    .glass-pill { height: 42px; padding: 0 14px }
+    .glass-pill { height: 44px; padding: 0 14px }
     .language-button { min-width: 0 }
-    .stage { padding: 78px 14px }
-    .panel { border-radius: 26px; padding: 24px 20px 20px }
+    .stage { padding: 80px 14px 28px }
+    .panel { border-radius: 28px; padding: 26px 20px 20px }
+    .wordmark { font-size: clamp(50px, 15vw, 62px) }
+    .beam { opacity: .6 }
+    .flow-lines path:nth-child(3) { display: none }
 }
 
 /* short windows: tighten before scrolling */
-@media (max-height: 700px) {
-    .stage { padding-block: 72px }
-    .panel { padding-block: 18px 14px }
+@media (max-height: 720px) {
+    .stage { padding-block: 74px 20px }
+    .panel { padding-block: 20px 14px }
     .logo-plate img { width: 170px }
-    .wordmark { font-size: 42px }
-    .wordmark { margin-bottom: 14px }
-    .input-wrap { min-height: 48px }
-    .submit-button { height: 50px; margin-top: 16px }
+    .wordmark { font-size: 46px }
+    .brand { margin-bottom: 14px }
+    .ornament { margin-top: 6px }
+    .input-wrap { min-height: 50px }
+    .input-wrap > svg { width: 30px; height: 30px; padding: 7px }
+    .submit-button { height: 52px; margin-top: 16px }
     .field label { margin-bottom: 6px }
     .fineprint { margin-top: 12px }
 }
@@ -265,5 +430,12 @@ form > * , .fineprint { animation: rise .6s var(--ease) calc(.44s + var(--i, 0) 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important }
     .spinner { animation: spin 1.4s linear infinite !important }
-    .panel::before { background: linear-gradient(135deg, rgba(255,255,255,.6), rgba(88,180,250,.7) 45%, rgba(255,255,255,.6)) }
+    .flow-lines { display: none }
+    .panel::before { background: linear-gradient(135deg, rgba(255, 255, 255, .6), rgba(88, 180, 250, .7) 45%, rgba(255, 255, 255, .6)) }
+}
+
+@media (forced-colors: active) {
+    .backdrop, .waves, .panel-fx, .brand-halo, .ornament { display: none }
+    .wordmark .half { -webkit-text-fill-color: CanvasText; background: none }
+    .wordmark .half::before, .wordmark .half::after { display: none }
 }

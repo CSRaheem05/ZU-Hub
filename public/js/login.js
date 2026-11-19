@@ -125,6 +125,38 @@
 
   render();
 
+  // ---- micro-interactions (purely decorative; skipped when the visitor prefers reduced motion) ----
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const panel = document.querySelector('.panel');
+
+  // a soft light that follows the pointer across the glass card (mouse/trackpad only)
+  if (!still && panel && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let frame = 0;
+    panel.addEventListener('pointermove', (e) => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const r = panel.getBoundingClientRect();
+        panel.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        panel.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
+    panel.addEventListener('pointerenter', () => panel.classList.add('is-lit'));
+    panel.addEventListener('pointerleave', () => panel.classList.remove('is-lit'));
+  }
+
+  // press ripple on the sign-in button, starting where it was pressed
+  submit.addEventListener('pointerdown', (e) => {
+    if (still || busy) return;
+    const r = submit.getBoundingClientRect();
+    const dot = document.createElement('span');
+    dot.className = 'ripple';
+    dot.setAttribute('aria-hidden', 'true');
+    dot.style.left = (e.clientX - r.left) + 'px';
+    dot.style.top = (e.clientY - r.top) + 'px';
+    submit.appendChild(dot);
+    dot.addEventListener('animationend', () => dot.remove(), { once: true });
+  });
+
   // focus the email field on roomy, hover-capable screens only (on phones it would pop the keyboard and scroll the page)
   if (window.matchMedia('(hover: hover) and (min-height: 600px)').matches && !email.value) email.focus({ preventScroll: true });
   else if (email.value && rawError) password.focus({ preventScroll: true });
