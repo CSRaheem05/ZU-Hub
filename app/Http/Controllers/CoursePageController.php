@@ -107,9 +107,13 @@ class CoursePageController extends Controller {
     }
     public function instructorCourses(Request $r) {
         abort_unless($r->user()?->role==='instructor',403);
+        // college + topic names are read for the Details view only (same joins as the course catalog)
         $courses=DB::table('course_offerings as o')->join('courses as c','c.course_id','=','o.course_id')
+            ->leftJoin('departments as d','d.department_code','=','c.department_code')
+            ->leftJoin('colleges as co','co.college_code','=','d.college_code')
+            ->leftJoin('topics as t','t.topic_id','=','o.topic_id')
             ->where('o.instructor_id',$r->user()->user_id)->where('o.approval_status','approved')
-            ->select('o.*','c.course_name')->orderByDesc('o.created_at')->get();
+            ->select('o.*','c.course_name','co.college_name','t.topic_name')->orderByDesc('o.created_at')->get();
         // requests waiting on the instructor (changes asked for) or on the administration (pending)
         $requestCounts=DB::table('course_offerings')->where('instructor_id',$r->user()->user_id)
             ->whereIn('approval_status',['changes_requested','pending'])
